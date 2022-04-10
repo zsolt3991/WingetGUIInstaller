@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "Visual Stuido Code",
+    "Id": "Microsoft.VisualStudioCode",
+    "Group": "Development"
+  },
+  {
+    "Name": "Blender",
+    "Id": "BlenderFoundation.Blender",
+    "Group": "Graphics"
+  },
+  {
+    "Name": "Windows Terminal",
+    "Id": "Microsoft.WindowsTerminal",
+    "Group": "Development"
+  },
+  {
+    "Name": "PuTTY",
+    "Id": "PuTTY.PuTTY",
+    "Group": "Development"
+  },
+  {
+    "Name": "WinSCP",
+    "Id": "WinSCP.WinSCP",
+    "Group": "Development"
+  },
+  {
+    "Name": "Handbrake",
+    "Id": "HandBrake.HandBrake",
+    "Group": "Graphics"
+  },
+  {
+    "Name": "GIMP",
+    "Id": "GIMP.GIMP",
+    "Group": "Graphics"
+  },
+  {
+    "Name": "7zip",
+    "Id": "7zip.7zip",
+    "Group": "Productivity"
+  },
+  {
+    "Name": "Microsoft PowerToys",
+    "Id": "Microsoft.PowerToys",
+    "Group": "Productivity"
+  },
+  {
+    "Name": "Steam",
+    "Id": "Valve.Steam",
+    "Group": "Gaming"
+  },
+  {
+    "Name": "VLC Media Player",
+    "Id": "VideoLAN.VLC",
+    "Group": "BasicUtilities"
+  }
+]

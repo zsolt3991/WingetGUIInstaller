@@ -1,0 +1,41 @@
+﻿<Page x:Class="WingetGUIInstaller.Pages.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+      xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
+    </Page.Resources>
+
+    <Grid>
+        <controls:NavigationView x:Name="NavView"
+                                 Background="#FF1d1d1d" IsBackButtonVisible="Collapsed" IsBackEnabled="False"
+                                 IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
+            <controls:NavigationView.MenuItems>
+                <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
+                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar" Tag="recommend" />
+                <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="search" />
+                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="update" />
+                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="list" />
+                <controls:NavigationViewItem Content="Console" Tag="" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
+                    </NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+            </controls:NavigationView.MenuItems>
+            <controls:NavigationView.FooterMenuItems>
+                <controls:NavigationViewItem Content="Settings" Icon="Setting" Tag="settings" />
+                <controls:NavigationViewItem Content="About" Tag="about">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
+                    </NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+            </controls:NavigationView.FooterMenuItems>
+            <Grid>
+                <Frame x:Name="ContentFrame" IsTabStop="True" />
+            </Grid>
+        </controls:NavigationView>
+    </Grid>
+</Page>

@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {},
+      "distributionName": ""
+    },
+    "WingetGUIInstaller (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WingetGUIInstaller (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
