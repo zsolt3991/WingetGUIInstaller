@@ -89,6 +89,11 @@ namespace WingetHelper.Commands
             var requestId = Guid.NewGuid();
             var result = default(TResult);
 
+            if (_outputListener != default)
+            {
+                _outputListener.Invoke(">>" + string.Join(" ", _processStartInfo.ArgumentList.Skip(1)));
+            }
+
             if (_processStartInfo.UseShellExecute)
             {
                 var outputFile = Path.Combine(AppContext.BaseDirectory, requestId.ToString());

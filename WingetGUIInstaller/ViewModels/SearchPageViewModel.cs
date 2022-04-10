@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -16,15 +17,17 @@ namespace WingetGUIInstaller.ViewModels
     public class SearchPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ConsoleOutputCache _cache;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _searchQuery;
         private string _loadingText;
 
-        public SearchPageViewModel(DispatcherQueue dispatcherQueue)
+        public SearchPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
+            _cache = cache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
         }
@@ -93,8 +96,10 @@ namespace WingetGUIInstaller.ViewModels
                     });
 
                     var installedPackages = await PackageCommands.GetInstalledPackages()
+                        .ConfigureOutputListener(_cache.IngestMessage)
                         .ExecuteAsync();
                     var searchResults = await PackageCommands.SearchPackages(searchQuery)
+                        .ConfigureOutputListener(_cache.IngestMessage)
                         .ExecuteAsync();
                     foreach (var entry in searchResults)
                     {
@@ -114,6 +119,7 @@ namespace WingetGUIInstaller.ViewModels
             foreach (var id in packageIds)
             {
                 var upgradeResult = await PackageCommands.InstallPackage(id)
+                    .ConfigureOutputListener(_cache.IngestMessage)
                     .ConfigureProgressListener(OnPackageInstallProgress)
                     .ExecuteAsync();
             }

@@ -13,6 +13,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -21,14 +22,16 @@ namespace WingetGUIInstaller.ViewModels
     public class RecommendationsPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ConsoleOutputCache _cache;
         private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
         private string _loadingText;
         private bool _isLoading;
         private IEnumerable<RecommendedItemsGroup> _recommedationsList;
 
-        public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue)
+        public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
+            _cache = cache;
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
             _ = PrepareRecommendedItemsAsync();
@@ -85,7 +88,9 @@ namespace WingetGUIInstaller.ViewModels
                   }
               });
 
-            var installedPackages = await PackageCommands.GetInstalledPackages().ExecuteAsync();
+            var installedPackages = await PackageCommands.GetInstalledPackages()
+                .ConfigureOutputListener(_cache.IngestMessage)
+                .ExecuteAsync();
 
             _recommedationsList = recommendations.Select(r => new RecommendedItemViewModel(r)
             {
@@ -107,6 +112,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 var upgradeResult = await PackageCommands.InstallPackage(id)
                     .ConfigureProgressListener(OnPackageInstallProgress)
+                    .ConfigureOutputListener(_cache.IngestMessage)
                     .ExecuteAsync();
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);

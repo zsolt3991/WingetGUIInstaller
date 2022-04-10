@@ -103,7 +103,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
             _returnedPackages = await PackageCommands.GetUpgradablePackages()
-                .ConfigureOutputListener(OnOutputEvent)
+                .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();
 
             new ToastContentBuilder()
@@ -139,16 +139,11 @@ namespace WingetGUIInstaller.ViewModels
             {
                 var upgradeResult = await PackageCommands.UpgradePackage(id)
                    .ConfigureProgressListener(OnPackageInstallProgress)
-                   .ConfigureOutputListener(OnOutputEvent)
+                   .ConfigureOutputListener(_cache.IngestMessage)
                    .ExecuteAsync();
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await ListUpgradableItemsAsync();
-        }
-
-        private void OnOutputEvent(string message)
-        {
-            _cache.IngestMessage(message);
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)
