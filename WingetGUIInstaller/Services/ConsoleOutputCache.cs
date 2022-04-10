@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using WingetGUIInstaller.Models;
@@ -8,11 +9,11 @@ namespace WingetGUIInstaller.Services
     public class ConsoleOutputCache
     {
         private const int MaxCapacity = 100;
-        private readonly Queue<string> _buffer;
+        private readonly ConcurrentQueue<string> _buffer;
 
         public ConsoleOutputCache()
         {
-            _buffer = new Queue<string>(MaxCapacity);
+            _buffer = new ConcurrentQueue<string>();
         }
 
         public void IngestMessage(string message)
@@ -20,7 +21,7 @@ namespace WingetGUIInstaller.Services
             // Remove oldest entry from the buffer
             if (_buffer.Count == MaxCapacity)
             {
-                _ = _buffer.Dequeue();
+                _ = _buffer.TryDequeue(out var _);
             }
             _buffer.Enqueue(message);
             WeakReferenceMessenger.Default.Send(new CommandlineOutputMessage(message));
@@ -28,7 +29,7 @@ namespace WingetGUIInstaller.Services
 
         public IEnumerable<string> GetCachedMessages()
         {
-            return _buffer.AsEnumerable();
+            return _buffer.AsEnumerable().ToList();
         }
     }
 }
