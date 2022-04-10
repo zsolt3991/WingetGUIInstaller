@@ -14,9 +14,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Pages\MainPage.xaml" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -42,7 +39,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.197" />
     <PackageReference Include="Microsoft.WindowsPackageManager.Utils" Version="1.1.6" />
     <Manifest Include="$(ApplicationManifest)" />
@@ -59,6 +56,10 @@
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Controls\LoadingIndicator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   <ItemGroup>
     <Page Update="Pages\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -91,6 +92,11 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\UpgradePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\LoadingIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
