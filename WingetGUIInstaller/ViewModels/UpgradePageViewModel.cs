@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -18,6 +19,7 @@ namespace WingetGUIInstaller.ViewModels
     public class UpgradePageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ConsoleOutputCache _cache;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
@@ -25,9 +27,10 @@ namespace WingetGUIInstaller.ViewModels
         private IEnumerable<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
-        public UpgradePageViewModel(DispatcherQueue dispatcherQueue)
+        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
+            _cache = cache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
             _ = ListUpgradableItemsAsync();
@@ -100,6 +103,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
             _returnedPackages = await PackageCommands.GetUpgradablePackages()
+                .ConfigureOutputListener(OnOutputEvent)
                 .ExecuteAsync();
 
             new ToastContentBuilder()
@@ -135,10 +139,16 @@ namespace WingetGUIInstaller.ViewModels
             {
                 var upgradeResult = await PackageCommands.UpgradePackage(id)
                    .ConfigureProgressListener(OnPackageInstallProgress)
+                   .ConfigureOutputListener(OnOutputEvent)
                    .ExecuteAsync();
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await ListUpgradableItemsAsync();
+        }
+
+        private void OnOutputEvent(string message)
+        {
+            _cache.IngestMessage(message);
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)

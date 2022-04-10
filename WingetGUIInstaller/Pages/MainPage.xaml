@@ -19,7 +19,7 @@
                 <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="search" />
                 <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="update" />
                 <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="list" />
-                <controls:NavigationViewItem Content="Console" Tag="" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
+                <controls:NavigationViewItem Content="Console" Tag="console" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
                     </NavigationViewItem.Icon>

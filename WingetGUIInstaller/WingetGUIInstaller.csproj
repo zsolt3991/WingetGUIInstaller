@@ -15,6 +15,7 @@
     <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Pages\ConsolePage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
   </ItemGroup>
 
@@ -57,6 +58,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Pages\ConsolePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

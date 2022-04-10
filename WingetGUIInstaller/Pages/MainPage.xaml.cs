@@ -21,6 +21,7 @@ namespace WingetGUIInstaller.Pages
             { "search", typeof(SearchPage) },
             { "update", typeof(UpgradePage) },
             { "settings", typeof(SettingsPage) },
+            { "console", typeof(ConsolePage) },
             { "about", typeof(AboutPage) },
         };
 

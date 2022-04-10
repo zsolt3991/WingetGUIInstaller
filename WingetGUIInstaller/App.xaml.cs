@@ -47,7 +47,9 @@ namespace WingetGUIInstaller
                 .AddSingleton<RecommendationsPageViewModel>()
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
+                .AddSingleton<ConsolePageViewModel>()
                 .AddSingleton<ConfigurationStore>()
+                .AddSingleton<ConsoleOutputCache>()
                 .BuildServiceProvider());
         }
     }
