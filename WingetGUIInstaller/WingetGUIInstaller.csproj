@@ -60,6 +60,7 @@
     <Page Update="Controls\LoadingIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>

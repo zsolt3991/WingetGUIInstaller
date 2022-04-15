@@ -11,10 +11,6 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isInstalled;
         private bool _isSelected;
 
-        public RecommendedItemViewModel()
-        {
-        }
-
         public RecommendedItemViewModel(RecommendedItem recommendedItem)
         {
             _name = recommendedItem.Name;

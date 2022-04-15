@@ -1,17 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI;
+﻿using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Animation;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Windows.ApplicationModel;
 using Windows.UI;
-using WingetGUIInstaller.Constants;
-using WingetGUIInstaller.Pages;
-using WingetGUIInstaller.Services;
 using WinRT.Interop;
 
 namespace WingetGUIInstaller
