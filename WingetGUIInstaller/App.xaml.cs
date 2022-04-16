@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using WingetGUIInstaller.Services;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller

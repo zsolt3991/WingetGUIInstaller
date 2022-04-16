@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
