@@ -41,13 +41,13 @@ jobs:
           updateAssemblyInfo: true
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore WingetHelper
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release -p:Version=$SEMVER
+        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=$SEMVER
 
       - name: Pack with dotnet
-        run: dotnet pack --configuration Release
+        run: dotnet pack WingetHelper --configuration Release
 
       - name: Push with dotnet
         run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols true
