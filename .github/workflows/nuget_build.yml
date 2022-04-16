@@ -12,16 +12,33 @@ jobs:
     steps:
      - uses: actions/checkout@v3
 
+  setup-dotnet:
+    name: Setup .NET
+    runs-on: ubuntu-latest   
+    needs: checkout
+    steps:   
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2     
+      with:
+        dotnet-version: 6.0.x
+        source-url: https://nuget.pkg.github.com/zsolt9331/index.json
+      env:        
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        
   calculate-version:
     name: Calculate Version
     runs-on: ubuntu-latest
-    needs: checkout
+    needs: setup-dotnet
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
     steps:
       - name: Determine Version
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.13
+        with:
+          useConfigFile: true
+          additionalArguments: '/showConfig'
+          configFilePath: GitVersion.yml
   
   display-version:
     name: Display Version
@@ -33,24 +50,11 @@ jobs:
       - name: Display version
         run: >
           echo SemVer: $SEMVER
-   
-  setup-dotnet:
-    name: Setup .NET
-    runs-on: ubuntu-latest   
-    needs: calculate-version
-    steps:   
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2     
-      with:
-        dotnet-version: 6.0.x
-        source-url: https://nuget.pkg.github.com/zsolt9331/index.json
-      env:        
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         
   build: 
     name: Restore dependencies and build
     runs-on: ubuntu-latest   
-    needs: setup-dotnet
+    needs: calculate-version
     steps:
     - name: Restore dependencies
       run: dotnet restore
