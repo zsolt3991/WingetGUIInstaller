@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
@@ -8,12 +9,12 @@ using System.ComponentModel;
 using System.Linq;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Models;
-using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.Pages
 {
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
+        private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly Dictionary<string, Type> _pages = new()
         {
             { "list", typeof(ListPage) },
@@ -26,7 +27,6 @@ namespace WingetGUIInstaller.Pages
         };
 
         private bool _isConsoleEnabled;
-        private ConfigurationStore _configurationStore;
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public bool IsConsoleEnabled
@@ -41,8 +41,9 @@ namespace WingetGUIInstaller.Pages
 
         public MainPage()
         {
-            _configurationStore = Ioc.Default.GetRequiredService<ConfigurationStore>();
-            _isConsoleEnabled = _configurationStore.GetStoredProperty(ConfigurationPropertyKeys.ConsoleEnabled, true);
+            _configurationStore = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
+            _isConsoleEnabled = _configurationStore.Read(ConfigurationPropertyKeys.ConsoleEnabled,
+                ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
             InitializeComponent();
             NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(m => m is NavigationViewItem);
             WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>

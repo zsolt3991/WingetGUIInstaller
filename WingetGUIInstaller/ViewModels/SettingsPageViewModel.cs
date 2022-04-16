@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Dispatching;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Models;
-using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
@@ -19,8 +19,8 @@ namespace WingetGUIInstaller.ViewModels
     public class SettingsPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly ConfigurationStore _configurationStore;
         private readonly ConsoleOutputCache _cache;
+        private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly List<string> _disabledPackageSources;
         private ObservableCollection<WingetPackageSourceViewModel> _packageSources;
         private WingetPackageSourceViewModel _selectedSource;
@@ -30,7 +30,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _notificationsEnabled;
         private bool? _packageSourceFilteringEnabled;
 
-        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ConfigurationStore configurationStore, ConsoleOutputCache cache)
+        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
             _configurationStore = configurationStore;
@@ -72,7 +72,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (_consoleTabEnabled == null)
                 {
                     _consoleTabEnabled = _configurationStore
-                        .GetStoredProperty(ConfigurationPropertyKeys.ConsoleEnabled, true);
+                        .Read(ConfigurationPropertyKeys.ConsoleEnabled, ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
                     WeakReferenceMessenger.Default.Send(new ConsoleEnabledChangeMessage(_consoleTabEnabled.Value));
                 }
                 return _consoleTabEnabled.Value;
@@ -81,7 +81,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (SetProperty(ref _consoleTabEnabled, value))
                 {
-                    _configurationStore.StoreProperty(ConfigurationPropertyKeys.ConsoleEnabled, value);
+                    _configurationStore.Save(ConfigurationPropertyKeys.ConsoleEnabled, value);
                     WeakReferenceMessenger.Default.Send(new ConsoleEnabledChangeMessage(_consoleTabEnabled.Value));
                 }
             }
@@ -94,7 +94,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (_notificationsEnabled == null)
                 {
                     _notificationsEnabled = _configurationStore
-                        .GetStoredProperty(ConfigurationPropertyKeys.NotificationsEnabled, false);
+                        .Read(ConfigurationPropertyKeys.NotificationsEnabled, ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
                 }
                 return _notificationsEnabled.Value;
             }
@@ -102,7 +102,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (SetProperty(ref _notificationsEnabled, value))
                 {
-                    _configurationStore.StoreProperty(ConfigurationPropertyKeys.NotificationsEnabled, value);
+                    _configurationStore.Save(ConfigurationPropertyKeys.NotificationsEnabled, value);
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (_packageSourceFilteringEnabled == null)
                 {
                     _packageSourceFilteringEnabled = _configurationStore
-                        .GetStoredProperty(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, false);
+                        .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
                 }
                 return _packageSourceFilteringEnabled.Value;
             }
@@ -122,12 +122,10 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (SetProperty(ref _packageSourceFilteringEnabled, value))
                 {
-                    _configurationStore.StoreProperty(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
+                    _configurationStore.Save(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
                 }
             }
         }
-
-        public List<string> EnabledPackageSources { get; set; }
 
         public int SelectedCount => PackageSources.Any(p => p.IsSelected) ?
             PackageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
@@ -226,14 +224,14 @@ namespace WingetGUIInstaller.ViewModels
         private List<string> LoadDisabledPackageSources()
         {
             var serializedValue = _configurationStore
-                .GetStoredProperty(ConfigurationPropertyKeys.DisabledPackageSources, string.Empty);
+                .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue);
             return serializedValue.Split(';', System.StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         private void SaveDisabledPackageSources(List<string> packageSources)
         {
             var serializedValue = string.Join(';', packageSources);
-            _configurationStore.StoreProperty(ConfigurationPropertyKeys.DisabledPackageSources, serializedValue);
+            _configurationStore.Save(ConfigurationPropertyKeys.DisabledPackageSources, serializedValue);
         }
 
         private void UpdateEnabledPackageList()
@@ -243,8 +241,8 @@ namespace WingetGUIInstaller.ViewModels
                 if (_disabledPackageSources.Contains(packageSource.Name))
                     continue;
                 _disabledPackageSources.Add(packageSource.Name);
-                SaveDisabledPackageSources(_disabledPackageSources);
             }
+            SaveDisabledPackageSources(_disabledPackageSources);
         }
     }
 }

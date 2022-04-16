@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using WingetGUIInstaller.Services;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller
@@ -22,7 +22,7 @@ namespace WingetGUIInstaller
         {
             ConfigureServices();
             InitializeComponent();
-            Application.Current.RequestedTheme = ApplicationTheme.Dark;
+            Current.RequestedTheme = ApplicationTheme.Dark;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace WingetGUIInstaller
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();
             _window.Activate();
@@ -41,6 +41,7 @@ namespace WingetGUIInstaller
             DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddSingleton(dispatcherQueue)
+                .AddSingleton(ApplicationDataStorageHelper.GetCurrent())
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()
                 .AddSingleton<ListPageViewModel>()
@@ -48,7 +49,6 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
-                .AddSingleton<ConfigurationStore>()
                 .AddSingleton<ConsoleOutputCache>()
                 .BuildServiceProvider());
         }
