@@ -20,6 +20,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
+        private readonly ToastNotificationManager _notificationManager;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
@@ -27,10 +28,11 @@ namespace WingetGUIInstaller.ViewModels
         private IEnumerable<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
-        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
+        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache, ToastNotificationManager notificationManager)
         {
             _dispatcherQueue = dispatcherQueue;
             _cache = cache;
+            _notificationManager = notificationManager;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
             _ = ListUpgradableItemsAsync();
@@ -106,15 +108,13 @@ namespace WingetGUIInstaller.ViewModels
                 .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();
 
-            new ToastContentBuilder()
-                .AddText(string.Format("{0} update(s) available", _returnedPackages.Count()))
-                .Show();
-
             _dispatcherQueue.TryEnqueue(() =>
             {
                 UpdateDisplayedPackages();
                 IsLoading = false;
             });
+
+            _notificationManager.ShowUpdateStatus(_returnedPackages.Any(), _returnedPackages.Count());
         }
 
         private void UpdateDisplayedPackages()
@@ -141,6 +141,8 @@ namespace WingetGUIInstaller.ViewModels
                    .ConfigureProgressListener(OnPackageInstallProgress)
                    .ConfigureOutputListener(_cache.IngestMessage)
                    .ExecuteAsync();
+
+                _notificationManager.ShowInstallStatus(_returnedPackages.First(p => p.Id == id).Name, upgradeResult);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await ListUpgradableItemsAsync();

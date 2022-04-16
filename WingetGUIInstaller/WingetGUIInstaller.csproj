@@ -12,6 +12,7 @@
     <Nullable>annotations</Nullable>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
     <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>
 

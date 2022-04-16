@@ -43,6 +43,7 @@ namespace WingetGUIInstaller
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddSingleton(dispatcherQueue)
                 .AddSingleton(ApplicationDataStorageHelper.GetCurrent())
+                .AddSingleton<ToastNotificationManager>()
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()
                 .AddSingleton<ListPageViewModel>()
