@@ -57,4 +57,4 @@ jobs:
         run: dotnet pack WingetHelper --configuration Release -p:Version=$GITVERSION_NUGETVERSION
 
       - name: Push with dotnet
-        run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols true
+        run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols
