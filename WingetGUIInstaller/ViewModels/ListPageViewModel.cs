@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -17,6 +18,7 @@ namespace WingetGUIInstaller.ViewModels
     public class ListPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ConsoleOutputCache _cache;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
@@ -24,9 +26,10 @@ namespace WingetGUIInstaller.ViewModels
         private IEnumerable<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
-        public ListPageViewModel(DispatcherQueue dispatcherQueue)
+        public ListPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
+            _cache = cache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
             _ = ListInstalledPackages();
@@ -95,7 +98,9 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            _returnedPackages = await PackageCommands.GetInstalledPackages().ExecuteAsync();
+            _returnedPackages = await PackageCommands.GetInstalledPackages()
+                .ConfigureOutputListener(_cache.IngestMessage)
+                .ExecuteAsync();
 
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -125,6 +130,7 @@ namespace WingetGUIInstaller.ViewModels
             foreach (var id in packageIds)
             {
                 var upgradeResult = await PackageCommands.UpgradePackage(id)
+                    .ConfigureOutputListener(_cache.IngestMessage)
                     .ConfigureProgressListener(OnPackageInstallProgress)
                     .ExecuteAsync();
             }
@@ -138,6 +144,7 @@ namespace WingetGUIInstaller.ViewModels
             foreach (var id in packageIds)
             {
                 var upgradeResult = PackageCommands.UninstallPackage(id)
+                    .ConfigureOutputListener(_cache.IngestMessage)
                     .ConfigureProgressListener(OnPackageInstallProgress)
                     .ExecuteAsync();
             }

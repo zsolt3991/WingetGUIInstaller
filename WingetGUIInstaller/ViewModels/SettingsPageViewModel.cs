@@ -19,6 +19,7 @@ namespace WingetGUIInstaller.ViewModels
     public class SettingsPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ConsoleOutputCache _cache;
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly List<string> _disabledPackageSources;
         private ObservableCollection<WingetPackageSourceViewModel> _packageSources;
@@ -29,10 +30,11 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _notificationsEnabled;
         private bool? _packageSourceFilteringEnabled;
 
-        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore)
+        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
             _configurationStore = configurationStore;
+            _cache = cache;
             _disabledPackageSources = LoadDisabledPackageSources();
             PackageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             PackageSources.CollectionChanged += PackageSources_CollectionChanged;
@@ -142,6 +144,7 @@ namespace WingetGUIInstaller.ViewModels
             });
 
             var wingetSources = await PackageSourceCommands.GetPackageSources()
+                .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();
             foreach (var entry in wingetSources)
             {
@@ -163,6 +166,7 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             await PackageSourceCommands.AddPackageSource(name, argument)
+                .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();
             await LoadPackageSourcesAsync();
         }
@@ -174,6 +178,7 @@ namespace WingetGUIInstaller.ViewModels
                 foreach (var sourceName in sourceNames)
                 {
                     await PackageSourceCommands.RemovePackageSource(sourceName)
+                        .ConfigureOutputListener(_cache.IngestMessage)
                         .ExecuteAsync();
                 }
                 await LoadPackageSourcesAsync();
