@@ -25,9 +25,11 @@ jobs:
           source-url: https://nuget.pkg.github.com/zsolt9331/index.json
         env:        
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          
+
       - name: Setup GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.13
+        with:
+          versionSpec: '5.x'
 
       - name: Determine Version
         id: gitversion
