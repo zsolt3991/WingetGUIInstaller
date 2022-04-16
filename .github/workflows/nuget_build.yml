@@ -39,6 +39,10 @@ jobs:
           additionalArguments: '/showConfig'
           configFilePath: GitVersion.yml
           updateAssemblyInfo: true
+          
+      - name: Display Calculated Version
+        run: |
+          echo "SemVer: $GITVERSION_SEMVER"
 
       - name: Restore dependencies
         run: dotnet restore WingetHelper
