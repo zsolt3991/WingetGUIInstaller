@@ -39,6 +39,7 @@ jobs:
           useConfigFile: true
           additionalArguments: '/showConfig'
           configFilePath: GitVersion.yml
+          updateAssemblyInfo: true
   
   display-version:
     name: Display Version
