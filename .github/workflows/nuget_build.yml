@@ -44,7 +44,7 @@ jobs:
         run: dotnet restore WingetHelper
 
       - name: Build
-        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=$SEMVER
+        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=$GITVERSION_SEMVER
 
       - name: Pack with dotnet
         run: dotnet pack WingetHelper --configuration Release
