@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v2     
@@ -38,7 +40,8 @@ jobs:
         with:
           useConfigFile: true
           configFilePath: GitVersion.yml
-          updateAssemblyInfo: true
+          updateprojectfiles: true
+          updateassemblyinfo: false
 
       - name: Display Calculated Version
         run: |
@@ -51,7 +54,7 @@ jobs:
         run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=$GITVERSION_SEMVER
 
       - name: Pack with dotnet
-        run: dotnet pack WingetHelper --configuration Release
+        run: dotnet pack WingetHelper --configuration Release -p:Version=$GITVERSION_NUGETVERSION
 
       - name: Push with dotnet
-        run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols true
+        run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols

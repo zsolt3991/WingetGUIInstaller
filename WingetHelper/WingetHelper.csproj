@@ -1,12 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>zsolt3991.WingetHelper</PackageId>
+    <Authors>zsolt9331</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/zsolt3991/WingetGUIInstaller</RepositoryUrl>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
-
 </Project>
