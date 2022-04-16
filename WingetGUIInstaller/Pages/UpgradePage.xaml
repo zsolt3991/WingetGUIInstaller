@@ -37,7 +37,7 @@
         <toolkit:DataGrid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreRowDetailsFrozen="True"
                           AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False" CanUserReorderColumns="False"
                           CanUserResizeColumns="False" IsReadOnly="True"
-                          ItemsSource="{x:Bind ViewModel.Packages, Mode=OneWay}"
+                          ItemsSource="{x:Bind ViewModel.PackagesView, Mode=OneWay}"
                           SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
                           SelectionMode="Single">
             <toolkit:DataGrid.Resources>
