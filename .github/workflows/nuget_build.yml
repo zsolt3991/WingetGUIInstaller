@@ -5,64 +5,53 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  checkout:
+  publish-nuget:
+    name: Publish nuGet Package
     runs-on: ubuntu-latest
-    steps:
-     - uses: actions/checkout@v3
 
-  calculate-version:
-    name: Calculate Version
-    runs-on: ubuntu-latest
-    needs: checkout
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
+      
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2     
+        with:
+          dotnet-version: 6.0.x
+          source-url: https://nuget.pkg.github.com/zsolt9331/index.json
+        env:        
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.13
+        with:
+          versionSpec: '5.x'
+
       - name: Determine Version
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.13
-  
-  display-version:
-    name: Display Version
-    runs-on: ubuntu-latest
-    needs: calculate-version
-    env:
-      SEMVER: ${{ needs.calculate-version.outputs.semVer }}
-    steps:
-      - name: Display version
-        run: >
-          echo SemVer: $SEMVER
-   
-  setup-dotnet:
-    name: Setup .NET
-    runs-on: ubuntu-latest   
-    needs: calculate-version
-    steps:   
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2     
-      with:
-        dotnet-version: 6.0.x
-        source-url: https://nuget.pkg.github.com/zsolt9331/index.json
-      env:        
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        
-  build: 
-    name: Restore dependencies and build
-    runs-on: ubuntu-latest   
-    needs: setup-dotnet
-    steps:
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore --configuration Release -p:Version=$SEMVER
-      
-  publish:
-    name: Publish nuGet Package to GitHub
-    runs-on: ubuntu-latest   
-    needs: build
-    steps: 
-    - name: Pack with dotnet
-      run: dotnet pack --configuration Release
-    - name: Push with dotnet
-      run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols true
+        with:
+          useConfigFile: true
+          configFilePath: GitVersion.yml
+          updateAssemblyInfo: true
+
+      - name: Display Calculated Version
+        run: |
+          echo "SemVer: $GITVERSION_SEMVER"
+
+      - name: Restore dependencies
+        run: dotnet restore WingetHelper
+
+      - name: Build
+        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=$GITVERSION_SEMVER
+
+      - name: Pack with dotnet
+        run: dotnet pack WingetHelper --configuration Release
+
+      - name: Push with dotnet
+        run: dotnet nuget push "WingetHelper/bin/Release/*.nupkg" --skip-duplicate --no-symbols true
