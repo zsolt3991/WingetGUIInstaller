@@ -36,10 +36,9 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.9.13
         with:
           useConfigFile: true
-          additionalArguments: '/showConfig'
           configFilePath: GitVersion.yml
           updateAssemblyInfo: true
-          
+
       - name: Display Calculated Version
         run: |
           echo "SemVer: $GITVERSION_SEMVER"
