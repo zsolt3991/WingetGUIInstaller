@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.Notifications;
+using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
@@ -20,21 +20,23 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
-        private ObservableCollection<WingetPackageViewModel> _packages;
+        private readonly ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
-        private IEnumerable<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
+        private AdvancedCollectionView _packagesView;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
             _cache = cache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
-            Packages.CollectionChanged += Packages_CollectionChanged;
+            _packages.CollectionChanged += Packages_CollectionChanged;
+            PackagesView = new AdvancedCollectionView(_packages, true);
             _ = ListUpgradableItemsAsync();
         }
+
 
         public bool IsLoading
         {
@@ -48,10 +50,10 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _loadingText, value);
         }
 
-        public ObservableCollection<WingetPackageViewModel> Packages
+        public AdvancedCollectionView PackagesView
         {
-            get => _packages;
-            set => SetProperty(ref _packages, value);
+            get => _packagesView;
+            set => SetProperty(ref _packagesView, value);
         }
 
         public string FilterText
@@ -61,7 +63,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (SetProperty(ref _filterText, value))
                 {
-                    UpdateDisplayedPackages();
+                    ApplyPackageFilter(value);
                 }
             }
         }
@@ -79,21 +81,21 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => Packages.Any(p => p.IsSelected) ?
-            Packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ?
+            _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
-        public bool CanUpgradeAll => Packages.Any();
+        public bool CanUpgradeAll => _packages.Any();
 
         public bool CanUpgradeSelected => SelectedCount > 0;
 
         public ICommand RefreshCommand => new AsyncRelayCommand(()
             => ListUpgradableItemsAsync());
 
-        public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(() =>
-            UpgradePackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id)));
+        public ICommand UpgradeSelectedCommand
+            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
 
-        public ICommand UpgradeAllCommand => new AsyncRelayCommand(() =>
-            UpgradePackagesAsync(Packages.Select(p => p.Id)));
+        public ICommand UpgradeAllCommand
+            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Select(p => p.Id)));
 
         private async Task ListUpgradableItemsAsync()
         {
@@ -102,33 +104,23 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = true;
                 LoadingText = "Loading";
             });
-            _returnedPackages = await PackageCommands.GetUpgradablePackages()
+            var _returnedPackages = await PackageCommands.GetUpgradablePackages()
                 .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();
 
-            new ToastContentBuilder()
-                .AddText(string.Format("{0} update(s) available", _returnedPackages.Count()))
-                .Show();
-
             _dispatcherQueue.TryEnqueue(() =>
             {
-                UpdateDisplayedPackages();
+                UpdateDisplayedPackages(_returnedPackages);
                 IsLoading = false;
             });
         }
 
-        private void UpdateDisplayedPackages()
+        private void UpdateDisplayedPackages(IEnumerable<WingetPackageEntry> wingetPackages)
         {
-            Packages.Clear();
-            var filteredResult =
-                !string.IsNullOrWhiteSpace(FilterText)
-                ? _returnedPackages.Where(p => p.Name.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase)
-                    || p.Id.Contains(FilterText, StringComparison.CurrentCultureIgnoreCase))
-                : _returnedPackages;
-
-            foreach (var entry in filteredResult)
+            _packages.Clear();
+            foreach (var entry in wingetPackages)
             {
-                Packages.Add(new WingetPackageViewModel(entry));
+                _packages.Add(new WingetPackageViewModel(entry));
             }
         }
 
@@ -185,6 +177,30 @@ namespace WingetGUIInstaller.ViewModels
                 default:
                     break;
             }
+        }
+
+
+        private void ApplyPackageFilter(string query)
+        {
+            using (PackagesView.DeferRefresh())
+            {
+                try
+                {
+                    PackagesView.Filter = p => IsMatchingFilter(p as WingetPackageViewModel, query);
+                }
+                catch { }
+            }
+        }
+
+        private bool IsMatchingFilter(WingetPackageViewModel package, string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return true;
+            }
+
+            return package.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(query, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
