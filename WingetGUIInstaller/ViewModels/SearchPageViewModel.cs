@@ -18,17 +18,19 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
+        private readonly ToastNotificationManager _notificationManager;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _searchQuery;
         private string _loadingText;
 
-        public SearchPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
+        public SearchPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache, ToastNotificationManager notificationManager)
         {
             _dispatcherQueue = dispatcherQueue;
             _cache = cache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
+            _notificationManager = notificationManager;
             Packages.CollectionChanged += Packages_CollectionChanged;
         }
 
@@ -78,10 +80,10 @@ namespace WingetGUIInstaller.ViewModels
             => SerchPackageAsync(SearchQuery));
 
         public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            => InstallPackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id).ToList()));
 
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(Packages.Select(p => p.Id)));
+            => InstallPackagesAsync(Packages.Select(p => p.Id).ToList()));
 
         private async Task SerchPackageAsync(string searchQuery)
         {
@@ -113,17 +115,36 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
+        private async Task InstallPackagesAsync(List<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            var successfulInstalls = 0;
+
             foreach (var id in packageIds)
             {
-                var upgradeResult = await PackageCommands.InstallPackage(id)
-                    .ConfigureOutputListener(_cache.IngestMessage)
-                    .ConfigureProgressListener(OnPackageInstallProgress)
-                    .ExecuteAsync();
+                var upgradeResult = await PackageCommands.UpgradePackage(id)
+                   .ConfigureProgressListener(OnPackageInstallProgress)
+                   .ConfigureOutputListener(_cache.IngestMessage)
+                   .ExecuteAsync();
+
+                if (upgradeResult)
+                {
+                    successfulInstalls++;
+                }
+
+                if (packageIds.Count == 1)
+                {
+                    _notificationManager.ShowPackageInstallStatus(Packages.FirstOrDefault(p => p.Id == id).Name, upgradeResult);
+                }
             }
+
+            if (packageIds.Count != 1)
+            {
+                _notificationManager.ShowMultiplePackageInstallStatus(successfulInstalls, packageIds.Count - successfulInstalls);
+            }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            await SerchPackageAsync(SearchQuery);
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)

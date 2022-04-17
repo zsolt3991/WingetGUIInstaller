@@ -17,7 +17,7 @@ namespace WingetGUIInstaller.Services
         protected bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
             ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
 
-        public void ShowInstallStatus(string packageName, bool installComplete = true)
+        public void ShowPackageInstallStatus(string packageName, bool installComplete = true)
         {
             if (!NotificationsEnabled)
                 return;
@@ -27,6 +27,18 @@ namespace WingetGUIInstaller.Services
                 .AddText(installComplete ?
                     "Package installed successfully" :
                     "Package installation failed")
+                .Show();
+        }
+
+        public void ShowMultiplePackageInstallStatus(int successfulCount, int failedCount)
+        {
+            if (!NotificationsEnabled)
+                return;
+
+            new ToastContentBuilder()
+                .AddText("Package installation complete")
+                .AddText(string.Format("{0} packages were successfully installed", successfulCount))
+                .AddText(string.Format("{0} packages failed to install", failedCount))
                 .Show();
         }
 

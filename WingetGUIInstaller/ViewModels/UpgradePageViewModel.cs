@@ -25,7 +25,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
-        private IEnumerable<WingetPackageEntry> _returnedPackages;
+        private List<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache, ToastNotificationManager notificationManager)
@@ -92,10 +92,10 @@ namespace WingetGUIInstaller.ViewModels
             => ListUpgradableItemsAsync());
 
         public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(() =>
-            UpgradePackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            UpgradePackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id).ToList()));
 
         public ICommand UpgradeAllCommand => new AsyncRelayCommand(() =>
-            UpgradePackagesAsync(Packages.Select(p => p.Id)));
+            UpgradePackagesAsync(Packages.Select(p => p.Id).ToList()));
 
         private async Task ListUpgradableItemsAsync()
         {
@@ -104,9 +104,10 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = true;
                 LoadingText = "Loading";
             });
-            _returnedPackages = await PackageCommands.GetUpgradablePackages()
+
+            _returnedPackages = (await PackageCommands.GetUpgradablePackages()
                 .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
+                .ExecuteAsync()).ToList();
 
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -114,7 +115,7 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = false;
             });
 
-            _notificationManager.ShowUpdateStatus(_returnedPackages.Any(), _returnedPackages.Count());
+            _notificationManager.ShowUpdateStatus(_returnedPackages.Count != 0, _returnedPackages.Count);
         }
 
         private void UpdateDisplayedPackages()
@@ -132,9 +133,11 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
+        private async Task UpgradePackagesAsync(List<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            var successfulInstalls = 0;
+
             foreach (var id in packageIds)
             {
                 var upgradeResult = await PackageCommands.UpgradePackage(id)
@@ -142,8 +145,22 @@ namespace WingetGUIInstaller.ViewModels
                    .ConfigureOutputListener(_cache.IngestMessage)
                    .ExecuteAsync();
 
-                _notificationManager.ShowInstallStatus(_returnedPackages.First(p => p.Id == id).Name, upgradeResult);
+                if (upgradeResult)
+                {
+                    successfulInstalls++;
+                }
+
+                if (packageIds.Count == 1)
+                {
+                    _notificationManager.ShowPackageInstallStatus(_returnedPackages.Find(p => p.Id == id).Name, upgradeResult);
+                }
             }
+
+            if (packageIds.Count != 1)
+            {
+                _notificationManager.ShowMultiplePackageInstallStatus(successfulInstalls, packageIds.Count - successfulInstalls);
+            }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await ListUpgradableItemsAsync();
         }
