@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.Notifications;
+using System;
 using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
@@ -39,6 +40,10 @@ namespace WingetGUIInstaller.Services
                     string.Format("Found {0} packages that can be upgraded", updateCount) :
                     "All packages are up to date")
                 .Show();
+        }
+
+        internal void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
+        {
         }
     }
 }
