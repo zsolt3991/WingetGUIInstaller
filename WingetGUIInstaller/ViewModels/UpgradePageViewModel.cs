@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 using WingetHelper.Models;
@@ -152,13 +153,15 @@ namespace WingetGUIInstaller.ViewModels
 
                 if (packageIds.Count == 1)
                 {
-                    _notificationManager.ShowPackageInstallStatus(_returnedPackages.Find(p => p.Id == id).Name, upgradeResult);
+                    _notificationManager.ShowPackageOperationStatus(
+                        _returnedPackages.Find(p => p.Id == id).Name, InstallOperation.Upgrade, upgradeResult);
                 }
             }
 
             if (packageIds.Count != 1)
             {
-                _notificationManager.ShowMultiplePackageInstallStatus(successfulInstalls, packageIds.Count - successfulInstalls);
+                _notificationManager.ShowMultiplePackageOperationStatus(
+                    InstallOperation.Upgrade, successfulInstalls, packageIds.Count - successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);

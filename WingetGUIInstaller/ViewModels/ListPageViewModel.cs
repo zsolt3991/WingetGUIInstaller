@@ -23,7 +23,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
-        private IEnumerable<WingetPackageEntry> _returnedPackages;
+        private List<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
         public ListPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
@@ -98,9 +98,9 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            _returnedPackages = await PackageCommands.GetInstalledPackages()
+            _returnedPackages = (await PackageCommands.GetInstalledPackages()
                 .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
+                .ExecuteAsync()).ToList();
 
             _dispatcherQueue.TryEnqueue(() =>
             {

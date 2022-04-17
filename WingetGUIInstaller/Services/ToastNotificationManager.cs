@@ -2,6 +2,7 @@
 using CommunityToolkit.WinUI.Notifications;
 using System;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.Services
 {
@@ -17,7 +18,8 @@ namespace WingetGUIInstaller.Services
         protected bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
             ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
 
-        public void ShowPackageInstallStatus(string packageName, bool installComplete = true)
+        public void ShowPackageOperationStatus(string packageName,
+            InstallOperation installOperation = InstallOperation.Install, bool installComplete = true)
         {
             if (!NotificationsEnabled)
                 return;
@@ -25,20 +27,20 @@ namespace WingetGUIInstaller.Services
             new ToastContentBuilder()
                 .AddText(packageName)
                 .AddText(installComplete ?
-                    "Package installed successfully" :
-                    "Package installation failed")
+                    string.Format("Package {0} successful", installOperation.ToString()) :
+                    string.Format("Package {0} failed", installOperation.ToString()))
                 .Show();
         }
 
-        public void ShowMultiplePackageInstallStatus(int successfulCount, int failedCount)
+        public void ShowMultiplePackageOperationStatus(InstallOperation installOperation, int successfulCount, int failedCount)
         {
             if (!NotificationsEnabled)
                 return;
 
             new ToastContentBuilder()
-                .AddText("Package installation complete")
-                .AddText(string.Format("{0} packages were successfully installed", successfulCount))
-                .AddText(string.Format("{0} packages failed to install", failedCount))
+                .AddText(string.Format("Package {0} complete", installOperation.ToString()))
+                .AddText(string.Format("Succesful: {0} packages", successfulCount))
+                .AddText(string.Format("Failed: {0} packages ", failedCount))
                 .Show();
         }
 
