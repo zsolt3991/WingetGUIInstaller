@@ -87,21 +87,6 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Find Msix Files
-      id: pl
-      uses: Rishabh510/Path-lister-action@master
-      with:
-        path: "/"
-        type: ".msix"
-
-    - name: Output Msix File Paths
-      run: |
-        echo "Found ${{ steps.pl.outputs.path_count }} file(s) with this extension:"
-        for i in ${{ steps.pl.outputs.paths }}; do
-        echo $i
-        done
-
-
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
