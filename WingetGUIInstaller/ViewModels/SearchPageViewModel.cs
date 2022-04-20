@@ -123,7 +123,7 @@ namespace WingetGUIInstaller.ViewModels
 
             foreach (var id in packageIds)
             {
-                var upgradeResult = await PackageCommands.UpgradePackage(id)
+                var upgradeResult = await PackageCommands.InstallPackage(id)
                    .ConfigureProgressListener(OnPackageInstallProgress)
                    .ConfigureOutputListener(_cache.IngestMessage)
                    .ExecuteAsync();
