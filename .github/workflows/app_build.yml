@@ -43,12 +43,15 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.1
 
     # Decode the Base64 encoded Pfx
-    - name: Decode the Pfx
+    - name: Decode and Import the Pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
         $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+        $pwd = ConvertTo-SecureString -String "${{ secrets.Pfx_Key}}" -AsPlainText -Force
+        Import-PfxCertificate -Password $pwd -FilePath "$certificatePath" -CertStoreLocation Cert:\LocalMachine\My
 
     # Restore the application
     - name:  Restore the application to populate the obj folder
