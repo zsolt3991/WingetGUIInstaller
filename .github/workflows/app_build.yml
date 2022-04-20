@@ -94,4 +94,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ github.ref}}.${{ env.targetplatform }} 
-        files: "*/bin/*/Release/*/AppPackages/*.msix*"
+        files: "*/bin/*/Release/*/AppPackages/*/*.msix*"
