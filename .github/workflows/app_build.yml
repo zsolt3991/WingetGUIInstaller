@@ -95,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ${{ env.App_Project_Directory }}\bin\**\*.msix*
-        asset_name: ${{ env.App_Packages_Archive }}
+        asset_path: \WinGetGUIInstaller\bin\**\*.msix*
+        asset_name: WinGetGUIInstaller-Sideload
         asset_content_type: application/octet-stream
