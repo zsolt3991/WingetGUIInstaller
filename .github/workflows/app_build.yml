@@ -90,11 +90,9 @@ jobs:
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
-      uses: actions/upload-release-asset@v1
+      uses: alexellis/upload-assets@0.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: WingetGUIInstaller\bin\x64\Release\net6.0-windows10.0.19041.0\AppPackages\*.msix*
-        asset_name: WinGetGUIInstaller-Sideload
-        asset_content_type: application/octet-stream
+        asset_paths: '["./*/bin/*/Release/*/AppPackages/*.msix*"]'
