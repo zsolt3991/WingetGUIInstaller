@@ -76,16 +76,14 @@ jobs:
       run: Remove-Item -path $env:App_Project_Directory\$env:SigningCertificate
 
     # Create the release:  
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release
+      uses: ncipollo/release-action@v1.10.0
       with:
-        tag_name: ${{ github.ref}}.${{ env.targetplatform }}
-        release_name:  ${{ github.ref }}.${{ env.targetplatform }}
+        tag: ${{ github.ref}}.${{ env.targetplatform }}
+        name:  ${{ github.ref }}.${{ env.targetplatform }}
         draft: false
         prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     # Upload release asset:  
     - name: Update release asset
