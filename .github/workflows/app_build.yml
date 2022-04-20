@@ -14,8 +14,8 @@ jobs:
 
     env:
       App_Packages_Archive: Sideload
-      App_Packages_Directory: Sideload
       SigningCertificate: zsolt9331_sideload.pfx
+      CertificateThumbprint: f8a9fb77d831dd776f874e8edf5bcc84c77ce224
       Solution_Path: WingetGUIInstaller.sln
       App_Project_Directory: WingetGUIInstaller
       App_Project_Path: WingetGUIInstaller\WingetGUIInstaller.csproj
@@ -62,7 +62,7 @@ jobs:
 
     # Build the project for Dev and Sideload
     - name: Build the Windows Application Package
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateThumbprint=$env:SigningCertificate
       env:
         AppxBundle: Always
         AppInstallerUri: ${{ env.DistributionUrl }}
@@ -95,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ${{ env.App_Project_Directory }}\${{ env.App_Packages_Directory }}\*.msixbundle
+        asset_path: ${{ env.App_Project_Directory }}\**\*.msixbundle
         asset_name: ${{ env.App_Packages_Archive }}
         asset_content_type: application/octet-stream
