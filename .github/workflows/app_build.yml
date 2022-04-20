@@ -87,6 +87,21 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Find Msix Files
+      id: pl
+      uses: Rishabh510/Path-lister-action@master
+      with:
+        path: "/"
+        type: ".msix"
+
+    - name: Output Msix File Paths
+      run: |
+        echo "Found ${{ steps.pl.outputs.path_count }} file(s) with this extension:"
+        for i in ${{ steps.pl.outputs.paths }}; do
+        echo $i
+        done
+
+
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
@@ -95,6 +110,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: WinGetGUIInstaller\**\bin\**\AppPackages\*.msix*
+        asset_path: .**\bin\**\AppPackages\*.msix*
         asset_name: WinGetGUIInstaller-Sideload
         asset_content_type: application/octet-stream
