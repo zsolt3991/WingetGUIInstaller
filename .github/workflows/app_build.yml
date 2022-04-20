@@ -62,7 +62,7 @@ jobs:
 
     # Build the project for Dev and Sideload
     - name: Build the Windows Application Package
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateThumbprint=$env:SigningCertificate
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=CI /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:SigningCertificate /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=true
       env:
         AppxBundle: Always
         AppInstallerUri: ${{ env.DistributionUrl }}
@@ -95,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ${{ env.App_Project_Directory }}\**\*.msixbundle
+        asset_path: ${{ env.App_Project_Directory }}\bin\**\*.msix*
         asset_name: ${{ env.App_Packages_Archive }}
         asset_content_type: application/octet-stream
