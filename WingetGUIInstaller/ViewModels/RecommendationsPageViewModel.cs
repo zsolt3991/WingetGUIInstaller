@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
-using WingetHelper.Commands;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -22,19 +21,22 @@ namespace WingetGUIInstaller.ViewModels
     public class RecommendationsPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly ConsoleOutputCache _cache;
+        private readonly PackageCache _packageCache;
+        private readonly PackageManager _packageManager;
         private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
         private string _loadingText;
         private bool _isLoading;
         private IEnumerable<RecommendedItemsGroup> _recommedationsList;
 
-        public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
+        public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue,
+            PackageCache packageCache, PackageManager packageManager)
         {
             _dispatcherQueue = dispatcherQueue;
-            _cache = cache;
+            _packageCache = packageCache;
+            _packageManager = packageManager;
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
-            _ = PrepareRecommendedItemsAsync();
+            _ = LoadRecommendedItemsAsync(true);
         }
 
         public bool IsLoading
@@ -70,7 +72,7 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand InstallGroupCommand => new AsyncRelayCommand<RecommendedItemsGroup>((group)
             => InstallPackagesAsync(group.Where(p => !p.IsInstalled).Select(p => p.Id)));
 
-        private async Task PrepareRecommendedItemsAsync()
+        private async Task LoadRecommendedItemsAsync(bool forceRefresh = false)
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -88,9 +90,7 @@ namespace WingetGUIInstaller.ViewModels
                   }
               });
 
-            var installedPackages = await PackageCommands.GetInstalledPackages()
-                .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
+            var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
 
             _recommedationsList = recommendations.Select(r => new RecommendedItemViewModel(r)
             {
@@ -110,12 +110,11 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             foreach (var id in packageIds)
             {
-                var upgradeResult = await PackageCommands.InstallPackage(id)
-                    .ConfigureProgressListener(OnPackageInstallProgress)
-                    .ConfigureOutputListener(_cache.IngestMessage)
-                    .ExecuteAsync();
+                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
+            await LoadRecommendedItemsAsync(true);
         }
 
         private void UpdateDisplayedPackages()
