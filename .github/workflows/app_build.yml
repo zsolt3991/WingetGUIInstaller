@@ -13,6 +13,7 @@ jobs:
 
     env:
       App_Packages_Archive: Sideload
+      SigningCertificate: zsolt9331_sideload.pfx
       CertificateThumbprint: f8a9fb77d831dd776f874e8edf5bcc84c77ce224
       Solution_Path: WingetGUIInstaller.sln
       App_Project_Directory: WingetGUIInstaller
