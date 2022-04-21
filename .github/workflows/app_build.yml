@@ -71,7 +71,7 @@ jobs:
 
     # Build the project for Dev and Sideload
     - name: Build the Windows Application Package
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:SigningCertificate /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=$env:GenerateAppInstallerFile
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:CertificateThumbprint /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=$env:GenerateAppInstallerFile
       env:
         Configuration: ${{ env.Configuration }}
         GenerateAppInstallerFile: True
