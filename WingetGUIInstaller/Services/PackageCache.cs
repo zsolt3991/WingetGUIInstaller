@@ -75,10 +75,10 @@ namespace WingetGUIInstaller.Services
             }
 
             var searchResults = (await PackageCommands.SearchPackages(searchQuery)
-                        .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                        .ExecuteAsync())
-                        .Where(r => !_installedPackages.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)))
-                        .ToList();
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync())
+                .Where(r => !_installedPackages.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)))
+                .ToList();
 
             if (IsFilteringActive)
             {
@@ -104,6 +104,7 @@ namespace WingetGUIInstaller.Services
 
         private async Task LoadUpgradablePackages()
         {
+            // Get only packages that have upgrades available
             _upgradablePackages = (await PackageCommands.GetUpgradablePackages()
               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
               .ExecuteAsync()).ToList();
