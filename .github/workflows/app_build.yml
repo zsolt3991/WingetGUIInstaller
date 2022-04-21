@@ -2,10 +2,9 @@
 name: Build Application
 
 on:
-    workflow_dispatch:
-  # push:
-  #   tags:
-  #     - '*'
+  push:
+    tags:
+      - '*'
 
 jobs:
 
@@ -14,7 +13,6 @@ jobs:
 
     env:
       App_Packages_Archive: Sideload
-      SigningCertificate: zsolt9331_sideload.pfx
       CertificateThumbprint: f8a9fb77d831dd776f874e8edf5bcc84c77ce224
       Solution_Path: WingetGUIInstaller.sln
       App_Project_Directory: WingetGUIInstaller
@@ -41,6 +39,22 @@ jobs:
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.1
+
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1 
+
+    - name: Extract version from tag
+      uses: Amadevus/pwsh-script@v1
+      id: getVersion
+      with:
+        script: '("${{steps.tag.outputs.tag}}").Split("v")[1]'
+
+    - name: Update manifest version
+      run: |
+        [xml]$manifest = get-content ".\$env:App_Project_Directory\Package.appxmanifest"
+        $manifest.Package.Identity.Version = "${{steps.getVersion.outputs.result}}"
+        $manifest.save(".\$env:App_Project_Directory\Package.appxmanifest")
 
     # Decode the Base64 encoded Pfx
     - name: Decode and Import the Pfx
@@ -79,7 +93,7 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
       with:
-        tag: ${{ github.ref}}.${{ env.targetplatform }}
+        tag: ${{ github.ref}}
         name:  ${{ github.ref }}.${{ env.targetplatform }}
         draft: false
         prerelease: false
@@ -98,5 +112,5 @@ jobs:
       uses: AButler/upload-release-assets@v2.0
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ github.ref}}.${{ env.targetplatform }} 
+        release-tag: ${{ github.ref}}
         files: "*.zip*"
