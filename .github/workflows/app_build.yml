@@ -85,6 +85,13 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Archive Release
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: */bin/*/Release/*/AppPackages/*/
+        filename: 'Sideload.zip'
+
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
@@ -92,4 +99,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ github.ref}}.${{ env.targetplatform }} 
-        files: "*/bin/*/Release/*/AppPackages/*/*.msix*"
+        files: "*/bin/*/Release/*/AppPackages/*/*.zip*"
