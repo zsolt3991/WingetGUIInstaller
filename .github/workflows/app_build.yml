@@ -1,11 +1,10 @@
 
-name:  Build Application
+name: Build Application
 
 on:
-    workflow_dispatch:
-  # push:
-  #   tags:
-  #     - '*'
+  push:
+    tags:
+      - '*'
 
 jobs:
 
@@ -52,6 +51,16 @@ jobs:
 
         $pwd = ConvertTo-SecureString -String "${{ secrets.Pfx_Key}}" -AsPlainText -Force
         Import-PfxCertificate -Password $pwd -FilePath "$certificatePath" -CertStoreLocation Cert:\CurrentUser\My
+    
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1 
+
+    - name: Update manifest version
+      run: |
+        [xml]$manifest = get-content ".\$env:App_Project_Directory\Package.appxmanifest"
+        $manifest.Package.Identity.Version = "${{steps.tag.outputs.tag}}"
+        $manifest.save(".\$env:App_Project_Directory\Package.appxmanifest")    
 
     # Restore the application
     - name:  Restore the application to populate the obj folder
@@ -62,11 +71,8 @@ jobs:
 
     # Build the project for Dev and Sideload
     - name: Build the Windows Application Package
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=CI /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:SigningCertificate /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=true
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:CertificateThumbprint /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=$env:GenerateAppInstallerFile
       env:
-        AppxBundle: Always
-        AppInstallerUri: ${{ env.DistributionUrl }}
-        BuildMode: SideloadOnly
         Configuration: ${{ env.Configuration }}
         GenerateAppInstallerFile: True
         TargetPlatform: ${{ env.targetplatform }}
@@ -79,8 +85,8 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
       with:
-        tag: ${{ github.ref}}.${{ env.targetplatform }}
-        name:  ${{ github.ref }}.${{ env.targetplatform }}
+        tag: ${{steps.tag.outputs.tag}}
+        name:  ${{steps.tag.outputs.tag}}.${{ env.targetplatform }}
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -91,5 +97,5 @@ jobs:
       uses: AButler/upload-release-assets@v2.0
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ github.ref}}.${{ env.targetplatform }} 
-        files: "*/bin/*/Release/*/AppPackages/*/*.msix*"
+        release-tag: ${{steps.tag.outputs.tag}}
+        files: "*/bin/*/Release/*/AppPackages/*/*.msix"
