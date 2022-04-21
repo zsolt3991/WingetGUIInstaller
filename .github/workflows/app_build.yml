@@ -40,22 +40,6 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.1
 
-    - name: Get tag
-      id: tag
-      uses: dawidd6/action-get-tag@v1 
-
-    - name: Extract version from tag
-      uses: Amadevus/pwsh-script@v1
-      id: getVersion
-      with:
-        script: '("${{steps.tag.outputs.tag}}").Split("v")[1]'
-
-    - name: Update manifest version
-      run: |
-        [xml]$manifest = get-content ".\$env:App_Project_Directory\Package.appxmanifest"
-        $manifest.Package.Identity.Version = "${{steps.getVersion.outputs.result}}"
-        $manifest.save(".\$env:App_Project_Directory\Package.appxmanifest")
-
     # Decode the Base64 encoded Pfx
     - name: Decode and Import the Pfx
       run: |
@@ -66,6 +50,16 @@ jobs:
 
         $pwd = ConvertTo-SecureString -String "${{ secrets.Pfx_Key}}" -AsPlainText -Force
         Import-PfxCertificate -Password $pwd -FilePath "$certificatePath" -CertStoreLocation Cert:\CurrentUser\My
+    
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1 
+
+    - name: Update manifest version
+      run: |
+        [xml]$manifest = get-content ".\$env:App_Project_Directory\Package.appxmanifest"
+        $manifest.Package.Identity.Version = "${{steps.tag.outputs.tag}}"
+        $manifest.save(".\$env:App_Project_Directory\Package.appxmanifest")    
 
     # Restore the application
     - name:  Restore the application to populate the obj folder
@@ -93,8 +87,8 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
       with:
-        tag: ${{ github.ref}}
-        name:  ${{ github.ref }}.${{ env.targetplatform }}
+        tag: ${{steps.tag.outputs.tag}}
+        name:  ${{steps.tag.outputs.tag}}.${{ env.targetplatform }}
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -112,5 +106,5 @@ jobs:
       uses: AButler/upload-release-assets@v2.0
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ github.ref}}
+        release-tag: ${{steps.tag.outputs.tag}}
         files: "*.zip*"
