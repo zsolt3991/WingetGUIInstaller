@@ -17,7 +17,7 @@ namespace WingetGUIInstaller.Services
         public async Task<bool> InstallPacakge(string packageId, Action<WingetProcessState> progressListener = default)
         {
             var command = PackageCommands.InstallPackage(packageId)
-                  .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
 
             if (progressListener != default)
             {
@@ -30,7 +30,7 @@ namespace WingetGUIInstaller.Services
         public async Task<bool> UpgradePackage(string packageId, Action<WingetProcessState> progressListener = default)
         {
             var command = PackageCommands.UpgradePackage(packageId)
-                  .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
 
             if (progressListener != default)
             {
@@ -43,7 +43,7 @@ namespace WingetGUIInstaller.Services
         public async Task<bool> RemovePackage(string packageId, Action<WingetProcessState> progressListener = default)
         {
             var command = PackageCommands.UninstallPackage(packageId)
-                  .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
 
             if (progressListener != default)
             {

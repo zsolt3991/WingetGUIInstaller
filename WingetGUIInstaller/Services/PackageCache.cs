@@ -44,7 +44,9 @@ namespace WingetGUIInstaller.Services
 
             if (IsFilteringActive)
             {
-                return _installedPackages.FindAll(p => !GetDisabledPackageSources().Contains(p.Source));
+                return _installedPackages
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
+                    .ToList();
             }
 
             return _installedPackages;
@@ -60,7 +62,9 @@ namespace WingetGUIInstaller.Services
 
             if (IsFilteringActive)
             {
-                return _upgradablePackages.FindAll(p => !GetDisabledPackageSources().Contains(p.Source));
+                return _upgradablePackages
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
+                    .ToList();
             }
 
             return _upgradablePackages;
@@ -82,7 +86,9 @@ namespace WingetGUIInstaller.Services
 
             if (IsFilteringActive)
             {
-                return searchResults.FindAll(p => !GetDisabledPackageSources().Contains(p.Source));
+                return searchResults
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
+                    .ToList();
             }
 
             return searchResults;

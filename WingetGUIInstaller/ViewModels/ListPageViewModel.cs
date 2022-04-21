@@ -80,7 +80,8 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => Packages.Any(p => p.IsSelected) ? Packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+        public int SelectedCount 
+            => Packages.Any(p => p.IsSelected) ? Packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
         public ICommand ListCommand => new AsyncRelayCommand(RefreshInstalledPackages);
 
