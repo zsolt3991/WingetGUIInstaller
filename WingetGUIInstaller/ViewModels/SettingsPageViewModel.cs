@@ -30,6 +30,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _consoleTabEnabled;
         private bool? _notificationsEnabled;
         private bool? _packageSourceFilteringEnabled;
+        private bool? _ignoreEmptyPackageSourceEnabled;
 
         public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore, ConsoleOutputCache cache)
         {
@@ -124,6 +125,26 @@ namespace WingetGUIInstaller.ViewModels
                 if (SetProperty(ref _packageSourceFilteringEnabled, value))
                 {
                     _configurationStore.Save(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
+                }
+            }
+        }
+
+        public bool IgnoreEmptyPackageSourceEnabled
+        {
+            get
+            {
+                if (_ignoreEmptyPackageSourceEnabled == null)
+                {
+                    _ignoreEmptyPackageSourceEnabled = _configurationStore
+                        .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+                }
+                return _ignoreEmptyPackageSourceEnabled.Value;
+            }
+            set
+            {
+                if (SetProperty(ref _ignoreEmptyPackageSourceEnabled, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, value);
                 }
             }
         }
