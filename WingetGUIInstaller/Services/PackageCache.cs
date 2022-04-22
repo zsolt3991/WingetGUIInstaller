@@ -30,6 +30,9 @@ namespace WingetGUIInstaller.Services
         private bool IsFilteringActive => _configurationStore
             .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
 
+        private bool IgnoreEmptyPackageSource => _configurationStore
+           .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+
         private List<string> GetDisabledPackageSources() => _configurationStore
             .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue)
             .Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -42,14 +45,22 @@ namespace WingetGUIInstaller.Services
                 await LoadInstalledPackageList();
             }
 
-            if (IsFilteringActive)
+            IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages;
+
+            // Filter packages with no source
+            if (IgnoreEmptyPackageSource)
             {
-                return _installedPackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
-                    .ToList();
+                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
-            return _installedPackages;
+            // Filter Ignored Sources
+            if (IsFilteringActive)
+            {
+                filteredPackages = filteredPackages
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
+            }
+
+            return filteredPackages.ToList();
         }
 
         public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload)
@@ -60,14 +71,22 @@ namespace WingetGUIInstaller.Services
                 await LoadUpgradablePackages();
             }
 
-            if (IsFilteringActive)
+            IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages;
+
+            // Filter packages with no source
+            if (IgnoreEmptyPackageSource)
             {
-                return _upgradablePackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
-                    .ToList();
+                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
-            return _upgradablePackages;
+            // Filter Ignored Sources
+            if (IsFilteringActive)
+            {
+                filteredPackages = filteredPackages
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
+            }
+
+            return filteredPackages.ToList();
         }
 
         public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool refreshInstalled)
@@ -78,20 +97,22 @@ namespace WingetGUIInstaller.Services
                 await LoadInstalledPackageList();
             }
 
-            var searchResults = (await PackageCommands.SearchPackages(searchQuery)
+            var searchResults = await PackageCommands.SearchPackages(searchQuery)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync())
-                .Where(r => !_installedPackages.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)))
-                .ToList();
+                .ExecuteAsync();
 
+            // Ignore Packages already installed
+            searchResults = searchResults
+                .Where(r => !_installedPackages.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)));
+
+            // Filter Ignored Sources. No need to check for empty sources here.
             if (IsFilteringActive)
             {
-                return searchResults
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)))
-                    .ToList();
+                searchResults = searchResults
+                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            return searchResults;
+            return searchResults.ToList();
         }
 
 
