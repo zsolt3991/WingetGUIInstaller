@@ -1,0 +1,101 @@
+
+name: Build Application
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+
+    env:
+      App_Packages_Archive: Sideload
+      SigningCertificate: zsolt9331_sideload.pfx
+      CertificateThumbprint: f8a9fb77d831dd776f874e8edf5bcc84c77ce224
+      Solution_Path: WingetGUIInstaller.sln
+      App_Project_Directory: WingetGUIInstaller
+      App_Project_Path: WingetGUIInstaller\WingetGUIInstaller.csproj
+      App_Project_Name: WingetGUIInstaller.csproj
+      DistributionUrl: https://github.com/zsolt9331/WingetGUIInstaller/releases/
+      MsixPackageId: zsolt9331.WingetGUIInstaller.Sideload
+      Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
+      TargetPlatform: x64
+      MsixPackageDisplayName: WingetGUIInstaller (Sideload)
+      Configuration: Release
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    # Install the .NET 6
+    - name: Install .NET 6
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.*'
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.1
+
+    # Decode the Base64 encoded Pfx
+    - name: Decode and Import the Pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
+        $currentDirectory = Get-Location
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+        $pwd = ConvertTo-SecureString -String "${{ secrets.Pfx_Key}}" -AsPlainText -Force
+        Import-PfxCertificate -Password $pwd -FilePath "$certificatePath" -CertStoreLocation Cert:\CurrentUser\My
+    
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1 
+
+    - name: Update manifest version
+      run: |
+        [xml]$manifest = get-content ".\$env:App_Project_Directory\Package.appxmanifest"
+        $manifest.Package.Identity.Version = "${{steps.tag.outputs.tag}}"
+        $manifest.save(".\$env:App_Project_Directory\Package.appxmanifest")    
+
+    # Restore the application
+    - name:  Restore the application to populate the obj folder
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      env:
+        Configuration: ${{ env.Configuration }}
+        RuntimeIdentifier: win-${{ env.targetplatform }}
+
+    # Build the project for Dev and Sideload
+    - name: Build the Windows Application Package
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateThumbprint=$env:CertificateThumbprint /p:PublishReadyToRun=false /p:GenerateAppxPackageOnBuild=$env:GenerateAppInstallerFile
+      env:
+        Configuration: ${{ env.Configuration }}
+        GenerateAppInstallerFile: True
+        TargetPlatform: ${{ env.targetplatform }}
+
+    # Remove the .pfx
+    - name: Remove the .pfx
+      run: Remove-Item -path $env:App_Project_Directory\$env:SigningCertificate
+
+    # Create the release:  
+    - name: Create Release
+      uses: ncipollo/release-action@v1.10.0
+      with:
+        tag: ${{steps.tag.outputs.tag}}
+        name:  ${{steps.tag.outputs.tag}}.${{ env.targetplatform }}
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # Upload release asset:  
+    - name: Update release asset
+      id: upload-release-asset
+      uses: AButler/upload-release-assets@v2.0
+      with: 
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{steps.tag.outputs.tag}}
+        files: "*/bin/*/Release/*/AppPackages/*/*.msix"

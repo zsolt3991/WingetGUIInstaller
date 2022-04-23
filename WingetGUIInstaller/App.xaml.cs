@@ -43,6 +43,9 @@ namespace WingetGUIInstaller
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddSingleton(dispatcherQueue)
                 .AddSingleton(ApplicationDataStorageHelper.GetCurrent())
+                .AddSingleton<ConsoleOutputCache>()
+                .AddSingleton<PackageCache>()
+                .AddSingleton<PackageManager>()
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()
                 .AddSingleton<ListPageViewModel>()
@@ -50,7 +53,6 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
-                .AddSingleton<ConsoleOutputCache>()
                 .BuildServiceProvider());
         }
     }

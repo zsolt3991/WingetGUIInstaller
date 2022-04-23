@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Services;
-using WingetHelper.Commands;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -17,17 +16,21 @@ namespace WingetGUIInstaller.ViewModels
     public class SearchPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly ConsoleOutputCache _cache;
+        private readonly PackageCache _packageCache;
+        private readonly PackageManager _packageManager;
+
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _searchQuery;
         private string _loadingText;
 
-        public SearchPageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
+        public SearchPageViewModel(DispatcherQueue dispatcherQueue,
+            PackageCache packageCache, PackageManager packageManager)
         {
             _dispatcherQueue = dispatcherQueue;
-            _cache = cache;
+            _packageCache = packageCache;
+            _packageManager = packageManager;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
         }
@@ -75,7 +78,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool CanInstallSelected => SelectedCount > 0;
 
         public ICommand SearchCommand => new AsyncRelayCommand(()
-            => SerchPackageAsync(SearchQuery));
+            => SerchPackageAsync(SearchQuery, false));
 
         public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
             => InstallPackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id)));
@@ -83,7 +86,7 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
             => InstallPackagesAsync(Packages.Select(p => p.Id)));
 
-        private async Task SerchPackageAsync(string searchQuery)
+        private async Task SerchPackageAsync(string searchQuery, bool refreshInstalled = false)
         {
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
@@ -95,18 +98,11 @@ namespace WingetGUIInstaller.ViewModels
                         IsLoading = true;
                     });
 
-                    var installedPackages = await PackageCommands.GetInstalledPackages()
-                        .ConfigureOutputListener(_cache.IngestMessage)
-                        .ExecuteAsync();
-                    var searchResults = await PackageCommands.SearchPackages(searchQuery)
-                        .ConfigureOutputListener(_cache.IngestMessage)
-                        .ExecuteAsync();
+                    var searchResults = await _packageCache.GetSearchResults(searchQuery, refreshInstalled);
+
                     foreach (var entry in searchResults)
                     {
-                        if (!string.IsNullOrEmpty(entry.Source) && !installedPackages.Any(p => p.Id == entry.Id))
-                        {
-                            _dispatcherQueue.TryEnqueue(() => Packages.Add(new WingetPackageViewModel(entry)));
-                        }
+                        _dispatcherQueue.TryEnqueue(() => Packages.Add(new WingetPackageViewModel(entry)));
                     }
                     _dispatcherQueue.TryEnqueue(() => IsLoading = false);
                 }
@@ -118,12 +114,11 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             foreach (var id in packageIds)
             {
-                var upgradeResult = await PackageCommands.InstallPackage(id)
-                    .ConfigureOutputListener(_cache.IngestMessage)
-                    .ConfigureProgressListener(OnPackageInstallProgress)
-                    .ExecuteAsync();
+                var installresult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
             }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            await SerchPackageAsync(SearchQuery, true);
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)

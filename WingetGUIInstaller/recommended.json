@@ -53,5 +53,35 @@
     "Name": "VLC Media Player",
     "Id": "VideoLAN.VLC",
     "Group": "BasicUtilities"
+  },
+  {
+    "Name": "Git",
+    "Id": "Git.Git",
+    "Group": "Development"
+  },
+  {
+    "Name": "Discord",
+    "Id": "Discord.Discord",
+    "Group": "Gaming"
+  },
+  {
+    "Name": "LibreOffice",
+    "Id": "TheDocumentFoundation.LibreOffice",
+    "Group": "Productivity"
+  },
+  {
+    "Name": ".NET 6 Runtime 32 bit",
+    "Id": "Microsoft.dotnetRuntime.6-x86",
+    "Group": "BasicUtilities"
+  },
+  {
+    "Name": ".NET 6 Runtime 64 bit",
+    "Id": "Microsoft.dotnetRuntime.6-x64",
+    "Group": "BasicUtilities"
+  },
+  {
+    "Name": ".NET SDK (Stable)",
+    "Id": "Microsoft.dotnet",
+    "Group": "Development"
   }
 ]

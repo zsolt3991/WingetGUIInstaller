@@ -53,6 +53,17 @@
                         <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
                                       IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
                     </Grid>
+                    <Grid Grid.Row="0" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          Background="#08FFFFFF" CornerRadius="5">
+                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="Ignore Packages without explicit Package Source" />
+                            <TextBlock Margin="1" FontSize="12"
+                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                       Text="Packages that do not have a package source will be hidden from results." />
+                        </StackPanel>
+                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
+                    </Grid>
                     <Grid Grid.Row="1" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Background="#08FFFFFF" CornerRadius="5">
                         <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
