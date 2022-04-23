@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.Notifications;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
-using WingetHelper.Commands;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -20,8 +18,9 @@ namespace WingetGUIInstaller.ViewModels
     public class UpgradePageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly ConsoleOutputCache _cache;
         private readonly ToastNotificationManager _notificationManager;
+        private readonly PackageCache _packageCache;
+        private readonly PackageManager _packageManager;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
@@ -29,10 +28,12 @@ namespace WingetGUIInstaller.ViewModels
         private List<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
 
-        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache, ToastNotificationManager notificationManager)
+        public UpgradePageViewModel(DispatcherQueue dispatcherQueue,
+            PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager)
         {
             _dispatcherQueue = dispatcherQueue;
-            _cache = cache;
+            _packageCache = packageCache;
+            _packageManager = packageManager;
             _notificationManager = notificationManager;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
@@ -90,7 +91,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool CanUpgradeSelected => SelectedCount > 0;
 
         public ICommand RefreshCommand => new AsyncRelayCommand(()
-            => ListUpgradableItemsAsync());
+            => ListUpgradableItemsAsync(true));
 
         public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(() =>
             UpgradePackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id).ToList()));
@@ -98,7 +99,7 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand UpgradeAllCommand => new AsyncRelayCommand(() =>
             UpgradePackagesAsync(Packages.Select(p => p.Id).ToList()));
 
-        private async Task ListUpgradableItemsAsync()
+        private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -106,9 +107,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            _returnedPackages = (await PackageCommands.GetUpgradablePackages()
-                .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync()).ToList();
+            _returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
 
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -140,11 +139,8 @@ namespace WingetGUIInstaller.ViewModels
             var successfulInstalls = 0;
 
             foreach (var id in packageIds)
-            {
-                var upgradeResult = await PackageCommands.UpgradePackage(id)
-                   .ConfigureProgressListener(OnPackageInstallProgress)
-                   .ConfigureOutputListener(_cache.IngestMessage)
-                   .ExecuteAsync();
+            {                
+                var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
 
                 if (upgradeResult)
                 {
@@ -165,7 +161,7 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            await ListUpgradableItemsAsync();
+            await ListUpgradableItemsAsync(true);
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)
