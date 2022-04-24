@@ -15,19 +15,19 @@
                                  IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
-                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar" Tag="recommend" />
-                <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="search" />
-                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="update" />
-                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="list" />
-                <controls:NavigationViewItem Content="Console" Tag="console" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
+                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar" Tag="Recommendations" />
+                <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="Search" />
+                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="Upgrades" />
+                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="InstalledPackages" />
+                <controls:NavigationViewItem Content="Console" Tag="Console" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
                     </NavigationViewItem.Icon>
                 </controls:NavigationViewItem>
             </controls:NavigationView.MenuItems>
             <controls:NavigationView.FooterMenuItems>
-                <controls:NavigationViewItem Content="Settings" Icon="Setting" Tag="settings" />
-                <controls:NavigationViewItem Content="About" Tag="about">
+                <controls:NavigationViewItem Content="Settings" Icon="Setting" Tag="Settings" />
+                <controls:NavigationViewItem Content="About" Tag="About">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
                     </NavigationViewItem.Icon>

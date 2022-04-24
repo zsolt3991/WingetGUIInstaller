@@ -15,15 +15,15 @@ namespace WingetGUIInstaller.Pages
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
         private readonly ApplicationDataStorageHelper _configurationStore;
-        private readonly Dictionary<string, Type> _pages = new()
+        private readonly Dictionary<NavigationItem, Type> _pages = new()
         {
-            { "list", typeof(ListPage) },
-            { "recommend", typeof(RecommendationsPage) },
-            { "search", typeof(SearchPage) },
-            { "update", typeof(UpgradePage) },
-            { "settings", typeof(SettingsPage) },
-            { "console", typeof(ConsolePage) },
-            { "about", typeof(AboutPage) },
+            { NavigationItem.InstalledPackages, typeof(ListPage) },
+            { NavigationItem.Recommendations, typeof(RecommendationsPage) },
+            { NavigationItem.Search, typeof(SearchPage) },
+            { NavigationItem.Upgrades, typeof(UpgradePage) },
+            { NavigationItem.Settings, typeof(SettingsPage) },
+            { NavigationItem.Console, typeof(ConsolePage) },
+            { NavigationItem.About, typeof(AboutPage) },
         };
 
         private bool _isConsoleEnabled;
@@ -46,9 +46,17 @@ namespace WingetGUIInstaller.Pages
                 ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
             InitializeComponent();
             NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(m => m is NavigationViewItem);
+
             WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>
             {
                 DispatcherQueue.TryEnqueue(() => IsConsoleEnabled = m.Value);
+            });
+
+            WeakReferenceMessenger.Default.Register<NavigationRequestedMessage>(this, (r, m) =>
+            {
+                DispatcherQueue.TryEnqueue(() => NavView.SelectedItem =
+                    NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
+                    string.Equals(navItem.Tag.ToString(), m.Value.ToString(), StringComparison.InvariantCultureIgnoreCase)));
             });
         }
 
@@ -56,16 +64,18 @@ namespace WingetGUIInstaller.Pages
         {
             if (args.SelectedItemContainer != null)
             {
-                var navItemTag = args.SelectedItemContainer.Tag.ToString();
-                NavView_Navigate(navItemTag, args.RecommendedNavigationTransitionInfo);
+                if (Enum.TryParse(args.SelectedItemContainer.Tag.ToString(), out NavigationItem navigationItem))
+                {
+                    NavView_Navigate(navigationItem, args.RecommendedNavigationTransitionInfo);
+                }
             }
         }
 
-        private void NavView_Navigate(string navItemTag, NavigationTransitionInfo transitionInfo)
+        private void NavView_Navigate(NavigationItem navigationItem, NavigationTransitionInfo transitionInfo)
         {
-            if (_pages.ContainsKey(navItemTag))
+            if (_pages.ContainsKey(navigationItem))
             {
-                var page = _pages.GetValueOrDefault(navItemTag);
+                var page = _pages.GetValueOrDefault(navigationItem);
                 if (page is not null && !Equals(ContentFrame.CurrentSourcePageType, page))
                 {
                     ContentFrame.Navigate(page, null, transitionInfo);

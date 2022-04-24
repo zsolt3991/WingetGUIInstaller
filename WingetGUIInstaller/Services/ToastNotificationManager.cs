@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.Helpers;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.Notifications;
 using System;
 using WingetGUIInstaller.Constants;
@@ -50,6 +51,7 @@ namespace WingetGUIInstaller.Services
                 return;
 
             new ToastContentBuilder()
+                .AddArgument("redirect", NavigationItem.Upgrades)
                 .AddText(updatesAvailable ?
                     string.Format("Found {0} packages that can be upgraded", updateCount) :
                     "All packages are up to date")
@@ -58,6 +60,9 @@ namespace WingetGUIInstaller.Services
 
         internal void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
         {
+            var arguments = ToastArguments.Parse(e.Argument);
+            var redirectLocation = arguments.GetEnum<NavigationItem>("redirect");
+            WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
         }
     }
 }

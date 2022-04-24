@@ -17,7 +17,7 @@ namespace WingetGUIInstaller
     {
         private Window _window;
         private readonly ToastNotificationManager _notificationManager;
-        private readonly DispatcherQueue _dipatcherQueue;
+        private readonly DispatcherQueue _dispatcherQueue;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -28,7 +28,7 @@ namespace WingetGUIInstaller
             ConfigureServices();
             InitializeComponent();
             _notificationManager = Ioc.Default.GetRequiredService<ToastNotificationManager>();
-            _dipatcherQueue = Ioc.Default.GetRequiredService<DispatcherQueue>();
+            _dispatcherQueue = Ioc.Default.GetRequiredService<DispatcherQueue>();
             Current.RequestedTheme = ApplicationTheme.Dark;
         }
 
@@ -68,10 +68,10 @@ namespace WingetGUIInstaller
 
         private void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
         {
-            _dipatcherQueue.TryEnqueue(() =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                _notificationManager.HandleToastActivation(e);
                 LaunchAndBringToForegroundIfNeeded();
+                _notificationManager.HandleToastActivation(e);
             });
         }
 
