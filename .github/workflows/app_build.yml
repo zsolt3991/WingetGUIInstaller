@@ -71,9 +71,9 @@ jobs:
         Appx_Bundle: Always 
         Appx_Package_Build_Mode: StoreUpload
 
-    # Remove the .pfx
-    - name: Remove the .pfx
-      run: Remove-Item -path $env:App_Project_Directory\$env:SigningCertificate
+   # Remove the pfx
+    - name: Remove the pfx
+      run: Remove-Item -path $env:SigningCertificate
 
     # Create the release:  
     - name: Create Release
