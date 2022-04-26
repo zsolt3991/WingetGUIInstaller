@@ -95,4 +95,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "*/Packages/*.msix;*/Packages/*.msixbundle"
+        files: "*/Packages/*/*.msix;*/Packages/*.msixbundle"
