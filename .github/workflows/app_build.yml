@@ -80,6 +80,7 @@ jobs:
     # Create the release:  
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
+      continue-on-error: true
       with:
         tag: ${{ steps.tag.outputs.tag }}
         name:  ${{ steps.tag.outputs.tag }}.${{ env.targetplatform }}
@@ -94,4 +95,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "Packages/*.msix;Packages/*.msixbundle"
+        files: "*/Packages/*.msix;*/Packages/*.msixbundle"
