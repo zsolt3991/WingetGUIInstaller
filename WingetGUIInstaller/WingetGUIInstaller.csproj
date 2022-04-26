@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
@@ -7,12 +7,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;arm64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
-    <Nullable>annotations</Nullable>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <PackageCertificateThumbprint>F8A9FB77D831DD776F874E8EDF5BCC84C77CE224</PackageCertificateThumbprint>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>

@@ -27,7 +27,7 @@ namespace WingetGUIInstaller.Pages
         };
 
         private bool _isConsoleEnabled;
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public bool IsConsoleEnabled
         {
