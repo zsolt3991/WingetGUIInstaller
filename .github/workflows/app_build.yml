@@ -21,6 +21,7 @@ jobs:
       SigningCertificate: zsolt9331_sideload.pfx
       Solution_Path: WingetGUIInstaller.sln
       App_Project_Directory: WingetGUIInstaller
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
     - name: Checkout
