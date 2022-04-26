@@ -46,7 +46,7 @@ jobs:
     - name: Decode and Import the Pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_CERTIFICATE }}")
-        $certificatePath = $env:SigningCertificate
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     - name: Update manifest version
@@ -74,7 +74,7 @@ jobs:
 
    # Remove the pfx
     - name: Remove the pfx
-      run: Remove-Item -path $env:SigningCertificate
+      run: Remove-Item -path $env:App_Project_Directory\$env:SigningCertificate
 
     # Create the release:  
     - name: Create Release
