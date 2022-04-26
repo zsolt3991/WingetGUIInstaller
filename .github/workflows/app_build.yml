@@ -92,13 +92,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "Packages/*.msix"
-      
-    # Upload release asset:  
-    - name: Update release asset
-      id: upload-release-asset
-      uses: AButler/upload-release-assets@v2.0
-      with: 
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ steps.tag.outputs.tag }}
-        files: "Packages/*.msixbundle"
+        files: "Packages/*.msix;Packages/*.msixbundle"
