@@ -83,7 +83,7 @@ jobs:
       continue-on-error: true
       with:
         tag: ${{ steps.tag.outputs.tag }}
-        name:  ${{ steps.tag.outputs.tag }}.${{ env.targetplatform }}
+        name:  ${{ steps.tag.outputs.tag }}
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
