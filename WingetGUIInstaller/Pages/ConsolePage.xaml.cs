@@ -15,7 +15,7 @@ namespace WingetGUIInstaller.Pages
             OutputScroll.ScrollToVerticalOffset(OutputScroll.ScrollableHeight);
         }
 
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ViewModel.ComposedMessage))
             {
