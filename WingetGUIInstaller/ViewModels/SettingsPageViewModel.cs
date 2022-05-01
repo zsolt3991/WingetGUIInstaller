@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
+using GithubPackageUpdater.Services;
 using Microsoft.UI.Dispatching;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
@@ -22,6 +24,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
         private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly List<string> _disabledPackageSources;
         private ObservableCollection<WingetPackageSourceViewModel> _packageSources;
         private WingetPackageSourceViewModel _selectedSource;
@@ -31,11 +34,14 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _notificationsEnabled;
         private bool? _packageSourceFilteringEnabled;
         private bool? _ignoreEmptyPackageSourceEnabled;
+        private bool? _automaticUpdatesEnabled;
 
-        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore, ConsoleOutputCache cache)
+        public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore,
+           GithubPackageUpdaterSerivce updaterSerivce, ConsoleOutputCache cache)
         {
             _dispatcherQueue = dispatcherQueue;
             _configurationStore = configurationStore;
+            _updaterSerivce = updaterSerivce;
             _cache = cache;
             _disabledPackageSources = LoadDisabledPackageSources();
             PackageSources = new ObservableCollection<WingetPackageSourceViewModel>();
@@ -149,6 +155,26 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public bool AutomaticUpdatesEnabled
+        {
+            get
+            {
+                if (_automaticUpdatesEnabled == null)
+                {
+                    _automaticUpdatesEnabled = _configurationStore
+                        .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
+                }
+                return _automaticUpdatesEnabled.Value;
+            }
+            set
+            {
+                if (SetProperty(ref _automaticUpdatesEnabled, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.AutomaticUpdates, value);
+                }
+            }
+        }
+
         public int SelectedCount => PackageSources.Any(p => p.IsSelected) ?
             PackageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
 
@@ -157,6 +183,17 @@ namespace WingetGUIInstaller.ViewModels
 
         public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
             => RemovePackageSourcesAsync(PackageSources.Where(p => p.IsSelected).Select(p => p.Name)));
+
+        public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
+
+        private async Task CheckForUpdatesAsync()
+        {
+            var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
+            if (!checkResult.IsPackageUpToDate)
+            {
+                WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(checkResult));
+            }
+        }
 
         private async Task LoadPackageSourcesAsync()
         {

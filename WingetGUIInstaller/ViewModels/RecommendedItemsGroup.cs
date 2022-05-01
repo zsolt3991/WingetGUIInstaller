@@ -51,7 +51,7 @@ namespace WingetGUIInstaller.ViewModels
 
         IEnumerator IEnumerable.GetEnumerator() => _items.GetEnumerator();
 
-        private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(RecommendedItemViewModel.IsInstalled))
             {

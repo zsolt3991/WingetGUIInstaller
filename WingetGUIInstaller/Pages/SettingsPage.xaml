@@ -2,7 +2,8 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-      xmlns:local="using:WingetGUIInstaller.Pages"
+      xmlns:customControls="using:WingetGUIInstaller.Controls"
+      xmlns:viewmodels="using:WingetGUIInstaller.ViewModels"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -10,82 +11,41 @@
             <RowDefinition Height="50" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ContentDialog x:Name="AddPackageSourceDialog"
-                       Title="Add Package Source" MinWidth="400"
-                       PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}"
-                       PrimaryButtonText="Add">
-            <Grid Margin="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="3*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Text="Name:" />
-                <TextBox Grid.Row="0" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                         Text="{x:Bind ViewModel.NewPackageSourceName, Mode=TwoWay}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Text="URL:" />
-                <TextBox Grid.Row="1" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                         Text="{x:Bind ViewModel.NewPackageSourceUrl, Mode=TwoWay}" />
-            </Grid>
-        </ContentDialog>
+
+        <customControls:PackageSourceDialog x:Name="AddPackageSourceDialog"
+                                            Grid.Row="0" Grid.RowSpan="2"
+                                            PackageSourceName="{x:Bind ViewModel.NewPackageSourceName, Mode=TwoWay}"
+                                            PackageSourceUrl="{x:Bind ViewModel.NewPackageSourceUrl, Mode=TwoWay}"
+                                            PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}" />
+
         <TextBlock Name="PageTitle"
                    Grid.Row="0" Margin="5" FontSize="24" Text="Settings" />
+
         <StackPanel Grid.Row="1">
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
                 <Expander.Header>
-                    <TextBlock FontSize="16" Text="Application Settings" />
+                    <TextBlock FontSize="16" Text="General Settings" />
                 </Expander.Header>
                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid Grid.Row="0" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Background="#08FFFFFF" CornerRadius="5">
-                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Enable Package Source Filtering" />
-                            <TextBlock Margin="1" FontSize="12"
-                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                       Text="Enables Results filtering on Package Sources. Package Sources can be Enabled/Disabled under Package Source Management" />
-                        </StackPanel>
-                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                      IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
-                    </Grid>
-                    <Grid Grid.Row="0" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Background="#08FFFFFF" CornerRadius="5">
-                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Ignore Packages without explicit Package Source" />
-                            <TextBlock Margin="1" FontSize="12"
-                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                       Text="Packages that do not have a package source will be hidden from results." />
-                        </StackPanel>
-                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                      IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
-                    </Grid>
-                    <Grid Grid.Row="1" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Background="#08FFFFFF" CornerRadius="5">
-                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Enable Notifications" />
-                            <TextBlock Margin="1" FontSize="12"
-                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                       Text="Enable Windows notifications from the app" />
-                        </StackPanel>
-                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                      IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}" />
-                    </Grid>
-                    <Grid Grid.Row="1" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Background="#08FFFFFF" CornerRadius="5">
-                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Show console output" />
-                            <TextBlock Margin="1" FontSize="12"
-                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                       Text="Enables the ability to view raw command ouput for actions" />
-                        </StackPanel>
-                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                      IsOn="{x:Bind ViewModel.ConsoleTabEnabled, Mode=TwoWay}" />
-                    </Grid>
+                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Enable Package Source Filtering"
+                                                                SecondaryText="Enables Results filtering on Package Sources. Package Sources can be Enabled/Disabled under Package Source Management" />
+
+                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Ignore Packages without explicit Package Source"
+                                                                SecondaryText="Packages that do not have a package source will be hidden from results." />
+
+                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Enable Notifications" SecondaryText="Enable Windows notifications from the app" />
+
+                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.ConsoleTabEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Show Console output"
+                                                                SecondaryText="Enables the ability to view raw command ouput for actions" />
                 </StackPanel>
             </Expander>
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
@@ -110,19 +70,23 @@
                         <controls:DataGrid.Columns>
                             <controls:DataGridTemplateColumn Width="32">
                                 <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
                                         <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
-                            <controls:DataGridTextColumn Width="2*" Binding="{Binding Name}" Header="Soruce Name" />
-                            <controls:DataGridTextColumn Width="2*" Binding="{Binding Url}" Header="Source Url" />
+                            <controls:DataGridTextColumn Width="2*"
+                                                         Binding="{Binding Name}"
+                                                         Header="Soruce Name" />
+                            <controls:DataGridTextColumn Width="2*"
+                                                         Binding="{Binding Url}"
+                                                         Header="Source Url" />
                             <controls:DataGridTemplateColumn Width="100" Header="Enabled">
                                 <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
                                         <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                                  IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
+                                                  IsChecked="{x:Bind IsEnabled, Mode=TwoWay}" />
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
@@ -144,6 +108,22 @@
                                 Content="Delete Selected" FontSize="16" RelativePanel.LeftOf="AddSource" />
                     </RelativePanel>
                 </Grid>
+            </Expander>
+            <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
+                <Expander.Header>
+                    <TextBlock FontSize="16" Text="Application Update" />
+                </Expander.Header>
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.AutomaticUpdatesEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Automatically check for updates"
+                                                                SecondaryText="Enables checking for updates on application startup" />
+
+                    <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                  ButtonCommand="{x:Bind ViewModel.CheckForUpdatesCommand}"
+                                                                  PrimaryText="Check for updates" SecondaryText="Manually check for updates" />
+                </StackPanel>
             </Expander>
         </StackPanel>
     </Grid>
