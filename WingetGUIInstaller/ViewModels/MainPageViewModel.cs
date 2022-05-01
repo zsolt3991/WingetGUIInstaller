@@ -49,8 +49,13 @@ namespace WingetGUIInstaller.ViewModels
 
             WeakReferenceMessenger.Default.Register<UpdateAvailableMessage>(this, (r, m) =>
             {
-                _dispatcherQueue.TryEnqueue(() => _update = m.Value);
-                OnPropertyChanged(nameof(IsUpdateAvailable));
+                _update = m.Value;
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(IsUpdateAvailable));
+                    OnPropertyChanged(nameof(UpdateChangeLog));
+                    OnPropertyChanged(nameof(UpdateVersion));
+                });
             });
 
             IsConsoleEnabled = _configurationStore
@@ -75,12 +80,21 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool IsUpdateAvailable => !_update?.IsPackageUpToDate ?? false;
 
+        public Version UpdateVersion => _update?.AvailableUpdateVersion ?? default;
+
+        public string UpdateChangeLog => _update?.ChangeLog ?? string.Empty;
+
         public ICommand InstallUpdateCommand => new AsyncRelayCommand(InstallUpdateAsync);
 
         private async Task CheckForUpdatesAsync()
         {
             _update = await _updaterSerivce.CheckForUpdates(Package.Current);
-            _dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(IsUpdateAvailable)));
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                OnPropertyChanged(nameof(IsUpdateAvailable));
+                OnPropertyChanged(nameof(UpdateChangeLog));
+                OnPropertyChanged(nameof(UpdateVersion));
+            });
         }
 
         private async Task InstallUpdateAsync()

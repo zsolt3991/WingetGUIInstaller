@@ -56,6 +56,8 @@ namespace GithubPackageUpdater.Services
                             return new PackageUpdateResponse
                             {
                                 IsPackageUpToDate = false,
+                                AvailableUpdateVersion = releaseVersion,
+                                ChangeLog = lastRelease.Body,
                                 PackageUri = new Uri(packageAsset.BrowserDownloadUrl)
                             };
                         }

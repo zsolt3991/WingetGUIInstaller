@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.System;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
@@ -51,6 +52,11 @@ namespace WingetGUIInstaller.Pages
                     ContentFrame.Navigate(page, null, transitionInfo);
                 }
             }
+        }
+
+        private async void MarkdownTextBlock_LinkClicked(object sender, CommunityToolkit.WinUI.UI.Controls.LinkClickedEventArgs e)
+        {
+            await Launcher.LaunchUriAsync(new Uri(e.Link));
         }
     }
 }
