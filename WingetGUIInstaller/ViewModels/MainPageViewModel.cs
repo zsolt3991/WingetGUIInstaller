@@ -22,15 +22,15 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
-        private readonly Dictionary<string, Type> _pages = new()
+        private readonly Dictionary<NavigationItem, Type> _pages = new()
         {
-            { "list", typeof(ListPage) },
-            { "recommend", typeof(RecommendationsPage) },
-            { "search", typeof(SearchPage) },
-            { "update", typeof(UpgradePage) },
-            { "settings", typeof(SettingsPage) },
-            { "console", typeof(ConsolePage) },
-            { "about", typeof(AboutPage) },
+            { NavigationItem.InstalledPackages, typeof(ListPage) },
+            { NavigationItem.Recommendations, typeof(RecommendationsPage) },
+            { NavigationItem.Search, typeof(SearchPage) },
+            { NavigationItem.Upgrades, typeof(UpgradePage) },
+            { NavigationItem.Settings, typeof(SettingsPage) },
+            { NavigationItem.Console, typeof(ConsolePage) },
+            { NavigationItem.About, typeof(AboutPage) },
         };
 
         private PackageUpdateResponse _update;
@@ -76,7 +76,7 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _isConsoleEnabled, value);
         }
 
-        public IReadOnlyDictionary<string, Type> Pages => _pages;
+        public IReadOnlyDictionary<NavigationItem, Type> Pages => _pages;
 
         public bool IsUpdateAvailable => !_update?.IsPackageUpToDate ?? false;
 

@@ -26,7 +26,8 @@
                 <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="Search" />
                 <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="Upgrades" />
                 <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="InstalledPackages" />
-                <controls:NavigationViewItem Content="Console" Tag="Console" Visibility="{x:Bind IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
+                <controls:NavigationViewItem Content="Console" Tag="Console"
+                                             Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
                     </NavigationViewItem.Icon>

@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.System;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages

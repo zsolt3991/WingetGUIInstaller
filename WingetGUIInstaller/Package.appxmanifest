@@ -49,7 +49,7 @@
         
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="WingetGUIInstaller\WingetGUIInstaller.exe" Arguments="-ToastActivated" DisplayName="Toast activator">
+            <com:ExeServer Executable="WingetGUIInstaller.exe" Arguments="-ToastActivated" DisplayName="Toast activator">
               <com:Class Id="e7df7030-e993-4a24-89e5-C173E6ADF0C3" DisplayName="Toast activator"/>
             </com:ExeServer>
           </com:ComServer>
