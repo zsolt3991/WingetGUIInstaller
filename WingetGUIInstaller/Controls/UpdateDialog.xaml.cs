@@ -9,10 +9,10 @@ namespace WingetGUIInstaller.Controls
     public partial class UpdateDialog : ContentDialog
     {
         public static readonly DependencyProperty UpdateVersionProperty = DependencyProperty
-               .Register("UpdateVersion", typeof(Version), typeof(LoadingIndicator), new PropertyMetadata(null));
+               .Register("UpdateVersion", typeof(Version), typeof(UpdateDialog), new PropertyMetadata(null));
 
         public static readonly DependencyProperty UpdateChangeLogProperty = DependencyProperty
-            .Register("UpdateChangeLog", typeof(string), typeof(LoadingIndicator), new PropertyMetadata(null));
+            .Register("UpdateChangeLog", typeof(string), typeof(UpdateDialog), new PropertyMetadata(null));
 
         public Version UpdateVersion
         {
