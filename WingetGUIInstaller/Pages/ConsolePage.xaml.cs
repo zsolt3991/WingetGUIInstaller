@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
@@ -8,19 +9,26 @@ namespace WingetGUIInstaller.Pages
     {
         public ConsolePage()
         {
-            NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
+            InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
             DataContext = ViewModel = Ioc.Default.GetRequiredService<ConsolePageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-            InitializeComponent();
-            OutputScroll.ScrollToVerticalOffset(OutputScroll.ScrollableHeight);
         }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ViewModel.ComposedMessage))
             {
-                OutputScroll.ScrollToVerticalOffset(OutputScroll.ScrollableHeight);
+                OutputScroll.UpdateLayout();
+                OutputScroll.ScrollToVerticalOffset(OutputScroll.ScrollableHeight + 50);
             }
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            OutputScroll.UpdateLayout();
+            OutputScroll.ScrollToVerticalOffset(OutputScroll.ScrollableHeight + 50);
         }
 
         public ConsolePageViewModel ViewModel { get; }

@@ -25,7 +25,11 @@
                     Command="{x:Bind ViewModel.ListCommand}"
                     Content="&#xE149;"
                     FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    FontSize="20" RelativePanel.AlignRightWithPanel="True" />
+                    FontSize="20" RelativePanel.AlignRightWithPanel="True" ToolTipService.ToolTip="Refresh (F5)">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </Button.KeyboardAccelerators>
+            </Button>
         </RelativePanel>
 
         <controls:LoadingIndicator Name="LoadingWidget"

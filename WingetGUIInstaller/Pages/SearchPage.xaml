@@ -30,11 +30,15 @@
             </Grid.ColumnDefinitions>
             <TextBox Name="SearchQuery"
                      Grid.Column="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                     Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}" />
+                     Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="SearchButton"
                     Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.SearchCommand}"
-                    Content="Search" />
+                    Content="Search">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery, Mode=OneWay}" />
+                </Button.KeyboardAccelerators>
+            </Button>
         </Grid>
 
         <toolkit:DataGrid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False"
