@@ -1,0 +1,25 @@
+﻿<ContentDialog x:Class="WingetGUIInstaller.Controls.UpdateDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls" Title="Application Update Available"
+               MinWidth="480" MinHeight="480" HorizontalAlignment="Center" VerticalAlignment="Center"
+               PrimaryButtonText="Update Now" SecondaryButtonText="Dismiss"
+               Style="{StaticResource DefaultContentDialogStyle}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Margin="5" FontSize="16" Text="New Version Available:" />
+            <TextBlock Margin="5" FontSize="16" Text="{x:Bind UpdateVersion, Mode=OneWay}" />
+        </StackPanel>
+        <toolkit:MarkdownTextBlock Grid.Row="1" Margin="5" Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                   FontFamily="Consolas" LinkClicked="MarkdownTextBlock_LinkClicked"
+                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                   Text="{x:Bind UpdateChangeLog, Mode=OneWay}"
+                                   TextWrapping="Wrap" />
+    </Grid>
+</ContentDialog>

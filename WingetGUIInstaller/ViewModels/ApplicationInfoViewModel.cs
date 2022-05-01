@@ -50,7 +50,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         public static Version ToVersion(this PackageVersion packageVersion)
         {
-            return new Version(packageVersion.Major, packageVersion.Minor, packageVersion.Revision, packageVersion.Build);
+            return new Version(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
         }
     }
 }

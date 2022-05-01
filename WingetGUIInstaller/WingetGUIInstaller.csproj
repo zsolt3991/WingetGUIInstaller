@@ -56,6 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Controls\UpdateDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Pages\ConsolePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

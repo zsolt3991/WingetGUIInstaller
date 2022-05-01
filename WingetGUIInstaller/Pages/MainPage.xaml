@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      xmlns:customControls="using:WingetGUIInstaller.Controls"
       xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -12,28 +13,10 @@
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-        <ContentDialog x:Name="UpdateDialog"
-                       Title="Application Update Available" MinWidth="480" MinHeight="480" MaxWidth="480" MaxHeight="480"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       PrimaryButtonCommand="{x:Bind ViewModel.InstallUpdateCommand}"
-                       PrimaryButtonText="Update Now" SecondaryButtonText="Dismiss">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <TextBlock Margin="5" FontSize="16" Text="New Version Available:" />
-                    <TextBlock Margin="5" FontSize="16" Text="{x:Bind ViewModel.UpdateVersion, Mode=OneWay}" />
-                </StackPanel>
-                <toolkit:MarkdownTextBlock Grid.Row="1" Margin="5" Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           FontFamily="Consolas" LinkClicked="MarkdownTextBlock_LinkClicked"
-                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                           Text="{x:Bind ViewModel.UpdateChangeLog, Mode=OneWay}"
-                                           TextWrapping="Wrap" />
-            </Grid>
-        </ContentDialog>
+        <customControls:UpdateDialog x:Name="UpdateDialog"
+                                     PrimaryButtonCommand="{x:Bind ViewModel.InstallUpdateCommand}"
+                                     UpdateChangeLog="{x:Bind ViewModel.UpdateChangeLog, Mode=OneWay}"
+                                     UpdateVersion="{x:Bind ViewModel.UpdateVersion, Mode=OneWay}" />
 
         <controls:NavigationView x:Name="NavView"
                                  Background="#FF1d1d1d" IsBackButtonVisible="Collapsed" IsBackEnabled="False"
