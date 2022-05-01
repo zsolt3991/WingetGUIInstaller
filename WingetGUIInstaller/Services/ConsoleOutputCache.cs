@@ -8,7 +8,7 @@ namespace WingetGUIInstaller.Services
 {
     public class ConsoleOutputCache
     {
-        private const int MaxCapacity = 255;
+        protected const int MaxCapacity = 255;
         private readonly ConcurrentQueue<string> _buffer;
 
         public ConsoleOutputCache()

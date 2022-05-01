@@ -10,6 +10,7 @@
     <UseWinUI>true</UseWinUI>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <Nullable>warnings</Nullable>
     <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>
 

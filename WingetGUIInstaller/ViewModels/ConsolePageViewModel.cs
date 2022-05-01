@@ -14,7 +14,7 @@ namespace WingetGUIInstaller.ViewModels
 {
     public class ConsolePageViewModel : ObservableObject
     {
-        private const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
+        protected const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
         private string _commandLine;

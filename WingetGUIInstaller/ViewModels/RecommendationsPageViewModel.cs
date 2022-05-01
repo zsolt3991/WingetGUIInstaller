@@ -70,7 +70,7 @@ namespace WingetGUIInstaller.ViewModels
             => InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => !p.IsInstalled).Select(p => p.Id))));
 
         public ICommand InstallGroupCommand => new AsyncRelayCommand<RecommendedItemsGroup>((group)
-            => InstallPackagesAsync(group.Where(p => !p.IsInstalled).Select(p => p.Id)));
+            => InstallPackagesAsync(group?.Where(p => !p.IsInstalled).Select(p => p.Id)));
 
         private async Task LoadRecommendedItemsAsync(bool forceRefresh = false)
         {
@@ -81,7 +81,7 @@ namespace WingetGUIInstaller.ViewModels
             });
 
             var recommendations = JsonSerializer.Deserialize<List<RecommendedItem>>(
-               File.ReadAllText(Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory), "recommended.json")),
+               File.ReadAllText(Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty, "recommended.json")),
               new JsonSerializerOptions
               {
                   Converters =
@@ -92,7 +92,7 @@ namespace WingetGUIInstaller.ViewModels
 
             var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
 
-            _recommedationsList = recommendations.Select(r => new RecommendedItemViewModel(r)
+            _recommedationsList = recommendations?.Select(r => new RecommendedItemViewModel(r)
             {
                 IsInstalled = installedPackages.Any(p => p.Id == r.Id),
             }).GroupBy(r => r.Group, (key, values) => new RecommendedItemsGroup(key, values
@@ -133,25 +133,27 @@ namespace WingetGUIInstaller.ViewModels
 
         private void Packages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != default)
             {
                 foreach (var item in e.NewItems)
                 {
-                    foreach (var packageEntry in (item as RecommendedItemsGroup).AsEnumerable())
-                    {
-                        packageEntry.PropertyChanged += OnPackagePropertyChanged;
-                    }
+                    if (item is RecommendedItemsGroup recommendedItems)
+                        foreach (var packageEntry in recommendedItems)
+                        {
+                            packageEntry.PropertyChanged += OnPackagePropertyChanged;
+                        }
                 }
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace)
+            if ((e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace) && e.OldItems != default)
             {
                 foreach (var item in e.OldItems)
                 {
-                    foreach (var packageEntry in (item as RecommendedItemsGroup).AsEnumerable())
-                    {
-                        packageEntry.PropertyChanged -= OnPackagePropertyChanged;
-                    }
+                    if (item is RecommendedItemsGroup recommendedItems)
+                        foreach (var packageEntry in recommendedItems)
+                        {
+                            packageEntry.PropertyChanged -= OnPackagePropertyChanged;
+                        }
                 }
             }
 

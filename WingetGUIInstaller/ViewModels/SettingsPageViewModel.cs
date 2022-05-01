@@ -246,19 +246,26 @@ namespace WingetGUIInstaller.ViewModels
 
         private void PackageSources_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != default)
             {
                 foreach (var item in e.NewItems)
                 {
-                    (item as WingetPackageSourceViewModel).PropertyChanged += OnPackagePropertyChanged;
+                    if (item is WingetPackageSourceViewModel packageSourceViewModel)
+                    {
+                        packageSourceViewModel.PropertyChanged += OnPackagePropertyChanged;
+                    }
                 }
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace)
+            if ((e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace) && e.OldItems != default)
             {
                 foreach (var item in e.OldItems)
                 {
-                    (item as WingetPackageSourceViewModel).PropertyChanged -= OnPackagePropertyChanged;
+
+                    if (item is WingetPackageSourceViewModel packageSourceViewModel)
+                    {
+                        packageSourceViewModel.PropertyChanged -= OnPackagePropertyChanged;
+                    }
                 }
             }
 
@@ -284,7 +291,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             var serializedValue = _configurationStore
                 .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue);
-            return serializedValue.Split(';', System.StringSplitOptions.RemoveEmptyEntries).ToList();
+            return serializedValue?.Split(';', System.StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
         }
 
         private void SaveDisabledPackageSources(List<string> packageSources)
