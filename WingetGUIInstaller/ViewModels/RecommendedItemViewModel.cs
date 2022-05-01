@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -7,7 +8,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private string _name;
         private string _id;
-        private GroupType _group;
+        private RecommendationGroupType _group;
         private bool _isInstalled;
         private bool _isSelected;
 
@@ -32,7 +33,7 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _id, value);
         }
 
-        public GroupType Group
+        public RecommendationGroupType Group
         {
             get => _group;
             set => SetProperty(ref _group, value);

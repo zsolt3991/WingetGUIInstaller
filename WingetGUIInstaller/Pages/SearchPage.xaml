@@ -36,7 +36,7 @@
                     Command="{x:Bind ViewModel.SearchCommand}"
                     Content="Search">
                 <Button.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery, Mode=OneWay}" />
+                    <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery}" />
                 </Button.KeyboardAccelerators>
             </Button>
         </Grid>
@@ -59,10 +59,18 @@
                         </DataTemplate>
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
-                <toolkit:DataGridTextColumn Width="2*" Binding="{Binding Name}" Header="Pacakge Name" />
-                <toolkit:DataGridTextColumn Width="2*" Binding="{Binding Id}" Header="Package Id" />
-                <toolkit:DataGridTextColumn Width="1*" Binding="{Binding Version}" Header="Latest Version" />
-                <toolkit:DataGridTextColumn Width="1*" Binding="{Binding Source}" Header="Source" />
+                <toolkit:DataGridTextColumn Width="2*"
+                                            Binding="{Binding Name}"
+                                            Header="Pacakge Name" />
+                <toolkit:DataGridTextColumn Width="2*"
+                                            Binding="{Binding Id}"
+                                            Header="Package Id" />
+                <toolkit:DataGridTextColumn Width="1*"
+                                            Binding="{Binding Version}"
+                                            Header="Latest Version" />
+                <toolkit:DataGridTextColumn Width="1*"
+                                            Binding="{Binding Source}"
+                                            Header="Source" />
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 

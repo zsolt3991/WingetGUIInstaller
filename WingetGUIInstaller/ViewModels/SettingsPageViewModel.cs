@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 

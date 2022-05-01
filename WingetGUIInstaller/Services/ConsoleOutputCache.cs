@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.Services
 {

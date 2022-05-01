@@ -1,6 +1,6 @@
-﻿namespace WingetGUIInstaller.Models
+﻿namespace WingetGUIInstaller.Enums
 {
-    public enum GroupType
+    public enum RecommendationGroupType
     {
         BasicUtilities,
         Development,
