@@ -47,7 +47,7 @@ namespace GithubPackageUpdater.Services
                         }
                     }
 
-                    if (releaseVersion >= packageVersion)
+                    if (releaseVersion > packageVersion)
                     {
                         var packageAsset = lastRelease.Assets.FirstOrDefault(asset =>
                             asset.Name.Contains(packageName, StringComparison.InvariantCulture));
