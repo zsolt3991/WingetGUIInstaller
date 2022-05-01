@@ -56,6 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Controls\PackageSourceDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Controls\StandardButtonSettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

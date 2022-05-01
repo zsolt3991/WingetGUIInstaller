@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:customControls="using:WingetGUIInstaller.Controls"
-      xmlns:local="using:WingetGUIInstaller.Pages"
+      xmlns:viewmodels="using:WingetGUIInstaller.ViewModels"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -11,31 +11,16 @@
             <RowDefinition Height="50" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ContentDialog x:Name="AddPackageSourceDialog"
-                       Title="Add Package Source" MinWidth="400"
-                       PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}"
-                       PrimaryButtonText="Add">
-            <Grid Margin="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="3*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Text="Name:" />
-                <TextBox Grid.Row="0" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                         Text="{x:Bind ViewModel.NewPackageSourceName, Mode=TwoWay}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Text="URL:" />
-                <TextBox Grid.Row="1" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                         Text="{x:Bind ViewModel.NewPackageSourceUrl, Mode=TwoWay}" />
-            </Grid>
-        </ContentDialog>
+
+        <customControls:PackageSourceDialog x:Name="AddPackageSourceDialog"
+                                            Grid.Row="0" Grid.RowSpan="2"
+                                            PackageSourceName="{x:Bind ViewModel.NewPackageSourceName, Mode=TwoWay}"
+                                            PackageSourceUrl="{x:Bind ViewModel.NewPackageSourceUrl, Mode=TwoWay}"
+                                            PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}" />
+
         <TextBlock Name="PageTitle"
                    Grid.Row="0" Margin="5" FontSize="24" Text="Settings" />
+
         <StackPanel Grid.Row="1">
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
@@ -85,9 +70,9 @@
                         <controls:DataGrid.Columns>
                             <controls:DataGridTemplateColumn Width="32">
                                 <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
                                         <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
@@ -99,9 +84,9 @@
                                                          Header="Source Url" />
                             <controls:DataGridTemplateColumn Width="100" Header="Enabled">
                                 <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
                                         <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                                  IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
+                                                  IsChecked="{x:Bind IsEnabled, Mode=TwoWay}" />
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
