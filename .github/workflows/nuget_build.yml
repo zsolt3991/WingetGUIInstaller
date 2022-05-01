@@ -2,18 +2,14 @@ name: Build nuGet Package
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
   publish-nuget:
     name: Publish nuGet Package
     runs-on: ubuntu-latest
-
-    outputs:
-      semVer: ${{ steps.gitversion.outputs.semVer }}
       
     steps:
       - name: Checkout

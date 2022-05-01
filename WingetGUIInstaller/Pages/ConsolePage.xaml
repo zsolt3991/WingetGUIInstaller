@@ -17,11 +17,12 @@
         </RelativePanel>
 
         <ScrollViewer Name="OutputScroll"
-                      Grid.Row="1" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto"
+                      Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      HorizontalScrollMode="Disabled" IsTabStop="False" VerticalScrollBarVisibility="Auto"
                       VerticalScrollMode="Auto">
             <TextBox Name="OutputText"
-                     Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True"
-                     FontFamily="Consolas" IsReadOnly="True" IsTabStop="False"
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" FontFamily="Consolas"
+                     IsReadOnly="True"
                      Text="{x:Bind ViewModel.ComposedMessage, Mode=OneWay}"
                      TextWrapping="Wrap" />
         </ScrollViewer>
@@ -31,12 +32,17 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="150" />
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+            <TextBox x:Name="CommandLine"
+                     Grid.Column="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                      PlaceholderText="Enter command to execute"
-                     Text="{x:Bind ViewModel.CommandLine, Mode=TwoWay}" />
+                     Text="{x:Bind ViewModel.CommandLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.ExecuteCustomCommand}"
-                    Content="Execute" />
+                    Content="Execute">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind CommandLine, Mode=TwoWay}" />
+                </Button.KeyboardAccelerators>
+            </Button>
         </Grid>
     </Grid>
 </Page>

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.Notifications;
+using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -56,6 +57,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
                 .AddSingleton<ToastNotificationManager>()
+                .AddSingleton<MainPageViewModel>()
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()
                 .AddSingleton<ListPageViewModel>()
@@ -63,6 +65,12 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
+                .AddGithubUpdater(options =>
+                {
+                    options
+                        .ConfigureAccountName("zsolt3991")
+                        .ConfigureRepository("WingetGUIInstaller");
+                })
                 .BuildServiceProvider());
         }
 
