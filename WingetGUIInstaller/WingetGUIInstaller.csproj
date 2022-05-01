@@ -51,6 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GithubPackageUpdater\GithubPackageUpdater.csproj" />
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
   </ItemGroup>
 

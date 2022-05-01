@@ -39,7 +39,7 @@
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
                 <Expander.Header>
-                    <TextBlock FontSize="16" Text="Application Settings" />
+                    <TextBlock FontSize="16" Text="General Settings" />
                 </Expander.Header>
                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid Grid.Row="0" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -144,6 +144,37 @@
                                 Content="Delete Selected" FontSize="16" RelativePanel.LeftOf="AddSource" />
                     </RelativePanel>
                 </Grid>
+            </Expander>
+            <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
+                <Expander.Header>
+                    <TextBlock FontSize="16" Text="Application Update" />
+                </Expander.Header>
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#08FFFFFF"
+                          CornerRadius="5">
+                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="Automatically check for updates" />
+                            <TextBlock Margin="1" FontSize="12"
+                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                       Text="Enables checking for updates on application startup" />
+                        </StackPanel>
+                        <ToggleSwitch MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      IsOn="{x:Bind ViewModel.AutomaticUpdatesEnabled, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#08FFFFFF"
+                          CornerRadius="5">
+                        <StackPanel Margin="50,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="Check for updates" />
+                            <TextBlock Margin="1" FontSize="12"
+                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                       Text="Manually check for updates" />
+                        </StackPanel>
+                        <Button MinWidth="0" Margin="20,5" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Command="{x:Bind ViewModel.CheckForUpdatesCommand}"
+                                Content="Check for Updates" />
+                    </Grid>
+                </StackPanel>
             </Expander>
         </StackPanel>
     </Grid>

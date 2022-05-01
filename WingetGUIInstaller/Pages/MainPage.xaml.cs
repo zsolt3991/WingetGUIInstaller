@@ -1,55 +1,35 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using WingetGUIInstaller.Constants;
-using WingetGUIInstaller.Models;
+using System.Threading.Tasks;
+using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class MainPage : Page
     {
-        private readonly ApplicationDataStorageHelper _configurationStore;
-        private readonly Dictionary<string, Type> _pages = new()
-        {
-            { "list", typeof(ListPage) },
-            { "recommend", typeof(RecommendationsPage) },
-            { "search", typeof(SearchPage) },
-            { "update", typeof(UpgradePage) },
-            { "settings", typeof(SettingsPage) },
-            { "console", typeof(ConsolePage) },
-            { "about", typeof(AboutPage) },
-        };
-
-        private bool _isConsoleEnabled;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public bool IsConsoleEnabled
-        {
-            get => _isConsoleEnabled;
-            set
-            {
-                _isConsoleEnabled = value;
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(IsConsoleEnabled)));
-            }
-        }
+        public MainPageViewModel ViewModel { get; }
 
         public MainPage()
         {
-            _configurationStore = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
-            _isConsoleEnabled = _configurationStore.Read(ConfigurationPropertyKeys.ConsoleEnabled,
-                ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
             InitializeComponent();
+            DataContext = ViewModel = Ioc.Default.GetRequiredService<MainPageViewModel>();
             NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(m => m is NavigationViewItem);
-            WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private async void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(ViewModel.IsUpdateAvailable))
             {
-                DispatcherQueue.TryEnqueue(() => IsConsoleEnabled = m.Value);
-            });
+                if(ViewModel.IsUpdateAvailable)
+                {
+                    await UpdateDialog.ShowAsync().AsTask();
+                }
+            }
         }
 
         private void NavView_SelectionChnage(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -63,9 +43,9 @@ namespace WingetGUIInstaller.Pages
 
         private void NavView_Navigate(string navItemTag, NavigationTransitionInfo transitionInfo)
         {
-            if (_pages.ContainsKey(navItemTag))
+            if (ViewModel.Pages.ContainsKey(navItemTag))
             {
-                var page = _pages.GetValueOrDefault(navItemTag);
+                var page = ViewModel.Pages.GetValueOrDefault(navItemTag);
                 if (page is not null && !Equals(ContentFrame.CurrentSourcePageType, page))
                 {
                     ContentFrame.Navigate(page, null, transitionInfo);
