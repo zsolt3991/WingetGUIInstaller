@@ -51,7 +51,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GithubPackageUpdater\GithubPackageUpdater.csproj" />
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Controls\UpdateDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
