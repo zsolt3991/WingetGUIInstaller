@@ -15,7 +15,7 @@ namespace WingetGUIInstaller.Pages
     public sealed partial class MainPage : Page
     {
         private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
-        private bool contentLoaded = false;
+        private bool _pageLoaded = false;
         public MainPageViewModel ViewModel { get; }
 
         public MainPage()
@@ -28,7 +28,7 @@ namespace WingetGUIInstaller.Pages
             {
                 DispatcherQueue.TryEnqueue(() =>
                 {
-                    if (!contentLoaded)
+                    if (!_pageLoaded)
                     {
                         _defaultPage = m.Value;
                     }
@@ -44,7 +44,7 @@ namespace WingetGUIInstaller.Pages
 
         private void MainPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            contentLoaded = true;
+            _pageLoaded = true;
             // Select the first clickable item when the page is shown
             ChangeSelectedItem(_defaultPage);
         }
