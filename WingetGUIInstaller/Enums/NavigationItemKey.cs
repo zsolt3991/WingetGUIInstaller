@@ -1,6 +1,6 @@
-﻿namespace WingetGUIInstaller.Models
+﻿namespace WingetGUIInstaller.Enums
 {
-    public enum NavigationItem
+    public enum NavigationItemKey
     {
         About,
         Console,

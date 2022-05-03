@@ -90,7 +90,7 @@ namespace WingetHelper.Utils
             string[] keywords = typeof(WingetPackageDetails).GetProperties().Select(p => p.Name.Replace("_", " ")).ToArray();
             Dictionary<string, List<string>> keyValuePairs = new Dictionary<string, List<string>>();
             var key = string.Empty;
-            var value = default(List<string>);
+            var values = new List<string>();
             for (int i = 0; i < output.Count; i++)
             {
                 var currentLine = output[i];
@@ -102,23 +102,23 @@ namespace WingetHelper.Utils
                     }
                     else
                     {
-                        value.Add(currentLine);
+                        values.Add(currentLine);
                     }
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(key))
                     {
-                        keyValuePairs.Add(key, value);
+                        keyValuePairs.Add(key, values);
                     }
                     var splitted = currentLine.Split(':', 2);
                     key = splitted.FirstOrDefault();
-                    value = new List<string>() { splitted.LastOrDefault() };
+                    values.Add(splitted.LastOrDefault());
                 }
             }
             if (!string.IsNullOrEmpty(key))
             {
-                keyValuePairs.Add(key, value);
+                keyValuePairs.Add(key, values);
             }
             return keyValuePairs;
         }

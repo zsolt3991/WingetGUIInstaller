@@ -131,7 +131,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (packageIds.Count == 1)
                 {
                     _notificationManager.ShowPackageOperationStatus(
-                        Packages.FirstOrDefault(p => p.Id == id).Name, InstallOperation.Install, installresult);
+                        Packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Install, installresult);
                 }
             }
 
@@ -152,19 +152,26 @@ namespace WingetGUIInstaller.ViewModels
 
         private void Packages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != default)
             {
                 foreach (var item in e.NewItems)
                 {
-                    (item as WingetPackageViewModel).PropertyChanged += OnPackagePropertyChanged;
+                    if (item is WingetPackageViewModel packageViewModel)
+                    {
+                        packageViewModel.PropertyChanged += OnPackagePropertyChanged;
+                    }
                 }
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace)
+            if ((e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace) && e.OldItems != default)
             {
                 foreach (var item in e.OldItems)
                 {
-                    (item as WingetPackageViewModel).PropertyChanged -= OnPackagePropertyChanged;
+
+                    if (item is WingetPackageViewModel packageViewModel)
+                    {
+                        packageViewModel.PropertyChanged -= OnPackagePropertyChanged;
+                    }
                 }
             }
 

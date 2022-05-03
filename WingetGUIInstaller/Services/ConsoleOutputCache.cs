@@ -2,13 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.Services
 {
     public class ConsoleOutputCache
     {
-        private const int MaxCapacity = 255;
+        protected const int MaxCapacity = 255;
         private readonly ConcurrentQueue<string> _buffer;
 
         public ConsoleOutputCache()

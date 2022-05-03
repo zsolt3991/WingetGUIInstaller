@@ -4,6 +4,7 @@
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
       xmlns:customControls="using:WingetGUIInstaller.Controls"
+      xmlns:enums="using:WingetGUIInstaller.Enums" xmlns:utils="using:WingetGUIInstaller.Utils"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
@@ -22,11 +23,17 @@
                                  IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
-                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar" Tag="Recommendations" />
-                <controls:NavigationViewItem Content="Search Packages" Icon="Find" Tag="Search" />
-                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh" Tag="Upgrades" />
-                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps" Tag="InstalledPackages" />
-                <controls:NavigationViewItem Content="Console" Tag="Console"
+
+                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar"
+                                             Tag="{x:Bind enums:NavigationItemKey.Recommendations}" />
+                <controls:NavigationViewItem Content="Search Packages" Icon="Find"
+                                             Tag="{x:Bind enums:NavigationItemKey.Search}" />
+                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh"
+                                             Tag="{x:Bind enums:NavigationItemKey.Upgrades}" />
+                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps"
+                                             Tag="{x:Bind enums:NavigationItemKey.InstalledPackages}" />
+                <controls:NavigationViewItem Content="Console"
+                                             Tag="{x:Bind enums:NavigationItemKey.Console}"
                                              Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
@@ -34,8 +41,9 @@
                 </controls:NavigationViewItem>
             </controls:NavigationView.MenuItems>
             <controls:NavigationView.FooterMenuItems>
-                <controls:NavigationViewItem Content="Settings" Icon="Setting" Tag="Settings" />
-                <controls:NavigationViewItem Content="About" Tag="About">
+                <controls:NavigationViewItem Content="Settings" Icon="Setting"
+                                             Tag="{x:Bind enums:NavigationItemKey.Settings}" />
+                <controls:NavigationViewItem Content="About" Tag="{x:Bind enums:NavigationItemKey.About}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
                     </NavigationViewItem.Icon>

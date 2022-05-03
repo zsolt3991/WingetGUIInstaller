@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.System;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.ViewModels;
 
@@ -13,28 +14,53 @@ namespace WingetGUIInstaller.Pages
 {
     public sealed partial class MainPage : Page
     {
+        private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
+        private bool contentLoaded = false;
         public MainPageViewModel ViewModel { get; }
 
         public MainPage()
         {
             InitializeComponent();
+            Loaded += MainPage_Loaded;
             DataContext = ViewModel = Ioc.Default.GetRequiredService<MainPageViewModel>();
-            NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(m => m is NavigationViewItem);
-            
-            WeakReferenceMessenger.Default.Register<NavigationRequestedMessage>(this, (r, m) =>
-            {
-                DispatcherQueue.TryEnqueue(() => NavView.SelectedItem =
-                    NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
-                    string.Equals(navItem.Tag.ToString(), m.Value.ToString(), StringComparison.InvariantCultureIgnoreCase)));
-            });
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            WeakReferenceMessenger.Default.Register(this, (MessageHandler<object, NavigationRequestedMessage>)((r, m) =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (!contentLoaded)
+                    {
+                        _defaultPage = m.Value;
+                    }
+                    else
+                    {
+                        ChangeSelectedItem(m.Value);
+                    }
+                });
+            }));
+        }
+
+
+
+        private void MainPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            contentLoaded = true;
+            // Select the first clickable item when the page is shown
+            ChangeSelectedItem(_defaultPage);
+        }
+
+        private void ChangeSelectedItem(NavigationItemKey navigationItemKey)
+        {
+            NavView.SelectedItem =
+                NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
+                string.Equals(navItem.Tag.ToString(), navigationItemKey.ToString(), StringComparison.InvariantCultureIgnoreCase));
         }
 
         private async void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(ViewModel.IsUpdateAvailable))
+            if (e.PropertyName == nameof(ViewModel.IsUpdateAvailable))
             {
-                if(ViewModel.IsUpdateAvailable)
+                if (ViewModel.IsUpdateAvailable)
                 {
                     await UpdateDialog.ShowAsync().AsTask();
                 }
@@ -43,20 +69,18 @@ namespace WingetGUIInstaller.Pages
 
         private void NavView_SelectionChnage(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.SelectedItemContainer != null)
+            if (args.SelectedItemContainer != null &&
+                Enum.TryParse<NavigationItemKey>(args.SelectedItemContainer.Tag.ToString(), out var navItemTag))
             {
-                if (Enum.TryParse(args.SelectedItemContainer.Tag.ToString(), out NavigationItem navigationItem))
-                {
-                    NavView_Navigate(navigationItem, args.RecommendedNavigationTransitionInfo);
-                }
+                NavView_Navigate(navItemTag, args.RecommendedNavigationTransitionInfo);
             }
         }
 
-        private void NavView_Navigate(NavigationItem navigationItem, NavigationTransitionInfo transitionInfo)
+        private void NavView_Navigate(NavigationItemKey navItemTag, NavigationTransitionInfo transitionInfo)
         {
-            if (ViewModel.Pages.ContainsKey(navigationItem))
+            if (ViewModel.Pages.ContainsKey(navItemTag))
             {
-                var page = ViewModel.Pages.GetValueOrDefault(navigationItem);
+                var page = ViewModel.Pages.GetValueOrDefault(navItemTag);
                 if (page is not null && !Equals(ContentFrame.CurrentSourcePageType, page))
                 {
                     ContentFrame.Navigate(page, null, transitionInfo);

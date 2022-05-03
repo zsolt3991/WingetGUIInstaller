@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
 
-namespace WingetGUIInstaller.Models
+namespace WingetGUIInstaller.Messages
 {
     internal class ConsoleEnabledChangeMessage : ValueChangedMessage<bool>
     {

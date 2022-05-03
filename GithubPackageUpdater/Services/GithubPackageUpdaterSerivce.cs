@@ -16,7 +16,7 @@ namespace GithubPackageUpdater.Services
 
         public GithubPackageUpdaterSerivce(PackageUpdaterOptions options)
         {
-            _options = options;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _client = new GitHubClient(new ProductHeaderValue("msixpackageupdater"));
             _packageManager = new();
 
