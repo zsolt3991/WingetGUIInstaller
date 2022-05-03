@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Pages;
 
@@ -22,15 +23,15 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
-        private readonly Dictionary<string, Type> _pages = new()
+        private readonly Dictionary<NavigationItemKey, Type> _pages = new()
         {
-            { "list", typeof(ListPage) },
-            { "recommend", typeof(RecommendationsPage) },
-            { "search", typeof(SearchPage) },
-            { "update", typeof(UpgradePage) },
-            { "settings", typeof(SettingsPage) },
-            { "console", typeof(ConsolePage) },
-            { "about", typeof(AboutPage) },
+            { NavigationItemKey.InstalledPackages, typeof(ListPage) },
+            { NavigationItemKey.Recommendations, typeof(RecommendationsPage) },
+            { NavigationItemKey.Search, typeof(SearchPage) },
+            { NavigationItemKey.Upgrades, typeof(UpgradePage) },
+            { NavigationItemKey.Settings, typeof(SettingsPage) },
+            { NavigationItemKey.Console, typeof(ConsolePage) },
+            { NavigationItemKey.About, typeof(AboutPage) },
         };
 
         private PackageUpdateResponse _update;
@@ -76,7 +77,7 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _isConsoleEnabled, value);
         }
 
-        public IReadOnlyDictionary<string, Type> Pages => _pages;
+        public IReadOnlyDictionary<NavigationItemKey, Type> Pages => _pages;
 
         public bool IsUpdateAvailable => !_update?.IsPackageUpToDate ?? false;
 
