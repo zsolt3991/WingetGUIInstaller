@@ -56,6 +56,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Controls\PackageDetailsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Controls\PackageSourceDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

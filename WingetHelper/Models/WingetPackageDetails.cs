@@ -1,9 +1,13 @@
-﻿using YamlDotNet.Serialization;
+﻿using WingetHelper.Utils;
 
 namespace WingetHelper.Models
 {
     public class WingetPackageDetails
     {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
         public string Author { get; set; }
 
         public string Version { get; set; }
@@ -18,15 +22,15 @@ namespace WingetHelper.Models
 
         public string License { get; set; }
 
-        [YamlMember(Alias = "License Url", ApplyNamingConventions = false)]
+        [DeserializerName("License Url")]
         public string License_Url { get; set; }
 
-        [YamlMember(Alias = "Privacy Url", ApplyNamingConventions = false)]
+        [DeserializerName("Privacy Url")]
         public string Privacy_Url { get; set; }
 
         public string Copyright { get; set; }
 
-        [YamlMember(Alias = "Release Notes", ApplyNamingConventions = false)]
+        [DeserializerName("Release Notes")]
         public string Release_Notes { get; set; }
 
         public WingetPackageInstaller Installer { get; set; }
@@ -36,7 +40,7 @@ namespace WingetHelper.Models
     {
         public string Type { get; set; }
 
-        [YamlMember(Alias = "Download Url", ApplyNamingConventions = false)]
+        [DeserializerName("Download Url")]
         public string Download_Url { get; set; }
 
         public string SHA256 { get; set; }
