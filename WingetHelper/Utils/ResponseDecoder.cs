@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WingetHelper.Models;
-using YamlDotNet.Serialization;
 
 namespace WingetHelper.Utils
 {
