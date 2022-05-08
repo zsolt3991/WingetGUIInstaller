@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.WinUI.Helpers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,13 @@ namespace WingetGUIInstaller.Services
 {
     public class PackageCache
     {
+        protected static readonly int DetailsCacheSize = 5;
         // Define a Treshold after which data is automatically fetched again
         protected static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
@@ -25,6 +28,7 @@ namespace WingetGUIInstaller.Services
         {
             _consoleBuffer = consoleOutputCache;
             _configurationStore = configurationStore;
+            _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
         private bool IsFilteringActive => _configurationStore
@@ -115,6 +119,61 @@ namespace WingetGUIInstaller.Services
             return searchResults.ToList();
         }
 
+        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool refreshDetails = false)
+        {
+            var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
+            if (cachedPackage != default)
+            {
+                if (refreshDetails || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
+                {
+                    return await LoadPackageDetailsAsync(packageId);
+                }
+                else
+                {
+                    return cachedPackage.PackageDetails;
+                }
+            }
+
+            return await LoadPackageDetailsAsync(packageId);
+        }
+
+        private async Task<WingetPackageDetails> LoadPackageDetailsAsync(string packageId)
+        {
+            var details = await PackageCommands.GetPackageDetails(packageId)
+               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+               .ExecuteAsync();
+
+            if (_packageDetailsCache.Count >= DetailsCacheSize)
+            {
+                var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
+                if (cachedPackage != default)
+                {
+                    cachedPackage.PackageDetails = details;
+                    cachedPackage.LastUpdated = DateTimeOffset.UtcNow;
+                }
+                else
+                {
+                    _packageDetailsCache.TryDequeue(out _);
+                    _packageDetailsCache.Enqueue(new QueueElement
+                    {
+                        PackageId = packageId,
+                        PackageDetails = details,
+                        LastUpdated = DateTimeOffset.UtcNow
+                    });
+                }
+            }
+            else
+            {
+                _packageDetailsCache.Enqueue(new QueueElement
+                {
+                    PackageId = packageId,
+                    PackageDetails = details,
+                    LastUpdated = DateTimeOffset.UtcNow
+                });
+            }
+
+            return details;
+        }
 
         private async Task LoadInstalledPackageList()
         {
@@ -136,6 +195,13 @@ namespace WingetGUIInstaller.Services
               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
               .ExecuteAsync()).ToList();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+        }
+
+        private class QueueElement
+        {
+            public string PackageId { get; init; }
+            public DateTimeOffset LastUpdated { get; set; }
+            public WingetPackageDetails PackageDetails { get; set; }
         }
     }
 }

@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WingetHelper.Models;
 using YamlDotNet.Serialization;
@@ -14,6 +16,9 @@ namespace WingetHelper.Utils
 {
     internal static class ResponseDecoder
     {
+        private const string LineSplitRegex = @"^\s*(?<key>.*?)(\:{1}){1}\s*(?<value>.*?)$";
+        private const string FoundResultRegex = @"^Found\s*?(?<packageName>.*)\s*?\[(?<packageId>.*)\]$";
+
         internal static bool ParseInstallSuccessResult(List<string> commandResult)
         {
             return commandResult.Any(line => line.Contains("successfully installed", StringComparison.InvariantCultureIgnoreCase));
@@ -29,99 +34,189 @@ namespace WingetHelper.Utils
             return commandResult.Any(line => line.Contains("successfully uninstalled", StringComparison.InvariantCultureIgnoreCase));
         }
 
-        internal static WingetPackageDetails ParseDetailsYaml(List<string> output)
+        internal static WingetPackageDetails ParseDetailsResponse(List<string> output)
         {
             var result = default(WingetPackageDetails);
             var foundIndex = -1;
+            var regex = new Regex(FoundResultRegex);
+
+            var foundPackageName = string.Empty;
+            var foundPackageId = string.Empty;
+
             output = output.Where(line => !string.IsNullOrEmpty(line)).ToList();
 
             for (int i = 1; i < output.Count; i++)
             {
                 var currentLine = output[i];
-                if (currentLine.StartsWith("no", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
-                if (currentLine.StartsWith("found", StringComparison.InvariantCultureIgnoreCase))
+                var match = regex.Match(currentLine);
+
+                if (match.Success)
                 {
                     foundIndex = i;
+                    foundPackageName = match.Groups["packageName"].Value.Trim();
+                    foundPackageId = match.Groups["packageId"].Value.Trim();
                     break;
+                }
+                else
+                {
+                    if (currentLine.StartsWith("no", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        break;
+                    }
                 }
             }
             if (foundIndex != -1)
             {
-                try
-                {
-                    var cleanedOutput = SanitizeOutputAsYaml(output.Skip(foundIndex + 1).ToList());
-                    var yamlData = string.Join(Environment.NewLine, cleanedOutput);
-                    result = new DeserializerBuilder()
-                       .IgnoreUnmatchedProperties()
-                       .Build()
-                       .Deserialize<WingetPackageDetails>(yamlData);
-                }
-                catch (Exception ex)
-                { }
+                result = DeserializeDetails<WingetPackageDetails>(output.Skip(foundIndex + 1).ToList());
+                result.Name = foundPackageName;
+                result.Id = foundPackageId;
             }
             return result;
         }
 
-        private static List<string> SanitizeOutputAsYaml(List<string> output)
+        private static TObject DeserializeDetails<TObject>(List<string> list) where TObject : class
         {
-            var keyvalue = ConvertOutputToKeyValue(output);
-            var result = new List<string>();
-
-            foreach (var (key, value) in keyvalue)
-            {
-                if (value.Count == 1)
-                {
-                    result.Add(string.Concat(key, ": ", value.FirstOrDefault()));
-                }
-                else
-                {
-                    result.Add(string.Concat(key, ": |"));
-                    value.ForEach(value => result.Add(string.Concat(" ", value.TrimStart(' '))));
-                }
-            }
-            return result;
+            return DeserializeDetails(typeof(TObject), list, 0, out var _) as TObject;
         }
 
-        private static Dictionary<string, List<string>> ConvertOutputToKeyValue(List<string> output)
+        private static object DeserializeDetails(Type targetType, List<string> list, int nestingLevel, out int consumedLines)
         {
-            string[] keywords = typeof(WingetPackageDetails).GetProperties().Select(p => p.Name.Replace("_", " ")).ToArray();
-            Dictionary<string, List<string>> keyValuePairs = new Dictionary<string, List<string>>();
-            var key = string.Empty;
-            var values = new List<string>();
-            for (int i = 0; i < output.Count; i++)
+            var retVal = Activator.CreateInstance(targetType);
+            List<string> keywords = GetPropertyNames(targetType);
+
+            var indentLength = 2 * nestingLevel;
+            var fieldValue = new List<string>();
+            var currentProperty = default(PropertyInfo);
+            var i = 0;
+            var regex = new Regex(LineSplitRegex);
+
+            for (i = 0; i < list.Count; i++)
             {
-                var currentLine = output[i];
-                if (!keywords.Any(keyword => currentLine.StartsWith(keyword)))
+                string line = list[i];
+
+                var lineIndent = line.Length - line.TrimStart().Length;
+
+                if (lineIndent != indentLength)
                 {
-                    if (string.IsNullOrEmpty(key))
+                    break;
+                }
+
+                var match = regex.Match(line);
+
+                if (match.Success)
+                {
+                    var currentKeyword = match.Groups["key"].Value;
+                    var currentValueText = match.Groups["value"].Value;
+
+                    if (currentProperty != default)
                     {
-                        throw new Exception("Unexpected line in response");
+                        currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
+                        currentProperty = GetPropertyForName(targetType, currentKeyword);
+                        if (currentProperty != default)
+                        {
+                            if (currentProperty.PropertyType == typeof(string))
+                            {
+                                fieldValue = new List<string>();
+                                if (!string.IsNullOrEmpty(currentValueText))
+                                {
+                                    fieldValue.Add(currentValueText);
+                                }
+                            }
+                            else
+                            {
+                                currentProperty.SetValue(retVal,
+                                    DeserializeDetails(currentProperty.PropertyType, list.Skip(i + 1).ToList(),
+                                    nestingLevel + 1, out var internalConsumed));
+                                i += internalConsumed;
+                                currentProperty = default;
+                            }
+                        }
                     }
                     else
                     {
-                        values.Add(currentLine);
+                        currentProperty = GetPropertyForName(targetType, currentKeyword);
+
+                        if (currentProperty != default)
+                        {
+                            if (currentProperty.PropertyType == typeof(string))
+                            {
+                                fieldValue = new List<string>();
+                                if (!string.IsNullOrEmpty(currentValueText))
+                                {
+                                    fieldValue.Add(currentValueText);
+                                }
+                            }
+                            else
+                            {
+                                currentProperty.SetValue(retVal,
+                                    DeserializeDetails(currentProperty.PropertyType, list.Skip(i + 1).ToList(),
+                                    nestingLevel + 1, out var internalConsumed));
+                                i += internalConsumed;
+                                currentProperty = default;
+                            }
+                        }
                     }
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(key))
+                    if (!string.IsNullOrWhiteSpace(line))
                     {
-                        keyValuePairs.Add(key, values);
+                        fieldValue.Add(line);
                     }
-                    var splitted = currentLine.Split(':', 2);
-                    key = splitted.FirstOrDefault();
-                    values.Add(splitted.LastOrDefault());
                 }
             }
-            if (!string.IsNullOrEmpty(key))
+
+            if (currentProperty != default && fieldValue.Count > 0)
             {
-                keyValuePairs.Add(key, values);
+                currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
             }
-            return keyValuePairs;
+
+            consumedLines = i;
+            return retVal;
         }
+
+        private static List<string> GetPropertyNames(Type type)
+        {
+            var result = new List<string>();
+            foreach (var prop in type.GetProperties())
+            {
+                var nameAttribute = prop.GetCustomAttribute<DeserializerNameAttribute>();
+                if (nameAttribute != default)
+                {
+                    result.Add(nameAttribute.Name);
+                }
+                else
+                {
+                    result.Add(prop.Name);
+                }
+            }
+            return result;
+        }
+
+        private static PropertyInfo GetPropertyForName(Type type, string name)
+        {
+            foreach (var prop in type.GetProperties())
+            {
+                var nameAttribute = prop.GetCustomAttribute<DeserializerNameAttribute>();
+                if (nameAttribute != default)
+                {
+                    if (nameAttribute.Name == name)
+                    {
+                        return prop;
+                    }
+                }
+                else
+                {
+                    if (prop.Name == name)
+                    {
+                        return prop;
+                    }
+                }
+            }
+            return default;
+        }
+
+
 
         internal static Version ParseResultsVersion(List<string> commandResult)
         {
