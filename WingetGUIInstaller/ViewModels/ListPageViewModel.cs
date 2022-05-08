@@ -178,13 +178,7 @@ namespace WingetGUIInstaller.ViewModels
                 _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
 
                 var details = await _packageCache.GetPackageDetails(value.Id);
-                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel
-                {
-                    PackageAuthor = details.Author,
-                    PackageId = value.Id,
-                    PackageName = value.Name,
-                    PackageURL = !string.IsNullOrEmpty(details.Homepage) ? new Uri(details.Homepage) : default
-                });
+                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel(details));
                 _dispatcherQueue.TryEnqueue(() => DetailsAvailable = true);
             }
             else
