@@ -4,6 +4,7 @@ using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.ViewModels;
 
@@ -47,6 +48,10 @@ namespace WingetGUIInstaller
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
+                .AddSingleton<PageLocatorService<NavigationItemKey>>()
+                .AddSingleton<NavigationService<NavigationItemKey>>()
+                .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
+                .AddSingleton<INavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
                 .AddSingleton<MainPageViewModel>()
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()

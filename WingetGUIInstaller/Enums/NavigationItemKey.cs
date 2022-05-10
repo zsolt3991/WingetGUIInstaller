@@ -9,6 +9,6 @@
         Recommendations,
         Search,
         Settings,
-        Upgrades
+        Upgrades,
     }
 }

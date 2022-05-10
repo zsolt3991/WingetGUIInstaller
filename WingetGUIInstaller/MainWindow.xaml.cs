@@ -1,20 +1,35 @@
-﻿using Microsoft.UI;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using System;
 using Windows.ApplicationModel;
 using Windows.UI;
+using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Services;
 using WinRT.Interop;
 
 namespace WingetGUIInstaller
 {
     public sealed partial class MainWindow : Window
     {
+        private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
+
         public MainWindow()
         {
             InitializeComponent();
             SetTitleBar();
-        }       
+
+            _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
+            _navigationService.AddNavigationLevel(RootFrame);
+            _navigationService.Navigate(NavigationItemKey.Home, null);
+
+            Closed += (sender, args) =>
+            {
+                RootFrame = null;
+                _navigationService.ClearNavigationStack();
+            };
+        }
 
         private AppWindow GetAppWindowForCurrentWindow()
         {

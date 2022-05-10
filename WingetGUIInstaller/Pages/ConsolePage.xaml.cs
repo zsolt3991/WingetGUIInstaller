@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
+    [PageKey(Enums.NavigationItemKey.Console)]
     public sealed partial class ConsolePage : Page
     {
         public ConsolePage()
