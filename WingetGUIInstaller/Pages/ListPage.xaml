@@ -82,6 +82,7 @@
         </toolkit:DataGrid>
 
         <controls:PackageDetailsView Grid.Row="2" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                     MoreButtonCommand="{x:Bind GoToDetailsCommand}"
                                      PackageDetails="{x:Bind ViewModel.SelectedPackageDetails, Mode=OneWay}"
                                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
 

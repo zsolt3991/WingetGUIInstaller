@@ -149,7 +149,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             foreach (var id in packageIds)
             {
-                var upgradeResult = _packageManager.UpgradePackage(id, OnPackageInstallProgress);
+                var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await RefreshInstalledPackages();
@@ -160,7 +160,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             foreach (var id in packageIds)
             {
-                var uninstallResult = _packageManager.RemovePackage(id, OnPackageInstallProgress);
+                var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await RefreshInstalledPackages();
@@ -185,7 +185,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
             }
-        }
+        }        
 
         private void OnPackageInstallProgress(WingetProcessState progess)
         {

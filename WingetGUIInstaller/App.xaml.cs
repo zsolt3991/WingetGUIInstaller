@@ -55,6 +55,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
+                .AddTransient<PackageDetailsPageViewModel>()
                 .AddGithubUpdater(options =>
                 {
                     options

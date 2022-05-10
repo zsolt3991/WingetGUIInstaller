@@ -12,23 +12,21 @@
         <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
 
         <DataTemplate x:Key="RecommendedItemTemplate" x:DataType="viewmodels:RecommendedItemViewModel">
-            <Border Width="160" Height="120"
-                    Padding="10"
-                    Background="{ThemeResource AppBarBackgroundThemeBrush}"
-                    CornerRadius="10"
-                    Opacity="{x:Bind IsInstalled, Converter={StaticResource opacityConverter}, Mode=TwoWay}"
-                    ToolTipService.ToolTip="{x:Bind Id, Mode=OneTime}">
-                <RelativePanel HorizontalAlignment="Stretch">
-                    <TextBlock Name="ItemText"
-                               VerticalAlignment="Top" FontSize="18"
-                               Text="{x:Bind Name, Mode=OneTime}"
-                               TextWrapping="Wrap" />
-                    <CheckBox MinWidth="20" MinHeight="22" Margin="1,0" Padding="0"
-                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
-                              IsEnabled="{x:Bind IsInstalled, Converter={StaticResource negator}, Mode=OneWay}"
-                              RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
-                </RelativePanel>
-            </Border>
+            <RelativePanel Width="160" Height="120"
+                           Padding="10"
+                           Background="{ThemeResource AppBarBackgroundThemeBrush}"
+                           CornerRadius="10"
+                           Opacity="{x:Bind IsInstalled, Converter={StaticResource opacityConverter}, Mode=TwoWay}"
+                           ToolTipService.ToolTip="{x:Bind Id, Mode=OneTime}">
+                <TextBlock Name="ItemText"
+                           VerticalAlignment="Top" FontSize="18"
+                           Text="{x:Bind Name, Mode=OneTime}"
+                           TextWrapping="Wrap" />
+                <CheckBox MinWidth="20" MinHeight="22" Margin="1,0" Padding="0"
+                          IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                          IsEnabled="{x:Bind IsInstalled, Converter={StaticResource negator}, Mode=OneWay}"
+                          RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+            </RelativePanel>
         </DataTemplate>
 
         <DataTemplate x:Key="RecommendedGroupTemplate" x:DataType="viewmodels:RecommendedItemsGroup">
@@ -63,11 +61,13 @@
                                    IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                    Message="{x:Bind ViewModel.LoadingText, Mode=OneWay}" />
 
-        <GridView Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <GridView Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsItemClickEnabled="True"
+                  ItemClick="GridView_ItemClick"
                   ItemTemplate="{StaticResource RecommendedItemTemplate}"
                   ItemsSource="{x:Bind RecommendedItems.View, Mode=OneWay}"
                   SelectionMode="None">
             <GridView.Resources>
+                <SolidColorBrush x:Key="ItemBackgroundHover" Color="Transparent" />
                 <CollectionViewSource x:Name="RecommendedItems"
                                       x:Key="RecommendedItems" IsSourceGrouped="True"
                                       Source="{x:Bind ViewModel.RecommendedItems, Mode=OneWay}" />

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
@@ -12,6 +14,18 @@ namespace WingetGUIInstaller.Pages
         {
             DataContext = ViewModel = Ioc.Default.GetRequiredService<RecommendationsPageViewModel>();
             InitializeComponent();
+        }
+
+        private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is RecommendedItemViewModel recommendedItem)
+            {
+                Frame.Navigate(typeof(PackageDetailsPage), new PackageDetailsNavigationArgs
+                {
+                    AvailableOperation = recommendedItem.IsInstalled ? AvailableOperation.Uninstall : AvailableOperation.Install,
+                    PackageId = recommendedItem.Id,
+                });
+            }
         }
     }
 }

@@ -12,14 +12,18 @@ namespace WingetGUIInstaller.ViewModels
         private string _moniker;
         private string _version;
         private string _publisher;
+        private Uri _publisherURL;
+        private Uri _publisherSupportURL;
         private string _packageAuthor;
         private Uri _packageURL;
         private string _license;
         private Uri _licenseURL;
         private Uri _privacyURL;
         private string _copyright;
+        private Uri _copyrightURL;
         private string _description;
         private string _releaseNotes;
+        private Uri _releaseNotesUrl;
 
         public PackageDetailsViewModel(WingetPackageDetails wingetPackageDetails)
         {
@@ -29,16 +33,20 @@ namespace WingetGUIInstaller.ViewModels
             _version = wingetPackageDetails.Version;
 
             _publisher = wingetPackageDetails.Publisher;
+            _publisherURL = !string.IsNullOrEmpty(wingetPackageDetails.Publisher_Url) ? new Uri(wingetPackageDetails.Publisher_Url) : default;
+            _publisherSupportURL = !string.IsNullOrEmpty(wingetPackageDetails.Publisher_Support_Url) ? new Uri(wingetPackageDetails.Publisher_Support_Url) : default;
             _packageAuthor = wingetPackageDetails.Author;
             _packageURL = !string.IsNullOrEmpty(wingetPackageDetails.Homepage) ? new Uri(wingetPackageDetails.Homepage) : default;
 
             _copyright = wingetPackageDetails.Copyright;
+            _copyrightURL = !string.IsNullOrEmpty(wingetPackageDetails.Copyright_Url) ? new Uri(wingetPackageDetails.Copyright_Url) : default;
             _license = wingetPackageDetails.License;
             _licenseURL = !string.IsNullOrEmpty(wingetPackageDetails.License_Url) ? new Uri(wingetPackageDetails.License_Url) : default;
             _privacyURL = !string.IsNullOrEmpty(wingetPackageDetails.Privacy_Url) ? new Uri(wingetPackageDetails.Privacy_Url) : default;
 
             _description = wingetPackageDetails.Description;        
             _releaseNotes = wingetPackageDetails.Release_Notes;
+            _releaseNotesUrl = !string.IsNullOrEmpty(wingetPackageDetails.Release_Notes_Url) ? new Uri(wingetPackageDetails.Release_Notes_Url) : default;
         }
 
 
@@ -78,6 +86,18 @@ namespace WingetGUIInstaller.ViewModels
             private set => SetProperty(ref _publisher, value);
         }
 
+        public Uri PublisherURL
+        {
+            get => _publisherURL;
+            private set => SetProperty(ref _publisherURL, value);
+        }
+
+        public Uri PublisherSupportUrl
+        {
+            get => _publisherSupportURL;
+            private set => SetProperty(ref _publisherSupportURL, value);
+        }
+
         public Uri PackageURL
         {
             get => _packageURL;
@@ -88,6 +108,12 @@ namespace WingetGUIInstaller.ViewModels
         {
             get => _copyright;
             private set => SetProperty(ref _copyright, value);
+        }
+
+        public Uri CopyrightURL
+        {
+            get => _copyrightURL;
+            private set => SetProperty(ref _copyrightURL, value);
         }
 
         public string License
@@ -118,6 +144,12 @@ namespace WingetGUIInstaller.ViewModels
         {
             get => _releaseNotes;
             private set => SetProperty(ref _releaseNotes, value);
+        }
+
+        public Uri ReleaseNotesUrl
+        {
+            get => _releaseNotesUrl;
+            private set => SetProperty(ref _releaseNotesUrl, value);
         }
     }
 }
