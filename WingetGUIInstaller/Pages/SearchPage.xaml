@@ -83,6 +83,7 @@
 
 
         <controls:PackageDetailsView Grid.Row="3" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                     MoreButtonCommand="{x:Bind ViewModel.GoToDetailsCommand}"
                                      PackageDetails="{x:Bind ViewModel.SelectedPackageDetails, Mode=OneWay}"
                                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
 

@@ -10,5 +10,6 @@
         Search,
         Settings,
         Upgrades,
+        PackageDetails,
     }
 }

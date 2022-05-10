@@ -9,6 +9,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Models;
 
@@ -19,6 +21,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
+        private readonly INavigationService<NavigationItemKey> _navigationService;
         private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
@@ -29,11 +32,12 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isDetailsAvailable;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue,
-            PackageCache packageCache, PackageManager packageManager)
+            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             Packages.CollectionChanged += Packages_CollectionChanged;
             _ = ListUpgradableItemsAsync();
@@ -111,6 +115,9 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand UpgradeAllCommand => new AsyncRelayCommand(() =>
             UpgradePackagesAsync(Packages.Select(p => p.Id)));
 
+        public ICommand GoToDetailsCommand =>
+            new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
+
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -174,6 +181,15 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
             }
+        }
+
+        private void ViewPackageDetails(PackageDetailsViewModel obj)
+        {
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            {
+                PackageDetails = obj,
+                AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update
+            });
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)
