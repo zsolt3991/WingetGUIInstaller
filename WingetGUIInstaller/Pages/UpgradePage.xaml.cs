@@ -18,17 +18,5 @@ namespace WingetGUIInstaller.Pages
             DataContext = ViewModel = Ioc.Default.GetRequiredService<UpgradePageViewModel>();
             InitializeComponent();
         }
-
-        public ICommand GoToDetailsCommand =>
-            new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
-
-        private void ViewPackageDetails(PackageDetailsViewModel obj)
-        {
-            Frame.Navigate(typeof(PackageDetailsPage), new PackageDetailsNavigationArgs
-            {
-                PackageDetails = obj,
-                AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update
-            });
-        }
     }
 }
