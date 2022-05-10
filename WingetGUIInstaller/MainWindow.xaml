@@ -1,5 +1,5 @@
 ﻿<Window x:Class="WingetGUIInstaller.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:pages="using:WingetGUIInstaller.Pages">
-    <Frame SourcePageType="pages:MainPage" />
+    <Frame Name="RootFrame" />
 </Window>

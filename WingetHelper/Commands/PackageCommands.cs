@@ -27,7 +27,7 @@ namespace WingetHelper.Commands
         public static WingetCommand<WingetPackageDetails> GetPackageDetails(string packageId)
         {
             return new WingetCommand<WingetPackageDetails>("show", packageId)
-                 .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseDetailsYaml(commandResult));
+                 .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseDetailsResponse(commandResult));
         }
 
         public static WingetCommand<bool> InstallPackage(string packageId)

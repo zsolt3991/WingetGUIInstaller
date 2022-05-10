@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 
 namespace WingetGUIInstaller.Pages
 {
+    [PageKey(Enums.NavigationItemKey.About)]
     public sealed partial class AboutPage : Page
     {
         public ApplicationInfoViewModel ViewModel { get; }

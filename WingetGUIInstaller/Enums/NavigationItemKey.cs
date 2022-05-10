@@ -9,6 +9,7 @@
         Recommendations,
         Search,
         Settings,
-        Upgrades
+        Upgrades,
+        PackageDetails,
     }
 }
