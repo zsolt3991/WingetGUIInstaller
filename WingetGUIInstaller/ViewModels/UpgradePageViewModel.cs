@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Models;
 
@@ -20,19 +22,23 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
-        private readonly ObservableCollection<WingetPackageViewModel> _packages;
+        private readonly INavigationService<NavigationItemKey> _navigationService;
+        private ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
         private string _loadingText;
         private AdvancedCollectionView _packagesView;
+        private PackageDetailsViewModel _selectedPackageDetails;
+        private bool _isDetailsAvailable;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue,
-            PackageCache packageCache, PackageManager packageManager)
+            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
@@ -70,6 +76,12 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public PackageDetailsViewModel SelectedPackageDetails
+        {
+            get => _selectedPackageDetails;
+            set => SetProperty(ref _selectedPackageDetails, value);
+        }
+
         public WingetPackageViewModel SelectedPackage
         {
             get => _selectedPackage;
@@ -79,6 +91,7 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(CanUpgradeSelected));
+                    _ = FetchPackageDetailsAsync(value);
                 }
             }
         }
@@ -90,6 +103,12 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanUpgradeSelected => SelectedCount > 0;
 
+        public bool DetailsAvailable
+        {
+            get => _isDetailsAvailable;
+            private set => SetProperty(ref _isDetailsAvailable, value);
+        }
+
         public ICommand RefreshCommand => new AsyncRelayCommand(()
             => ListUpgradableItemsAsync(true));
 
@@ -98,6 +117,9 @@ namespace WingetGUIInstaller.ViewModels
 
         public ICommand UpgradeAllCommand
             => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Select(p => p.Id)));
+
+        public ICommand GoToDetailsCommand =>
+            new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
 
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
@@ -136,6 +158,37 @@ namespace WingetGUIInstaller.ViewModels
             await ListUpgradableItemsAsync(true);
         }
 
+
+        private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
+        {
+            if (Packages.Any(p => p.IsSelected))
+            {
+                return;
+            }
+
+            if (value != default)
+            {
+                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+
+                var details = await _packageCache.GetPackageDetails(value.Id);
+                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel(details));
+                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = true);
+            }
+            else
+            {
+                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+            }
+        }
+
+        private void ViewPackageDetails(PackageDetailsViewModel obj)
+        {
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            {
+                PackageDetails = obj,
+                AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update
+            });
+        }
+
         private void OnPackageInstallProgress(WingetProcessState progess)
         {
             _dispatcherQueue.TryEnqueue(() => LoadingText = progess.ToString());
@@ -143,19 +196,26 @@ namespace WingetGUIInstaller.ViewModels
 
         private void Packages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != default)
             {
                 foreach (var item in e.NewItems)
                 {
-                    (item as WingetPackageViewModel).PropertyChanged += OnPackagePropertyChanged;
+                    if (item is WingetPackageViewModel packageViewModel)
+                    {
+                        packageViewModel.PropertyChanged += OnPackagePropertyChanged;
+                    }
                 }
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace)
+            if ((e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Replace) && e.OldItems != default)
             {
                 foreach (var item in e.OldItems)
                 {
-                    (item as WingetPackageViewModel).PropertyChanged -= OnPackagePropertyChanged;
+
+                    if (item is WingetPackageViewModel packageViewModel)
+                    {
+                        packageViewModel.PropertyChanged -= OnPackagePropertyChanged;
+                    }
                 }
             }
 
@@ -171,6 +231,7 @@ namespace WingetGUIInstaller.ViewModels
                 case nameof(WingetPackageViewModel.IsSelected):
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(CanUpgradeSelected));
+                    _ = FetchPackageDetailsAsync(SelectedPackage);
                     break;
                 default:
                     break;

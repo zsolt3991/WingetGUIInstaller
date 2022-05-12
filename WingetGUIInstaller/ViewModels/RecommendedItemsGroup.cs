@@ -3,19 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.ViewModels
 {
 
-    public class RecommendedItemsGroup : ObservableObject, IGrouping<GroupType, RecommendedItemViewModel>
+    public class RecommendedItemsGroup : ObservableObject, IGrouping<RecommendationGroupType, RecommendedItemViewModel>
     {
         private readonly IEnumerable<RecommendedItemViewModel> _items;
-        private readonly GroupType _key;
+        private readonly RecommendationGroupType _key;
         private bool _isSelected;
 
-        public RecommendedItemsGroup(GroupType key, IEnumerable<RecommendedItemViewModel> items)
+        public RecommendedItemsGroup(RecommendationGroupType key, IEnumerable<RecommendedItemViewModel> items)
         {
             _key = key;
             _items = items;
@@ -25,7 +24,7 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public GroupType Key => _key;
+        public RecommendationGroupType Key => _key;
 
         public bool CanSelect => _items.Any(p => !p.IsInstalled);
 

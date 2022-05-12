@@ -6,7 +6,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 
@@ -14,7 +14,7 @@ namespace WingetGUIInstaller.ViewModels
 {
     public class ConsolePageViewModel : ObservableObject
     {
-        private const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
+        protected const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
         private string _commandLine;

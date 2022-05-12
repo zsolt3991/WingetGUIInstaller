@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
 using GithubPackageUpdater.Models;
 
-namespace WingetGUIInstaller.Models
+namespace WingetGUIInstaller.Messages
 {
     internal class UpdateAvailableMessage : ValueChangedMessage<PackageUpdateResponse>
     {
