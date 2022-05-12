@@ -68,7 +68,7 @@
                 </toolkit:DataGridTemplateColumn>
                 <toolkit:DataGridTextColumn Width="2*"
                                             Binding="{Binding Name}"
-                                            Header="Pacakge Name" />
+                                            Header="Package Name" />
                 <toolkit:DataGridTextColumn Width="1*"
                                             Binding="{Binding Version}"
                                             Header="Installed Version" />

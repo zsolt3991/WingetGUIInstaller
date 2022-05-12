@@ -50,7 +50,7 @@
                           CanUserResizeColumns="False" IsReadOnly="True"
                           ItemsSource="{x:Bind ViewModel.PackagesView, Mode=OneWay}"
                           SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
-                          SelectionMode="Single">
+                          SelectionMode="Single" Sorting="DataGrid_Sorting">
             <toolkit:DataGrid.Resources>
                 <SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent" />
                 <SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="Transparent" />
@@ -66,7 +66,7 @@
                 </toolkit:DataGridTemplateColumn>
                 <toolkit:DataGridTextColumn Width="2*"
                                             Binding="{Binding Name}"
-                                            Header="Pacakge Name" />
+                                            CanUserSort="True" Header="Package Name" />
                 <toolkit:DataGridTextColumn Width="1*"
                                             Binding="{Binding Version}"
                                             Header="Installed Version" />
@@ -75,7 +75,7 @@
                                             Header="Update Version" />
                 <toolkit:DataGridTextColumn Width="1*"
                                             Binding="{Binding Source}"
-                                            Header="Source" />
+                                            CanUserSort="True" Header="Source" />
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 

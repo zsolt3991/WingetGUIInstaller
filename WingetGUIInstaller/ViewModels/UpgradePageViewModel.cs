@@ -13,6 +13,7 @@ using System.Windows.Input;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -23,7 +24,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
-        private ObservableCollection<WingetPackageViewModel> _packages;
+        private readonly ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
@@ -161,7 +162,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            if (Packages.Any(p => p.IsSelected))
+            if (_packages.Any(p => p.IsSelected))
             {
                 return;
             }
@@ -241,25 +242,15 @@ namespace WingetGUIInstaller.ViewModels
 
         private void ApplyPackageFilter(string query)
         {
-            using (PackagesView.DeferRefresh())
-            {
-                try
-                {
-                    PackagesView.Filter = p => IsMatchingFilter(p as WingetPackageViewModel, query);
-                }
-                catch { }
-            }
-        }
-
-        private bool IsMatchingFilter(WingetPackageViewModel package, string query)
-        {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return true;
+                PackagesView.Filter = default;
             }
 
-            return package.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-                || package.Id.Contains(query, StringComparison.InvariantCultureIgnoreCase);
+            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
+                package.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(query, StringComparison.InvariantCultureIgnoreCase)
+            );
         }
     }
 }
