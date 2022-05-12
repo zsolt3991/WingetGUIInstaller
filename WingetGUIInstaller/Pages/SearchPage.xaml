@@ -48,17 +48,20 @@
             </Button>
         </Grid>
 
-        <toolkit:DataGrid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False"
+        <toolkit:DataGrid Name="PackagesGrid"
+                          Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False"
                           CanUserReorderColumns="False" CanUserResizeColumns="False" GridLinesVisibility="None"
                           IsReadOnly="True"
-                          ItemsSource="{x:Bind ViewModel.Packages, Mode=OneWay}"
-                          SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}">
+                          ItemsSource="{x:Bind ViewModel.PackagesView, Mode=OneWay}"
+                          SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
+                          Sorting="DataGrid_Sorting">
             <toolkit:DataGrid.Resources>
                 <SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent" />
                 <SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="Transparent" />
             </toolkit:DataGrid.Resources>
             <toolkit:DataGrid.Columns>
-                <toolkit:DataGridTemplateColumn Width="32">
+                <toolkit:DataGridTemplateColumn Width="32"
+                                                CanUserSort="True" Tag="Selected">
                     <toolkit:DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
@@ -68,16 +71,16 @@
                 </toolkit:DataGridTemplateColumn>
                 <toolkit:DataGridTextColumn Width="2*"
                                             Binding="{Binding Name}"
-                                            Header="Package Name" />
+                                            CanUserSort="True" Header="Package Name" Tag="PackageName" />
                 <toolkit:DataGridTextColumn Width="2*"
                                             Binding="{Binding Id}"
-                                            Header="Package Id" />
+                                            CanUserSort="True" Header="Package Id" Tag="PackageId" />
                 <toolkit:DataGridTextColumn Width="1*"
                                             Binding="{Binding Version}"
-                                            Header="Latest Version" />
+                                            Header="Latest Version" Tag="PackageVersion" />
                 <toolkit:DataGridTextColumn Width="1*"
                                             Binding="{Binding Source}"
-                                            Header="Source" />
+                                            CanUserSort="True" Header="Source" Tag="Source" />
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 

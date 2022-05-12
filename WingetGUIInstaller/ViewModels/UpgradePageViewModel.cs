@@ -212,7 +212,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var item in e.OldItems)
                 {
-
                     if (item is WingetPackageViewModel packageViewModel)
                     {
                         packageViewModel.PropertyChanged -= OnPackagePropertyChanged;
@@ -244,7 +243,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                PackagesView.Filter = default;
+                PackagesView.ClearFiltering();
             }
 
             PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>

@@ -39,5 +39,17 @@ namespace WingetGUIInstaller.Utils
                 catch { }
             }
         }
+
+        public static void ClearFiltering(this AdvancedCollectionView advancedCollectionView)
+        {
+            using (advancedCollectionView.DeferRefresh())
+            {
+                try
+                {
+                    advancedCollectionView.Filter = default;
+                }
+                catch { }
+            }
+        }
     }
 }
