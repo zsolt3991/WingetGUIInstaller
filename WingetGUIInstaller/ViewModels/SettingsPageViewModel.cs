@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Services;
 using Microsoft.UI.Dispatching;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -15,7 +16,6 @@ using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
-using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -23,6 +23,8 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
+        private readonly PackageSourceManager _packageSourceManager;
+        private readonly PackageSourceCache _packageSourceCache;
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly List<string> _disabledPackageSources;
@@ -37,13 +39,17 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _automaticUpdatesEnabled;
 
         public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore,
-           GithubPackageUpdaterSerivce updaterSerivce, ConsoleOutputCache cache)
+           GithubPackageUpdaterSerivce updaterSerivce, ConsoleOutputCache cache,
+           PackageSourceManager packageSourceManager, PackageSourceCache packageSourceCache)
         {
             _dispatcherQueue = dispatcherQueue;
             _configurationStore = configurationStore;
             _updaterSerivce = updaterSerivce;
             _cache = cache;
+            _packageSourceManager = packageSourceManager;
+            _packageSourceCache = packageSourceCache;
             _disabledPackageSources = LoadDisabledPackageSources();
+
             PackageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             PackageSources.CollectionChanged += PackageSources_CollectionChanged;
             _ = LoadPackageSourcesAsync();
@@ -195,16 +201,14 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        private async Task LoadPackageSourcesAsync()
+        private async Task LoadPackageSourcesAsync(bool forceReload = false)
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
                 PackageSources.Clear();
             });
 
-            var wingetSources = await PackageSourceCommands.GetPackageSources()
-                .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
+            var wingetSources = await _packageSourceCache.GetAvailablePackageSources(forceReload);
             foreach (var entry in wingetSources)
             {
                 _dispatcherQueue.TryEnqueue(() => PackageSources.Add(new WingetPackageSourceViewModel
@@ -224,10 +228,8 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            await PackageSourceCommands.AddPackageSource(name, argument)
-                .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
-            await LoadPackageSourcesAsync();
+            await _packageSourceManager.AddPackageSource(name, argument);
+            await LoadPackageSourcesAsync(true);
         }
 
         private async Task RemovePackageSourcesAsync(IEnumerable<string> sourceNames)
@@ -236,11 +238,9 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var sourceName in sourceNames)
                 {
-                    await PackageSourceCommands.RemovePackageSource(sourceName)
-                        .ConfigureOutputListener(_cache.IngestMessage)
-                        .ExecuteAsync();
+                    await _packageSourceManager.RemovePackageSource(sourceName);
                 }
-                await LoadPackageSourcesAsync();
+                await LoadPackageSourcesAsync(true);
             }
         }
 
