@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
 using WingetGUIInstaller.Enums;
 
-namespace WingetGUIInstaller.Models
+namespace WingetGUIInstaller.Messages
 {
     internal class NavigationRequestedMessage : ValueChangedMessage<NavigationItemKey>
     {

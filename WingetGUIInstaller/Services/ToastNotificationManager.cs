@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.Notifications;
-using System;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.Services

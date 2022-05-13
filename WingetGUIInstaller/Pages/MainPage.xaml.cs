@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Windows.System;
 using WingetGUIInstaller.Enums;
-using WingetGUIInstaller.Models;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
