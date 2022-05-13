@@ -54,16 +54,17 @@ namespace WingetGUIInstaller.Services
             return await command.ExecuteAsync();
         }
 
-        public async Task ExportPackageList(StorageFile outputFile)
+        public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)
         {
-            await PackageListCommands.ExportPackagesToFile(outputFile.Path)
+            var sourceToExport = !string.IsNullOrEmpty(packageSourceFilter) ? packageSourceFilter : null;
+            await PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
         }
 
-        public async Task ImportPackageList (StorageFile inputFile)
+        public async Task ImportPackageList(StorageFile inputFile, bool importVersions, bool ignoreMissing)
         {
-            await PackageListCommands.ImportPackagesFromFile(inputFile.Path)
+            await PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
         }
