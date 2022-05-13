@@ -48,6 +48,8 @@ namespace WingetGUIInstaller
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
+                .AddSingleton<PackageSourceCache>()
+                .AddSingleton<PackageSourceManager>()
                 .AddSingleton<PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
