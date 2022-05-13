@@ -13,7 +13,10 @@ namespace WingetGUIInstaller.Controls
             .Register("SecondaryText", typeof(string), typeof(StandardButtonSettingsControl), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ButtonCommandProperty = DependencyProperty
-            .Register("ButtonCommand", typeof(ICommand), typeof(StandardButtonSettingsControl), new PropertyMetadata(false));
+            .Register("ButtonCommand", typeof(ICommand), typeof(StandardButtonSettingsControl), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ButtonTextProperty = DependencyProperty
+            .Register("ButtonText", typeof(string), typeof(StandardButtonSettingsControl), new PropertyMetadata(null));
 
         public ICommand ButtonCommand
         {
@@ -31,6 +34,12 @@ namespace WingetGUIInstaller.Controls
         {
             get { return (string)GetValue(SecondaryTextProperty); }
             set { SetValue(SecondaryTextProperty, value); }
+        }
+
+        public string ButtonText
+        {
+            get { return (string)GetValue(ButtonTextProperty); }
+            set { SetValue(ButtonTextProperty, value); }
         }
 
         public StandardButtonSettingsControl()
