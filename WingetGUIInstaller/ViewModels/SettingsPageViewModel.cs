@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
+using CommunityToolkit.WinUI.UI;
 using GithubPackageUpdater.Services;
 using Microsoft.UI.Dispatching;
 using System;
@@ -28,7 +29,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly List<string> _disabledPackageSources;
-        private ObservableCollection<WingetPackageSourceViewModel> _packageSources;
+        private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
         private WingetPackageSourceViewModel _selectedSource;
         private string _newPackageSourceName;
         private string _newPackageSourceUrl;
@@ -37,6 +38,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _packageSourceFilteringEnabled;
         private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _automaticUpdatesEnabled;
+        private AdvancedCollectionView _packageSourcesView;
 
         public SettingsPageViewModel(DispatcherQueue dispatcherQueue, ApplicationDataStorageHelper configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce, ConsoleOutputCache cache,
@@ -50,15 +52,17 @@ namespace WingetGUIInstaller.ViewModels
             _packageSourceCache = packageSourceCache;
             _disabledPackageSources = LoadDisabledPackageSources();
 
-            PackageSources = new ObservableCollection<WingetPackageSourceViewModel>();
-            PackageSources.CollectionChanged += PackageSources_CollectionChanged;
+            _packageSources = new ObservableCollection<WingetPackageSourceViewModel>();
+            _packageSources.CollectionChanged += PackageSources_CollectionChanged;
+            PackageSourcesView = new AdvancedCollectionView(_packageSources, true);
+
             _ = LoadPackageSourcesAsync();
         }
 
-        public ObservableCollection<WingetPackageSourceViewModel> PackageSources
+        public AdvancedCollectionView PackageSourcesView
         {
-            get => _packageSources;
-            set => SetProperty(ref _packageSources, value);
+            get => _packageSourcesView;
+            set => SetProperty(ref _packageSourcesView, value);
         }
 
         public WingetPackageSourceViewModel SelectedSource
@@ -181,14 +185,14 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => PackageSources.Any(p => p.IsSelected) ?
-            PackageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
+        public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
+            _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
 
         public ICommand AddPackageSourceCommand => new AsyncRelayCommand(()
             => AddPackageSourceAsync(NewPackageSourceName, NewPackageSourceUrl));
 
         public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
-            => RemovePackageSourcesAsync(PackageSources.Where(p => p.IsSelected).Select(p => p.Name)));
+            => RemovePackageSourcesAsync(_packageSources.Where(p => p.IsSelected).Select(p => p.Name)));
 
         public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
 
@@ -205,13 +209,13 @@ namespace WingetGUIInstaller.ViewModels
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                PackageSources.Clear();
+                _packageSources.Clear();
             });
 
             var wingetSources = await _packageSourceCache.GetAvailablePackageSources(forceReload);
             foreach (var entry in wingetSources)
             {
-                _dispatcherQueue.TryEnqueue(() => PackageSources.Add(new WingetPackageSourceViewModel
+                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(new WingetPackageSourceViewModel
                 {
                     IsSelected = false,
                     Name = entry.Name,
@@ -302,7 +306,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private void UpdateEnabledPackageList()
         {
-            foreach (var packageSource in PackageSources.Where(p => !p.IsEnabled))
+            foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled))
             {
                 if (_disabledPackageSources.Contains(packageSource.Name))
                     continue;
