@@ -31,6 +31,7 @@ namespace GithubPackageUpdater.Services
             var packageName = installedPackage.Id.Name;
             var packageVersion = new Version(installedPackage.Id.Version.Major, installedPackage.Id.Version.Minor,
                 installedPackage.Id.Version.Build, installedPackage.Id.Version.Revision);
+            var packagePlatform = installedPackage.Id.Architecture.ToString();
 
             var repository = await GetRepositoryAsync();
 
@@ -50,7 +51,9 @@ namespace GithubPackageUpdater.Services
                     if (releaseVersion > packageVersion)
                     {
                         var packageAsset = lastRelease.Assets.FirstOrDefault(asset =>
-                            asset.Name.Contains(packageName, StringComparison.InvariantCulture));
+                            asset.Name.Contains(packageName, StringComparison.InvariantCulture) &&
+                            asset.Name.Contains(packagePlatform, StringComparison.InvariantCultureIgnoreCase));
+
                         if (packageAsset != default)
                         {
                             return new PackageUpdateResponse

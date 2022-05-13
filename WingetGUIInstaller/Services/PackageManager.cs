@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Windows.Storage;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -51,6 +52,21 @@ namespace WingetGUIInstaller.Services
             }
 
             return await command.ExecuteAsync();
+        }
+
+        public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)
+        {
+            var sourceToExport = !string.IsNullOrEmpty(packageSourceFilter) ? packageSourceFilter : null;
+            await PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync();
+        }
+
+        public async Task ImportPackageList(StorageFile inputFile, bool importVersions, bool ignoreMissing)
+        {
+            await PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync();
         }
     }
 }

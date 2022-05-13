@@ -126,7 +126,8 @@
 
                     <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                                   ButtonCommand="{x:Bind ViewModel.CheckForUpdatesCommand}"
-                                                                  PrimaryText="Check for updates" SecondaryText="Manually check for updates" />
+                                                                  ButtonText="Check for updates" PrimaryText="Check for updates"
+                                                                  SecondaryText="Manually check for updates" />
                 </StackPanel>
             </Expander>
         </StackPanel>

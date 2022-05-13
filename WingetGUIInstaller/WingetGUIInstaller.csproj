@@ -59,6 +59,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Controls\CustomContentSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Pages\ImportExportPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Pages\PackageDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

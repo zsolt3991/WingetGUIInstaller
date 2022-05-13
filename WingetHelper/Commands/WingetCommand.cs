@@ -40,7 +40,17 @@ namespace WingetHelper.Commands
                 RedirectStandardOutput = true,
                 StandardOutputEncoding = Encoding.Default
             };
+
             extendedArgs.ForEach(arg => _processStartInfo.ArgumentList.Add(arg));
+        }
+
+        public WingetCommand<TResult> AddExtraArguments(params string[] arguments)
+        {
+            if (arguments.Any())
+            {
+                Array.ForEach(arguments, arg => _processStartInfo.ArgumentList.Add(arg));
+            }
+            return this;
         }
 
         public WingetCommand<TResult> ConfigureProgressListener(Action<WingetProcessState> progressListener)

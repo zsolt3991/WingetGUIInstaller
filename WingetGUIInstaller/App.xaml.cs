@@ -15,7 +15,9 @@ namespace WingetGUIInstaller
     /// </summary>
     public partial class App : Application
     {
-        private Window _window;
+        public static Window Window => _window;
+
+        private static Window _window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -62,6 +64,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
+                .AddSingleton<ImportExportPageViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
                 .AddGithubUpdater(options =>
                 {
