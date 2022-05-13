@@ -11,5 +11,6 @@
         Settings,
         Upgrades,
         PackageDetails,
+        ImportExport,
     }
 }

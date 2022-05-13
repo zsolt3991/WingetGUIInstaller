@@ -17,9 +17,11 @@ namespace WingetGUIInstaller
     /// </summary>
     public partial class App : Application
     {
-        private Window _window;
         private readonly ToastNotificationManager _notificationManager;
         private readonly DispatcherQueue _dispatcherQueue;
+        private static Window _window;
+        
+        public static Window Window => _window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -58,6 +60,8 @@ namespace WingetGUIInstaller
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
                 .AddSingleton<ToastNotificationManager>()
+                .AddSingleton<PackageSourceCache>()
+                .AddSingleton<PackageSourceManager>()
                 .AddSingleton<PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
@@ -70,6 +74,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ApplicationInfoViewModel>()
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
+                .AddSingleton<ImportExportPageViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
                 .AddGithubUpdater(options =>
                 {

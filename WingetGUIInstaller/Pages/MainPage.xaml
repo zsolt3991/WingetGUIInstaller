@@ -32,6 +32,8 @@
                                              Tag="{x:Bind enums:NavigationItemKey.Upgrades}" />
                 <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps"
                                              Tag="{x:Bind enums:NavigationItemKey.InstalledPackages}" />
+                <controls:NavigationViewItem Content="Import/Export Pacakge Lists" Icon="Import"
+                                             Tag="{x:Bind enums:NavigationItemKey.ImportExport}" />
                 <controls:NavigationViewItem Content="Console"
                                              Tag="{x:Bind enums:NavigationItemKey.Console}"
                                              Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
