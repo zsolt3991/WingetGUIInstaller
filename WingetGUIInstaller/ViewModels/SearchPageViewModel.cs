@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,14 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
-        private ObservableCollection<WingetPackageViewModel> _packages;
+        private readonly ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _searchQuery;
         private string _loadingText;
         private bool _isDetailsAvailable;
         private PackageDetailsViewModel _selectedPackageDetails;
+        private AdvancedCollectionView _packagesView;
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
@@ -38,7 +40,9 @@ namespace WingetGUIInstaller.ViewModels
             _packageManager = packageManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
-            Packages.CollectionChanged += Packages_CollectionChanged;
+            _packages.CollectionChanged += Packages_CollectionChanged;
+
+            PackagesView = new AdvancedCollectionView(_packages, true);
         }
 
         public bool IsLoading
@@ -53,10 +57,10 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _loadingText, value);
         }
 
-        public ObservableCollection<WingetPackageViewModel> Packages
+        public AdvancedCollectionView PackagesView
         {
-            get => _packages;
-            set => SetProperty(ref _packages, value);
+            get => _packagesView;
+            set => SetProperty(ref _packagesView, value);
         }
 
         public string SearchQuery
@@ -85,9 +89,9 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => Packages.Any(p => p.IsSelected) ? Packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
-        public bool CanInstallAll => Packages.Any();
+        public bool CanInstallAll => _packages.Any();
 
         public bool CanInstallSelected => SelectedCount > 0;
 
@@ -101,10 +105,10 @@ namespace WingetGUIInstaller.ViewModels
             => SerchPackageAsync(SearchQuery, false));
 
         public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(Packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            => InstallPackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
 
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(Packages.Select(p => p.Id)));
+            => InstallPackagesAsync(_packages.Select(p => p.Id)));
 
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
@@ -116,7 +120,7 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     _dispatcherQueue.TryEnqueue(() =>
                     {
-                        Packages.Clear();
+                        PackagesView.Clear();
                         LoadingText = "Loading";
                         IsLoading = true;
                     });
@@ -125,7 +129,7 @@ namespace WingetGUIInstaller.ViewModels
 
                     foreach (var entry in searchResults)
                     {
-                        _dispatcherQueue.TryEnqueue(() => Packages.Add(new WingetPackageViewModel(entry)));
+                        _dispatcherQueue.TryEnqueue(() => PackagesView.Add(new WingetPackageViewModel(entry)));
                     }
                     _dispatcherQueue.TryEnqueue(() => IsLoading = false);
                 }
@@ -146,7 +150,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            if (Packages.Any(p => p.IsSelected))
+            if (_packages.Any(p => p.IsSelected))
             {
                 return;
             }
