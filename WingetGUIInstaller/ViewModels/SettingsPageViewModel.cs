@@ -91,7 +91,6 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     _consoleTabEnabled = _configurationStore
                         .Read(ConfigurationPropertyKeys.ConsoleEnabled, ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
-                    WeakReferenceMessenger.Default.Send(new ConsoleEnabledChangeMessage(_consoleTabEnabled.Value));
                 }
                 return _consoleTabEnabled.Value;
             }

@@ -46,7 +46,6 @@ namespace WingetGUIInstaller.ViewModels
             _ = ListUpgradableItemsAsync();
         }
 
-
         public bool IsLoading
         {
             get => _isLoading;

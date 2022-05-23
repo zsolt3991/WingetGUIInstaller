@@ -6,14 +6,11 @@ using GithubPackageUpdater.Models;
 using GithubPackageUpdater.Services;
 using Microsoft.UI.Dispatching;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
-using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
-using WingetGUIInstaller.Pages;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -23,16 +20,6 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
-        private readonly Dictionary<NavigationItemKey, Type> _pages = new()
-        {
-            { NavigationItemKey.InstalledPackages, typeof(ListPage) },
-            { NavigationItemKey.Recommendations, typeof(RecommendationsPage) },
-            { NavigationItemKey.Search, typeof(SearchPage) },
-            { NavigationItemKey.Upgrades, typeof(UpgradePage) },
-            { NavigationItemKey.Settings, typeof(SettingsPage) },
-            { NavigationItemKey.Console, typeof(ConsolePage) },
-            { NavigationItemKey.About, typeof(AboutPage) },
-        };
 
         private PackageUpdateResponse _update;
 
@@ -76,8 +63,6 @@ namespace WingetGUIInstaller.ViewModels
             get => _isConsoleEnabled;
             set => SetProperty(ref _isConsoleEnabled, value);
         }
-
-        public IReadOnlyDictionary<NavigationItemKey, Type> Pages => _pages;
 
         public bool IsUpdateAvailable => !_update?.IsPackageUpToDate ?? false;
 
