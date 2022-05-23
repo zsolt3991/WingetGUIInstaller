@@ -12,5 +12,6 @@
         Upgrades,
         PackageDetails,
         ImportExport,
+        PackageSources,
     }
 }
