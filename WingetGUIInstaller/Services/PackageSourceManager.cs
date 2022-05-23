@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Services;
 
@@ -8,11 +10,13 @@ namespace WingetGUIInstaller.Services
     {
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ICommandExecutor _commandExecutor;
+        private readonly ILogger<PackageSourceManager> _logger;
 
-        public PackageSourceManager(ConsoleOutputCache consoleBuffer, ICommandExecutor commandExecutor)
+        public PackageSourceManager(ConsoleOutputCache consoleBuffer, ICommandExecutor commandExecutor, ILogger<PackageSourceManager> logger)
         {
             _consoleBuffer = consoleBuffer;
             _commandExecutor = commandExecutor;
+            _logger = logger;
         }
 
         public async Task AddPackageSource(string packageSourceName, string packageSourceArgument, string packageSourceType = default)

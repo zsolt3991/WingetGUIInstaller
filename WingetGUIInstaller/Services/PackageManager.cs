@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using Windows.Storage;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 using WingetHelper.Services;
@@ -12,12 +14,14 @@ namespace WingetGUIInstaller.Services
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly PackageCache _packageCache;
         private readonly ICommandExecutor _commandExecutor;
+        private readonly ILogger<PackageManager> _logger;
 
-        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache, ICommandExecutor commandExecutor)
+        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache, ICommandExecutor commandExecutor, ILogger<PackageManager> logger, ILoggerFactory commandLoggerFactory)
         {
             _consoleBuffer = consoleBuffer;
             _packageCache = packageCache;
             _commandExecutor = commandExecutor;
+            _logger = logger;
         }
 
         public async Task<bool> InstallPacakge(string packageId, Action<WingetProcessState> progressListener = default)
@@ -30,6 +34,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
+            _logger.LogInformation("Installing package: {packageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
@@ -48,6 +53,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
+            _logger.LogInformation("Upgrading package: {packageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
@@ -66,6 +72,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
+            _logger.LogInformation("Removing package: {packageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {

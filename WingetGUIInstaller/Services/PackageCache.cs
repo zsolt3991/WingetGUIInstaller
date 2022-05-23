@@ -1,8 +1,10 @@
-﻿using System;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 using WingetHelper.Services;
@@ -17,6 +19,8 @@ namespace WingetGUIInstaller.Services
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ExclusionsManager _exclusionsManager;
+        private readonly ILogger<PackageCache> _logger;
+        private readonly ILoggerFactory _commandLoggerFactory;
         private readonly ICommandExecutor _commandExecutor;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
@@ -29,10 +33,13 @@ namespace WingetGUIInstaller.Services
         private bool _installedCacheValidity;
         private bool _updateCacheValidity;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager, ICommandExecutor commandExecutor)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager, ICommandExecutor commandExecutor,
+            ILogger<PackageCache> logger, ILoggerFactory commandLoggerFactory)
         {
             _consoleBuffer = consoleOutputCache;
             _exclusionsManager = exclusionsManager;
+            _logger = logger;
+            _commandLoggerFactory = commandLoggerFactory;
             _commandExecutor = commandExecutor;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
             _installedCacheValidity = false;
@@ -51,11 +58,13 @@ namespace WingetGUIInstaller.Services
             if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
+                _logger.LogInformation("Installed package cache refresh required. Force: {force}", forceReload);
                 await LoadInstalledPackageList();
             }
 
             if (_installedPackages == default || !_installedPackages.Any())
             {
+                _logger.LogWarning("No installed packages available");
                 return new List<WingetPackageEntry>();
             }
 
@@ -69,11 +78,13 @@ namespace WingetGUIInstaller.Services
             if (_upgradablePackages == default || forceReload || !_updateCacheValidity ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
+                _logger.LogInformation("Upgradable package cache refresh required. Force: {force}", forceReload);
                 await LoadUpgradablePackages();
             }
 
             if (_upgradablePackages == default || !_upgradablePackages.Any())
             {
+                _logger.LogWarning("No upgragadable packages available");
                 return new List<WingetPackageEntry>();
             }
 
@@ -87,6 +98,7 @@ namespace WingetGUIInstaller.Services
             if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
+                _logger.LogInformation("Installed package cache refresh required. Force: {force}", forceReload);
                 await LoadInstalledPackageList();
             }
 
@@ -99,6 +111,7 @@ namespace WingetGUIInstaller.Services
             if (_searchResults == default || !_searchResults.Any())
             {
                 // Return empty result set
+                _logger.LogWarning("No search results for query: {query}", searchQuery);
                 return new List<WingetPackageEntry>();
             }
 
@@ -117,6 +130,7 @@ namespace WingetGUIInstaller.Services
             {
                 if (forceReload || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
                 {
+                    _logger.LogInformation("Package details refresh required. Force: {force}", forceReload);
                     return await LoadPackageDetailsAsync(packageId);
                 }
                 else
@@ -136,6 +150,7 @@ namespace WingetGUIInstaller.Services
 
             if (details == default)
             {
+                _logger.LogWarning("No package details for packageId: {packageId}", packageId);
                 return default;
             }
 
@@ -144,12 +159,15 @@ namespace WingetGUIInstaller.Services
                 var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
                 if (cachedPackage != default)
                 {
+                    _logger.LogInformation("Updating cached package details for packageId: {packageId}", packageId);
                     cachedPackage.PackageDetails = details;
                     cachedPackage.LastUpdated = DateTimeOffset.UtcNow;
                 }
                 else
                 {
-                    _packageDetailsCache.TryDequeue(out _);
+                    _packageDetailsCache.TryDequeue(out var itemToRemove);
+                    _logger.LogInformation("Removed cached package details for packageId: {packageId}", itemToRemove?.PackageId);
+                    _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
                     _packageDetailsCache.Enqueue(new QueueElement
                     {
                         PackageId = packageId,
@@ -160,6 +178,7 @@ namespace WingetGUIInstaller.Services
             }
             else
             {
+                _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
                 _packageDetailsCache.Enqueue(new QueueElement
                 {
                     PackageId = packageId,
@@ -181,6 +200,7 @@ namespace WingetGUIInstaller.Services
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
             _installedCacheValidity = true;
+            _logger.LogInformation("Installed package cache refreshed at: {time}", _lastUpgrablePackageRefresh);
         }
 
         private async Task LoadUpgradablePackages()
@@ -193,6 +213,7 @@ namespace WingetGUIInstaller.Services
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
             _updateCacheValidity = true;
+            _logger.LogInformation("Upgradable package cache refreshed at: {time}", _lastUpgrablePackageRefresh);
         }
 
         private async Task PerformSearchAsync(string searchQuery)
@@ -205,6 +226,7 @@ namespace WingetGUIInstaller.Services
             _searchResults = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastSearchTime = DateTimeOffset.UtcNow;
             _lastSerarchQuery = searchQuery;
+            _logger.LogInformation("Installed search result cache refreshed at: {time}", _lastUpgrablePackageRefresh);
         }
 
         private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,

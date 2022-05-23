@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -13,11 +14,13 @@ namespace WingetGUIInstaller.Services
         private readonly IPageLocatorService<TNavigationKey> _pageLocator;
         private readonly ConcurrentStack<Frame> _frameStack;
         private Frame _currentFrame;
+        private readonly ILogger _logger;
 
-        public NavigationService(IPageLocatorService<TNavigationKey> pageLocator)
+        public NavigationService(IPageLocatorService<TNavigationKey> pageLocator, ILogger<NavigationService<NavigationItemKey>> logger)
         {
             _frameStack = new ConcurrentStack<Frame>();
             _pageLocator = pageLocator;
+            _logger = logger;
         }
 
         public int NavigationDepth => _frameStack.Count;
@@ -45,6 +48,7 @@ namespace WingetGUIInstaller.Services
             }
             else
             {
+                _logger.LogError("Frame is already in the navigation stack");
                 throw new Exception("Frame is already in the navigation stack");
             }
         }
@@ -77,12 +81,13 @@ namespace WingetGUIInstaller.Services
                 }
                 else
                 {
+                    _logger.LogError("Trying to remove a different frame from the stack");
                     throw new Exception("Trying to remove a different frame from the stack");
                 }
             }
             else
             {
-                throw new Exception("No Navigation Level can be removed");
+                _logger.LogWarning("Frame stack is empty");
             }
         }
 
@@ -114,6 +119,7 @@ namespace WingetGUIInstaller.Services
             }
 
             DispatchNavigatedFrom(_currentFrame);
+            _logger.LogDebug("Navigating to key: {key}", key);
             var pageType = _pageLocator.GetPageTypeForKey(key);
             _currentFrame.Navigate(pageType, args);
 
@@ -136,6 +142,7 @@ namespace WingetGUIInstaller.Services
             }
 
             DispatchNavigatedFrom(_currentFrame, NavigationMode.New);
+            _logger.LogDebug("Navigating to key: {key}", key);
             var pageType = _pageLocator.GetPageTypeForKey(key);
             _currentFrame.Navigate(pageType, args, transitionInfo);
 
@@ -181,19 +188,21 @@ namespace WingetGUIInstaller.Services
             navigationAware.OnNavigatedTo(parameter);
         }
 
-        private static void RemoveLastNavigationStackItem(Frame frame)
+        private void RemoveLastNavigationStackItem(Frame frame)
         {
             if (frame.BackStackDepth > 0)
             {
                 frame.BackStack.RemoveAt(frame.BackStack.Count - 1);
+                _logger.LogDebug("Removed the last navigation stack item");
             }
         }
 
-        private static void ClearNavigationStack(Frame frame)
+        private void ClearNavigationStack(Frame frame)
         {
             if (frame.BackStackDepth > 0)
             {
                 frame.BackStack.Clear();
+                _logger.LogDebug("Navigation stack was cleared");
             }
         }
     }
