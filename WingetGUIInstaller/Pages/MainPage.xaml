@@ -33,6 +33,8 @@
                                              Tag="{x:Bind enums:NavigationItemKey.InstalledPackages, Converter={StaticResource navigationTagConverter}}" />
                 <controls:NavigationViewItem Content="Import/Export Pacakge Lists" Icon="Import"
                                              Tag="{x:Bind enums:NavigationItemKey.ImportExport, Converter={StaticResource navigationTagConverter}}" />
+                <controls:NavigationViewItem Content="Manage Package Sources" Icon="Manage"
+                                             Tag="{x:Bind enums:NavigationItemKey.PackageSources, Converter={StaticResource navigationTagConverter}}" />
                 <controls:NavigationViewItem Content="Console"
                                              Tag="{x:Bind enums:NavigationItemKey.Console, Converter={StaticResource navigationTagConverter}}"
                                              Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
