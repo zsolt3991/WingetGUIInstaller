@@ -2,10 +2,16 @@
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Serilog;
+using System.IO;
+using Windows.Storage;
+using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller
@@ -18,6 +24,8 @@ namespace WingetGUIInstaller
         public static Window Window => _window;
 
         private static Window _window;
+        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ApplicationDataStorageHelper _appDataStorage;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -25,9 +33,13 @@ namespace WingetGUIInstaller
         /// </summary>
         public App()
         {
-            ConfigureServices();
-            InitializeComponent();
             Current.RequestedTheme = ApplicationTheme.Dark;
+            InitializeComponent();
+
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _appDataStorage = ApplicationDataStorageHelper.GetCurrent();
+
+            ConfigureServices();
         }
 
         /// <summary>
@@ -43,10 +55,12 @@ namespace WingetGUIInstaller
 
         private void ConfigureServices()
         {
-            DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Ioc.Default.ConfigureServices(new ServiceCollection()
-                .AddSingleton(dispatcherQueue)
-                .AddSingleton(ApplicationDataStorageHelper.GetCurrent())
+                .AddLogging(builder => builder
+                    .SetMinimumLevel(GetLogLevel())
+                    .AddSerilog(ConfigureLogging(), true))
+                .AddSingleton(_dispatcherQueue)
+                .AddSingleton(_appDataStorage)
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
@@ -67,13 +81,31 @@ namespace WingetGUIInstaller
                 .AddSingleton<ImportExportPageViewModel>()
                 .AddSingleton<PackageSourceManagementViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
-                .AddGithubUpdater(options =>
-                {
-                    options
+                .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
-                        .ConfigureRepository("WingetGUIInstaller");
-                })
+                    .ConfigureRepository("WingetGUIInstaller")
+                )
                 .BuildServiceProvider());
+        }
+
+        private Serilog.ILogger ConfigureLogging()
+        {
+            return new LoggerConfiguration()
+                .MinimumLevel.Is(GetLogLevel().ToSerilogLevel())
+                .WriteTo.File(
+                    Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.LogFileName),
+                    outputTemplate: LoggingConstants.LogTemplate,
+                    rollingInterval: RollingInterval.Day)
+#if DEBUG
+                .WriteTo.Debug(outputTemplate: LoggingConstants.LogTemplate)
+#endif
+                .Enrich.FromLogContext()
+                .CreateLogger();
+        }
+
+        private LogLevel GetLogLevel()
+        {
+            return (LogLevel)_appDataStorage.Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
         }
     }
 }

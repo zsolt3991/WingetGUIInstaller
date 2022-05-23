@@ -8,6 +8,7 @@
         public const string DisabledPackageSources = "disabledPackageSources";
         public const string IgnoreEmptyPackageSources = "ignoreEmptyPackageSources";
         public const string AutomaticUpdates = "AutomaticUpdates";
+        public const string LogLevel = "LogLevel";
 
         public const bool ConsoleEnabledDefaultValue = true;
         public const bool NotificationsEnabledDefaultValue = true;
@@ -15,5 +16,6 @@
         public const string DisabledPackageSourcesDefaultValue = "";
         public const bool IgnoreEmptyPackageSourcesDefaultValue = true;
         public const bool AutomaticUpdatesDefaultValue = false;
+        public const int DefaultLogLevel = 2;
     }
 }

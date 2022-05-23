@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
-using System;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
@@ -16,6 +14,6 @@ namespace WingetGUIInstaller.Pages
         {
             InitializeComponent();
             DataContext = ViewModel = Ioc.Default.GetRequiredService<SettingsPageViewModel>();
-        }       
+        }      
     }
 }

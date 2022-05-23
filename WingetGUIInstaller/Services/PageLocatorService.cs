@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,11 @@ namespace WingetGUIInstaller.Services
     public class PageLocatorService<TNavigationKey> where TNavigationKey : Enum
     {
         private IReadOnlyDictionary<TNavigationKey, Type> _pageMap;
+        private readonly ILogger _logger;
 
-        public PageLocatorService()
+        public PageLocatorService(ILogger<PageLocatorService<TNavigationKey>> logger)
         {
+            _logger = logger;
             RegisterPagesInCurrentAssembly();
         }
 
@@ -30,6 +33,7 @@ namespace WingetGUIInstaller.Services
                 {
                     var pageKey = keyAttribute.NavigationItemKey;
                     discoveredPages.Add((TNavigationKey)pageKey, type);
+                    _logger.LogInformation("Registering Page: {pageName} for Key: {keyName}", type.Name, pageKey.ToString());
                 }
             }
             _pageMap = discoveredPages;
@@ -39,6 +43,7 @@ namespace WingetGUIInstaller.Services
         {
             if (!_pageMap.ContainsKey(key))
             {
+                _logger.LogError("Unknown Key: {keyName}", key.ToString());
                 throw new Exception("No Page registered for the given key");
             }
 

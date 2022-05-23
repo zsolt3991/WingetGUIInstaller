@@ -39,7 +39,7 @@ namespace WingetHelper.Commands
         public static WingetCommand<bool> UninstallPackage(string packageId)
         {
             return new WingetCommand<bool>("uninstall", "-e", "-h", "--id", packageId)
-                .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseInstallSuccessResult(commandResult));
+                .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseUninstallSuccessResult(commandResult));
         }
 
         public static WingetCommand<bool> UpgradePackage(string packageId)

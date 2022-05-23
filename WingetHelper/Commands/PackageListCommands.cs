@@ -5,8 +5,7 @@
         public static WingetCommand<object> ExportPackagesToFile(string filePath, bool includeVersions = false,
             bool acceptSourceAgreements = false, string packageSourceFilter = default)
         {
-            var command = new WingetCommand<object>("export", "-o", filePath)
-                .ConfigureResultDecoder(commandResult => null);
+            var command = new WingetCommand<object>("export", "-o", filePath);
 
             if (includeVersions)
             {
@@ -18,7 +17,7 @@
                 command.AddExtraArguments("--accept-source-agreements");
             }
 
-            if (packageSourceFilter != default)
+            if (!string.IsNullOrEmpty(packageSourceFilter))
             {
                 command.AddExtraArguments("-s", packageSourceFilter);
             }
@@ -29,8 +28,7 @@
         public static WingetCommand<object> ImportPackagesFromFile(string filePath, bool ignoreUnavailable = true,
             bool ignoreVersions = false, bool acceptPackageAgreements = false, bool acceptSourceAgreements = false)
         {
-            var command = new WingetCommand<object>("import", "-i", filePath)
-                 .ConfigureResultDecoder(commandResult => null);
+            var command = new WingetCommand<object>("import", "-i", filePath);
 
             if (ignoreUnavailable)
             {

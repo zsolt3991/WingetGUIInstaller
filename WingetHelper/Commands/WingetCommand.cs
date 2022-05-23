@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,8 +14,11 @@ namespace WingetHelper.Commands
     {
         public const string ExecutableName = "winget";
         public const string ShellName = "cmd.exe";
+        public const string CommandPrefixArgument = "/C";
+        public const string PipeToFile = ">";
 
         private readonly ProcessStartInfo _processStartInfo;
+        private readonly Guid _requestId;
         private readonly Dictionary<string, WingetProcessState> _processStateKeywordMap = new Dictionary<string, WingetProcessState>
         {
             {"found", WingetProcessState.Found },
@@ -29,10 +33,11 @@ namespace WingetHelper.Commands
         private Action<WingetProcessState> _progressMonitor;
         private Action<string> _outputListener;
         private Func<List<string>, TResult> _resultDecoder;
+        private ILogger _logger;
 
         internal WingetCommand(params string[] arguments)
         {
-            var extendedArgs = new List<string> { "/C", /*"chcp", "65001", "&",*/ ExecutableName }.Concat(arguments).ToList();
+            _requestId = Guid.NewGuid();
             _processStartInfo = new ProcessStartInfo(ShellName)
             {
                 CreateNoWindow = true,
@@ -41,7 +46,12 @@ namespace WingetHelper.Commands
                 StandardOutputEncoding = Encoding.Default
             };
 
-            extendedArgs.ForEach(arg => _processStartInfo.ArgumentList.Add(arg));
+            _processStartInfo.ArgumentList.Add(CommandPrefixArgument);
+            _processStartInfo.ArgumentList.Add(ExecutableName);
+            if (arguments.Any())
+            {
+                Array.ForEach(arguments, arg => _processStartInfo.ArgumentList.Add(arg));
+            }
         }
 
         public WingetCommand<TResult> AddExtraArguments(params string[] arguments)
@@ -65,6 +75,12 @@ namespace WingetHelper.Commands
             return this;
         }
 
+        public WingetCommand<TResult> ConfigureLogger(ILogger logger)
+        {
+            _logger = logger;
+            return this;
+        }
+
         internal WingetCommand<TResult> ConfigureResultDecoder(Func<List<string>, TResult> resultDecoder)
         {
             _resultDecoder = resultDecoder;
@@ -73,6 +89,7 @@ namespace WingetHelper.Commands
 
         internal WingetCommand<TResult> UseShellExecute()
         {
+            _logger?.LogDebug("Setting ShellExecute parameters");
             _processStartInfo.UseShellExecute = true;
             _processStartInfo.RedirectStandardOutput = false;
             _processStartInfo.StandardOutputEncoding = default;
@@ -83,7 +100,8 @@ namespace WingetHelper.Commands
         {
             if (_processStartInfo.UseShellExecute == false)
             {
-                throw new Exception("Cannot run as admin when Shell Execute is not set");
+                _logger?.LogWarning("Cannot run as admin when ShellExecute is not set.");
+                UseShellExecute();
             }
             _processStartInfo.Verb = "runas";
             return this;
@@ -96,7 +114,6 @@ namespace WingetHelper.Commands
 
         public async Task<TResult> ExecuteAsync()
         {
-            var requestId = Guid.NewGuid();
             var result = default(TResult);
 
             if (_outputListener != default)
@@ -106,37 +123,53 @@ namespace WingetHelper.Commands
 
             if (_processStartInfo.UseShellExecute)
             {
-                var outputFile = Path.Combine(AppContext.BaseDirectory, requestId.ToString());
-                var redirectArgs = new List<string> { ">", outputFile };
-                redirectArgs.ForEach(arg => _processStartInfo.ArgumentList.Add(arg));
+                _logger?.LogDebug("[{commandId}] Creating output file", _requestId);
+                var outputFile = Path.Combine(AppContext.BaseDirectory, _requestId.ToString());
+                Array.ForEach(new string[] { PipeToFile, outputFile }, arg => _processStartInfo.ArgumentList.Add(arg));
             }
 
-            using (var p = Process.Start(_processStartInfo))
+            _logger?.LogInformation("[{commandId}] Executing command with arguments: {args}", _requestId,
+                string.Join(',', _processStartInfo.ArgumentList));
+
+            try
             {
-                if (_processStartInfo.RedirectStandardOutput)
+                using (var p = Process.Start(_processStartInfo))
                 {
-                    result = await HandleOutputAsync(p.StandardOutput).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (!p.HasExited)
+                    if (p != default)
                     {
-                        p.WaitForExit(5_000);
+                        if (_processStartInfo.RedirectStandardOutput)
+                        {
+                            result = await HandleOutputAsync(p.StandardOutput).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            if (!p.HasExited)
+                            {
+                                p.WaitForExit(5_000);
+                            }
+                        }
+                    }
+                }
+
+                if (_processStartInfo.UseShellExecute)
+                {
+                    _logger?.LogDebug("[{commandId}] Parsing output file", _requestId);
+                    var outputFile = Path.Combine(AppContext.BaseDirectory, _requestId.ToString());
+                    if (File.Exists(outputFile))
+                    {
+                        using (var fileReader = File.OpenText(outputFile))
+                        {
+                            result = await HandleOutputAsync(fileReader).ConfigureAwait(false);
+                        }
                     }
                 }
             }
-
-            if (_processStartInfo.UseShellExecute)
+            catch (Exception ex)
             {
-                var outputFile = Path.Combine(AppContext.BaseDirectory, requestId.ToString());
-                if (File.Exists(outputFile))
-                {
-                    using (var fileReader = File.OpenText(outputFile))
-                    {
-                        result = await HandleOutputAsync(fileReader).ConfigureAwait(false);
-                    }
-                }
+                _logger?.LogError(ex, "[{commandId}] Exception occured while executing command", _requestId);
+                throw;
             }
+
             return result;
         }
 

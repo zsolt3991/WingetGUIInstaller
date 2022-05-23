@@ -3,7 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Services;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
@@ -21,6 +24,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _packageSourceFilteringEnabled;
         private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _automaticUpdatesEnabled;
+        private LogLevel? _selectedLogLevel;
 
         public SettingsPageViewModel(ApplicationDataStorageHelper configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce)
@@ -129,7 +133,29 @@ namespace WingetGUIInstaller.ViewModels
                     _configurationStore.Save(ConfigurationPropertyKeys.AutomaticUpdates, value);
                 }
             }
-        }      
+        }
+
+        public LogLevel SelectedLogLevel
+        {
+            get
+            {
+                if (_selectedLogLevel == null)
+                {
+                    _selectedLogLevel = (LogLevel)_configurationStore
+                        .Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+                }
+                return _selectedLogLevel.Value;
+            }
+            set
+            {
+                if (SetProperty(ref _selectedLogLevel, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.LogLevel, value);
+                }
+            }
+        }
+
+        public IReadOnlyList<LogLevel> LogLevels => Enum.GetValues<LogLevel>().Cast<LogLevel>().ToList();
 
         public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
 
