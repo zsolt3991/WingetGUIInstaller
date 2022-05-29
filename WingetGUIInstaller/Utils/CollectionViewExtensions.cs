@@ -28,7 +28,7 @@ namespace WingetGUIInstaller.Utils
         }
 
         public static void ApplyFiltering<TElement>(this AdvancedCollectionView advancedCollectionView,
-            Func<TElement, bool> filterExpression) where TElement : class
+            Predicate<TElement> filterExpression) where TElement : class
         {
             using (advancedCollectionView.DeferRefresh())
             {

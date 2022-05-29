@@ -129,22 +129,17 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            var _returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
+            var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
 
             _dispatcherQueue.TryEnqueue(() =>
             {
-                UpdateDisplayedPackages(_returnedPackages);
+                _packages.Clear();
+                foreach (var entry in returnedPackages)
+                {
+                    _packages.Add(new WingetPackageViewModel(entry));
+                }
                 IsLoading = false;
             });
-        }
-
-        private void UpdateDisplayedPackages(IEnumerable<WingetPackageEntry> wingetPackages)
-        {
-            _packages.Clear();
-            foreach (var entry in wingetPackages)
-            {
-                _packages.Add(new WingetPackageViewModel(entry));
-            }
         }
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
@@ -161,7 +156,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            if (_packages.Any(p => p.IsSelected))
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
                 return;
             }
@@ -169,10 +164,12 @@ namespace WingetGUIInstaller.ViewModels
             if (value != default)
             {
                 _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
-
                 var details = await _packageCache.GetPackageDetails(value.Id);
-                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel(details));
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = true);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    SelectedPackageDetails = new PackageDetailsViewModel(details);
+                    DetailsAvailable = true;
+                });
             }
             else
             {

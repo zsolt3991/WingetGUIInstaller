@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -6,8 +7,14 @@ namespace WingetGUIInstaller.ViewModels
     {
         private bool _isSelected;
         private string _name;
-        private string _url;
+        private string _argument;
         private bool _isEnabled;
+
+        public WingetPackageSourceViewModel(WingetPackageSource packageSource)
+        {
+            _name = packageSource.Name;
+            _argument = packageSource.Argument;
+        }
 
         public bool IsSelected
         {
@@ -27,10 +34,10 @@ namespace WingetGUIInstaller.ViewModels
             set => SetProperty(ref _name, value);
         }
 
-        public string Url
+        public string Argument
         {
-            get => _url;
-            set => SetProperty(ref _url, value);
+            get => _argument;
+            set => SetProperty(ref _argument, value);
         }
     }
 }
