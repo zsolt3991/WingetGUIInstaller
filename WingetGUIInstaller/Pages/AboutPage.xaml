@@ -40,10 +40,11 @@
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Margin="5" FontSize="16" Text="WinGet Install Status" />
                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="5" FontSize="16"
-                           Text="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource installedStatusConverter}}" />
+                           Text="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource installedStatusConverter}, Mode=OneWay}" />
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Margin="5" FontSize="16" Text="WinGet Version"
                            Visibility="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
+
                 <TextBlock Grid.Row="3" Grid.Column="1" Margin="5" FontSize="16"
                            Text="{x:Bind ViewModel.InstalledWingetVersion, Mode=OneWay}"
                            Visibility="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />

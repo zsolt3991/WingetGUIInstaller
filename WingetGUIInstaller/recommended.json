@@ -70,13 +70,8 @@
     "Group": "Productivity"
   },
   {
-    "Name": ".NET 6 Runtime 32 bit",
-    "Id": "Microsoft.dotnetRuntime.6-x86",
-    "Group": "BasicUtilities"
-  },
-  {
-    "Name": ".NET 6 Runtime 64 bit",
-    "Id": "Microsoft.dotnetRuntime.6-x64",
+    "Name": ".NET 6 Runtime",
+    "Id": "Microsoft.dotnet.Runtime.6",
     "Group": "BasicUtilities"
   },
   {

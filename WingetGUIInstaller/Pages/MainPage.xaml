@@ -12,7 +12,6 @@
     </Page.Resources>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
         <customControls:UpdateDialog x:Name="UpdateDialog"
                                      PrimaryButtonCommand="{x:Bind ViewModel.InstallUpdateCommand}"
                                      UpdateChangeLog="{x:Bind ViewModel.UpdateChangeLog, Mode=OneWay}"
@@ -34,6 +33,8 @@
                                              Tag="{x:Bind enums:NavigationItemKey.InstalledPackages}" />
                 <controls:NavigationViewItem Content="Import/Export Pacakge Lists" Icon="Import"
                                              Tag="{x:Bind enums:NavigationItemKey.ImportExport}" />
+                <controls:NavigationViewItem Content="Manage Package Sources" Icon="Manage"
+                                             Tag="{x:Bind enums:NavigationItemKey.PackageSources}" />
                 <controls:NavigationViewItem Content="Console"
                                              Tag="{x:Bind enums:NavigationItemKey.Console}"
                                              Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
@@ -52,8 +53,22 @@
                 </controls:NavigationViewItem>
             </controls:NavigationView.FooterMenuItems>
             <Grid>
-                <Frame x:Name="ContentFrame" IsTabStop="True" />
+                <Frame x:Name="ContentFrame"
+                       Margin="0,48,0,0" IsTabStop="True" />
             </Grid>
         </controls:NavigationView>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="641" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentFrame.Margin" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>
