@@ -107,10 +107,10 @@ namespace WingetGUIInstaller.ViewModels
             => SerchPackageAsync(SearchQuery, false));
 
         public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            => InstallPackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id).ToList()));
 
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(_packages.Select(p => p.Id)));
+            => InstallPackagesAsync(_packages.Select(p => p.Id).ToList()));
 
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
@@ -156,7 +156,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (packageIds.Count == 1)
                 {
                     _notificationManager.ShowPackageOperationStatus(
-                        Packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Install, installresult);
+                        _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Install, installresult);
                 }
             }
 

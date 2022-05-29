@@ -28,7 +28,6 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
-        private List<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
         private PackageDetailsViewModel _selectedPackageDetails;
         private bool _isDetailsLoading;

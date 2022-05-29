@@ -29,7 +29,6 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isLoading;
         private WingetPackageViewModel _selectedPackage;
         private string _filterText;
-        private List<WingetPackageEntry> _returnedPackages;
         private string _loadingText;
         private AdvancedCollectionView _packagesView;
         private PackageDetailsViewModel _selectedPackageDetails;
@@ -116,10 +115,10 @@ namespace WingetGUIInstaller.ViewModels
             => ListUpgradableItemsAsync(true));
 
         public ICommand UpgradeSelectedCommand
-            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id).ToList()));
 
         public ICommand UpgradeAllCommand
-            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Select(p => p.Id)));
+            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Select(p => p.Id).ToList()));
 
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
@@ -144,10 +143,10 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = false;
             });
 
-            _notificationManager.ShowUpdateStatus(_returnedPackages.Count != 0, _returnedPackages.Count);
+            _notificationManager.ShowUpdateStatus(returnedPackages.Count != 0, returnedPackages.Count);
         }
 
-        private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
+        private async Task UpgradePackagesAsync(List<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             var successfulInstalls = 0;
@@ -164,7 +163,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (packageIds.Count == 1)
                 {
                     _notificationManager.ShowPackageOperationStatus(
-                        _returnedPackages.Find(p => p.Id == id)?.Name, InstallOperation.Upgrade, upgradeResult);
+                        _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Upgrade, upgradeResult);
                 }
             }
 
