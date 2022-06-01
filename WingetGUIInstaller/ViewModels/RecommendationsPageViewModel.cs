@@ -23,10 +23,10 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
+        private readonly IReadOnlyList<RecommendedItem> _recommendedItemList;
         private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
         private string _loadingText;
         private bool _isLoading;
-        private IEnumerable<RecommendedItemsGroup> _recommedationsList;
 
         public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager)
@@ -34,6 +34,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _recommendedItemList = LoadRecommendationsFile();
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
             _ = LoadRecommendedItemsAsync(true);
@@ -80,27 +81,27 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = true;
             });
 
-            var recommendations = JsonSerializer.Deserialize<List<RecommendedItem>>(
-               File.ReadAllText(Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty, "recommended.json")),
-              new JsonSerializerOptions
-              {
-                  Converters =
-                  {
-                        new JsonStringEnumConverter()
-                  }
-              });
-
-            var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
-
-            _recommedationsList = recommendations?.Select(r => new RecommendedItemViewModel(r)
+            if (_recommendedItemList != default && _recommendedItemList.Count > 0)
             {
-                IsInstalled = installedPackages.Any(p => p.Id == r.Id),
-            }).GroupBy(r => r.Group, (key, values) => new RecommendedItemsGroup(key, values
-                .OrderBy(r => r.Name).OrderBy(r => r.IsInstalled))).OrderBy(g => g.Key);
+                var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
+                var recommedationsList = _recommendedItemList.Select(r => new RecommendedItemViewModel(r)
+                {
+                    IsInstalled = installedPackages.Any(p => p.Id == r.Id),
+                }).GroupBy(r => r.Group, (key, values) => new RecommendedItemsGroup(key, values
+                    .OrderBy(r => r.Name).OrderBy(r => r.IsInstalled))).OrderBy(g => g.Key);
+
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    RecommendedItems.Clear();
+                    foreach (var group in recommedationsList)
+                    {
+                        RecommendedItems.Add(group);
+                    }
+                });
+            }
 
             _dispatcherQueue.TryEnqueue(() =>
             {
-                UpdateDisplayedPackages();
                 IsLoading = false;
             });
         }
@@ -117,15 +118,6 @@ namespace WingetGUIInstaller.ViewModels
             await LoadRecommendedItemsAsync(true);
         }
 
-        private void UpdateDisplayedPackages()
-        {
-            RecommendedItems.Clear();
-            foreach (var group in _recommedationsList)
-            {
-                RecommendedItems.Add(group);
-            }
-        }
-
         private void OnPackageInstallProgress(WingetProcessState progess)
         {
             _dispatcherQueue.TryEnqueue(() => LoadingText = progess.ToString());
@@ -138,10 +130,12 @@ namespace WingetGUIInstaller.ViewModels
                 foreach (var item in e.NewItems)
                 {
                     if (item is RecommendedItemsGroup recommendedItems)
+                    {
                         foreach (var packageEntry in recommendedItems)
                         {
                             packageEntry.PropertyChanged += OnPackagePropertyChanged;
                         }
+                    }
                 }
             }
 
@@ -150,16 +144,31 @@ namespace WingetGUIInstaller.ViewModels
                 foreach (var item in e.OldItems)
                 {
                     if (item is RecommendedItemsGroup recommendedItems)
+                    {
                         foreach (var packageEntry in recommendedItems)
                         {
                             packageEntry.PropertyChanged -= OnPackagePropertyChanged;
                         }
+                    }
                 }
             }
 
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(CanInstallSelected));
             OnPropertyChanged(nameof(CanInstallAll));
+        }
+
+        private IReadOnlyList<RecommendedItem> LoadRecommendationsFile()
+        {
+            return JsonSerializer.Deserialize<List<RecommendedItem>>(
+                File.ReadAllText(Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty, "recommended.json")),
+                new JsonSerializerOptions
+                {
+                    Converters =
+                  {
+                        new JsonStringEnumConverter()
+                  }
+                });
         }
 
         private void OnPackagePropertyChanged(object sender, PropertyChangedEventArgs e)

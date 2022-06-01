@@ -29,7 +29,7 @@ namespace WingetGUIInstaller.Pages
             {
                 "SourceSelected" => nameof(WingetPackageSourceViewModel.IsSelected),
                 "SourceName" => nameof(WingetPackageSourceViewModel.Name),
-                "SourceUrl" => nameof(WingetPackageSourceViewModel.Url),
+                "SourceUrl" => nameof(WingetPackageSourceViewModel.Argument),
                 "SourceEnabled" => nameof(WingetPackageSourceViewModel.IsEnabled),
                 _ => string.Empty
             };

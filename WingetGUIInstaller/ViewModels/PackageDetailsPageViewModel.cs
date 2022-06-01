@@ -89,8 +89,13 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Install;
             }
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            _dispatcherQueue.TryEnqueue(() => LoadingText = "Loading");
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                IsLoading = false;
+                LoadingText = "Loading";
+                OnPropertyChanged(nameof(IsInstallSupported));
+            });
         }
 
         private async Task UpgradePackageAsync(string packageId)
@@ -101,8 +106,13 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Update;
             }
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            _dispatcherQueue.TryEnqueue(() => LoadingText = "Loading");
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                IsLoading = false;
+                LoadingText = "Loading";
+                OnPropertyChanged(nameof(IsUpdateSupported));
+            });
         }
 
         private async Task UninstallPackageAsync(string packageId)
@@ -113,17 +123,30 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Uninstall;
             }
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            _dispatcherQueue.TryEnqueue(() => LoadingText = "Loading");
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                IsLoading = false;
+                LoadingText = "Loading";
+                OnPropertyChanged(nameof(IsUninstallSupported));
+            });
         }
 
         private async Task FetchPackageDetailsAsync(string packageId)
         {
-            _dispatcherQueue.TryEnqueue(() => LoadingText = "Loading");
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                LoadingText = "Loading";
+                IsLoading = true;
+            });
+
             var details = await _packageCache.GetPackageDetails(packageId);
-            _dispatcherQueue.TryEnqueue(() => PackageDetails = new PackageDetailsViewModel(details));
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                PackageDetails = new PackageDetailsViewModel(details);
+                IsLoading = false;
+            });
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)

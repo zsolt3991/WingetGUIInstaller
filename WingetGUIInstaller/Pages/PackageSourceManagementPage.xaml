@@ -77,7 +77,7 @@
                                             Binding="{Binding Name}"
                                             CanUserSort="True" Header="Soruce Name" Tag="SourceName" />
                 <toolkit:DataGridTextColumn Width="2*"
-                                            Binding="{Binding Url}"
+                                            Binding="{Binding Argument}"
                                             CanUserSort="True" Header="Source Url" Tag="SourceUrl" />
                 <toolkit:DataGridTemplateColumn Width="100"
                                                 CanUserSort="True" Header="Enabled" Tag="SourceEnabled">

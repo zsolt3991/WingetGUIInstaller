@@ -113,13 +113,7 @@ namespace WingetGUIInstaller.ViewModels
             var wingetSources = await _packageSourceCache.GetAvailablePackageSources(forceReload);
             foreach (var entry in wingetSources)
             {
-                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(new WingetPackageSourceViewModel
-                {
-                    IsSelected = false,
-                    Name = entry.Name,
-                    Url = entry.Argument,
-                    IsEnabled = !_disabledPackageSources.Any(p => p == entry.Name)
-                }));
+                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(new WingetPackageSourceViewModel(entry)));
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
@@ -131,18 +125,25 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
+            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             await _packageSourceManager.AddPackageSource(name, argument);
+            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
             await LoadPackageSourcesAsync(true);
+
         }
 
         private async Task RemovePackageSourcesAsync(IEnumerable<string> sourceNames)
         {
             if (sourceNames.Any())
             {
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
                 foreach (var sourceName in sourceNames)
                 {
                     await _packageSourceManager.RemovePackageSource(sourceName);
                 }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
                 await LoadPackageSourcesAsync(true);
             }
         }
@@ -223,7 +224,7 @@ namespace WingetGUIInstaller.ViewModels
 
             PackageSourcesView.ApplyFiltering<WingetPackageSourceViewModel>(packageSource =>
                 packageSource.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-                || packageSource.Url.Contains(query, StringComparison.InvariantCultureIgnoreCase)
+                || packageSource.Argument.Contains(query, StringComparison.InvariantCultureIgnoreCase)
             );
         }
     }
