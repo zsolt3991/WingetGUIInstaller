@@ -7,6 +7,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Serilog;
 using System.IO;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
@@ -26,6 +27,7 @@ namespace WingetGUIInstaller
         private static Window _window;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ApplicationDataStorageHelper _appDataStorage;
+        private readonly ILogger<App> _logger;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -40,6 +42,15 @@ namespace WingetGUIInstaller
             _appDataStorage = ApplicationDataStorageHelper.GetCurrent();
 
             ConfigureServices();
+
+            _logger = Ioc.Default.GetRequiredService<ILogger<App>>();
+
+            UnhandledException += App_UnhandledException;
+        }
+
+        private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            _logger.LogCritical(e.Exception, "An unhandled exception has occured");
         }
 
         /// <summary>
@@ -51,6 +62,9 @@ namespace WingetGUIInstaller
         {
             _window = new MainWindow();
             _window.Activate();
+
+            _logger.LogInformation("Launched: Kind {kind}", args.UWPLaunchActivatedEventArgs.Kind);
+            _logger.LogInformation("Application Version: {version}", Package.Current.Id.Version.ToFormattedString());
         }
 
         private void ConfigureServices()
