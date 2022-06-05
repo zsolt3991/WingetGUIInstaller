@@ -31,6 +31,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isDetailsAvailable;
         private PackageDetailsViewModel _selectedPackageDetails;
         private AdvancedCollectionView _packagesView;
+        private bool _detailsLoading;
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
@@ -101,6 +102,12 @@ namespace WingetGUIInstaller.ViewModels
             private set => SetProperty(ref _isDetailsAvailable, value);
         }
 
+        public bool DetailsLoading
+        {
+            get => _detailsLoading;
+            private set => SetProperty(ref _detailsLoading, value);
+        }
+
         public ICommand SearchCommand => new AsyncRelayCommand(()
             => SerchPackageAsync(SearchQuery, false));
 
@@ -150,22 +157,47 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            if (_packages.Any(p => p.IsSelected))
+            // Clear the displayed details on multiple items being selected
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    DetailsAvailable = false;
+                    DetailsLoading = false;
+                });
                 return;
             }
 
-            if (value != default)
+            // Clear the details if value is null
+            if (value == default)
             {
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    DetailsAvailable = false;
+                    DetailsLoading = false;
+                });
+                return;
+            }
 
-                var details = await _packageCache.GetPackageDetails(value.Id);
-                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel(details));
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = true);
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                DetailsAvailable = false;
+                DetailsLoading = true;
+            });
+
+            var details = await _packageCache.GetPackageDetails(value.Id);
+            if (details != default)
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    SelectedPackageDetails = new PackageDetailsViewModel(details);
+                    DetailsAvailable = true;
+                    DetailsLoading = false;
+                });
             }
             else
             {
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+                _dispatcherQueue.TryEnqueue(() => DetailsLoading = false);
             }
         }
 

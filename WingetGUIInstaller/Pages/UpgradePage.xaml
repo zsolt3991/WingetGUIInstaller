@@ -88,7 +88,8 @@
 
         <ProgressBar Height="10"
                      Grid.Row="2" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                     IsIndeterminate="{x:Bind ViewModel.CanUpgradeSelected, Mode=OneWay}"
+                     IsEnabled="{x:Bind ViewModel.DetailsLoading, Mode=OneWay}"
+                     IsIndeterminate="{x:Bind ViewModel.DetailsLoading, Mode=OneWay}"
                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource negatedVisibilityConverter}, Mode=OneWay}" />
 
         <RelativePanel Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
