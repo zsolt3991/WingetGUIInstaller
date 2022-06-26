@@ -1,10 +1,9 @@
 ﻿namespace WingetHelper.Models
 {
-    internal class ColumnSpec
+    internal struct ColumnSpec
     {
         public string Name { get; set; }
-        public int StartIndex { get; set; }
-        public int MaxLength { get; set; }
+        public int Length { get; set; }
         public bool IsLastColumn { get; set; }
     }
 }
