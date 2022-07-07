@@ -9,7 +9,7 @@ namespace WingetHelper.Utils
 {
     internal class ObjectDataDecoder
     {
-        private const string LineSplitRegex = @"^\s*(?<key>.*?)(\:{1}){1}\s*(?<value>.*?)$";
+        private const string LineSplitRegex = @"^\s*(?<key>[a-zA-z|\d].+?)(\:{1}){1}\s*(?<value>.*?)$";
         private const int IndentSize = 2;
 
         internal static TObject DeserializeObject<TObject>(IEnumerable<string> dataLines) where TObject : class
@@ -34,22 +34,22 @@ namespace WingetHelper.Utils
                 var lineIndent = line.Length - line.TrimStart().Length;
                 var match = regex.Match(line);
 
-                // Reached a line which contains a differently indented property
-                if (lineIndent != expectedIndentation && match.Success)
-                {
-                    break;
-                }
-
                 // Reached a line containing a property
                 if (match.Success)
                 {
                     var currentKeyword = match.Groups["key"].Value;
                     var currentValueText = match.Groups["value"].Value;
 
+                    // Reached a line which contains a differently indented property
+                    if (lineIndent != expectedIndentation)
+                    {
+                        break;
+                    }
+
                     if (currentProperty != default)
                     {
                         currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
-                        
+
                         currentProperty = GetPropertyForName(targetType, currentKeyword);
                         if (currentProperty != default)
                         {
