@@ -2,15 +2,8 @@
 {
     internal struct ColumnSpec
     {
-        public ColumnSpec(string headerName, int dataLength, bool isLastColumn = false)
-        {
-            Name = headerName;
-            MaxLength = dataLength;
-            IsLastColumn = isLastColumn;
-        }
-
-        public string Name { get; }
-        public int MaxLength { get; }
-        public bool IsLastColumn { get; }
+        public string Name { get; set; }
+        public int Length { get; set; }
+        public bool IsLastColumn { get; set; }
     }
 }

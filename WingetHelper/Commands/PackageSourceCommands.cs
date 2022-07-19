@@ -25,7 +25,7 @@ namespace WingetHelper.Commands
         public static WingetCommand<IEnumerable<WingetPackageSource>> GetPackageSources()
         {
             return new WingetCommand<IEnumerable<WingetPackageSource>>("source", "list")
-                .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseResultsTable<WingetPackageSource>(commandResult));
+                .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageSource>(commandResult));
         }
     }
 }

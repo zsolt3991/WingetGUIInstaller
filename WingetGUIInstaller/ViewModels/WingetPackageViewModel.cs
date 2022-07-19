@@ -12,8 +12,6 @@ namespace WingetGUIInstaller.ViewModels
         private string _available;
         private string _source;
 
-        public WingetPackageViewModel() { }
-
         public WingetPackageViewModel(WingetPackageEntry packageEntry)
         {
             _available = packageEntry.Available;

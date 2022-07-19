@@ -32,8 +32,8 @@ namespace WingetHelper.Commands
 
         private Action<WingetProcessState> _progressMonitor;
         private Action<string> _outputListener;
-        private Func<List<string>, TResult> _resultDecoder;
         private ILogger _logger;
+        private Func<IEnumerable<string>, TResult> _resultDecoder;
 
         internal WingetCommand(params string[] arguments)
         {
@@ -81,7 +81,7 @@ namespace WingetHelper.Commands
             return this;
         }
 
-        internal WingetCommand<TResult> ConfigureResultDecoder(Func<List<string>, TResult> resultDecoder)
+        internal WingetCommand<TResult> ConfigureResultDecoder(Func<IEnumerable<string>, TResult> resultDecoder)
         {
             _resultDecoder = resultDecoder;
             return this;

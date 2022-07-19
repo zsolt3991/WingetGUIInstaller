@@ -90,6 +90,9 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
+            _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
+
         public ICommand RefreshSourcesCommand => new AsyncRelayCommand(()
             => LoadPackageSourcesAsync(true));
 
@@ -98,9 +101,6 @@ namespace WingetGUIInstaller.ViewModels
 
         public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
             => RemovePackageSourcesAsync(_packageSources.Where(p => p.IsSelected).Select(p => p.Name)));
-
-        public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
-            _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
 
         private async Task LoadPackageSourcesAsync(bool forceReload = false)
         {
@@ -165,7 +165,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var item in e.OldItems)
                 {
-
                     if (item is WingetPackageSourceViewModel packageSourceViewModel)
                     {
                         packageSourceViewModel.PropertyChanged -= OnPackagePropertyChanged;

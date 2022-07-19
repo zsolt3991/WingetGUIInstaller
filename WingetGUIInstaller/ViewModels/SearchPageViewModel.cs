@@ -31,6 +31,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isDetailsAvailable;
         private PackageDetailsViewModel _selectedPackageDetails;
         private AdvancedCollectionView _packagesView;
+        private bool _detailsLoading;
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
@@ -41,7 +42,6 @@ namespace WingetGUIInstaller.ViewModels
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
-
             PackagesView = new AdvancedCollectionView(_packages, true);
         }
 
@@ -89,17 +89,23 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
-
-        public bool CanInstallAll => _packages.Any();
-
-        public bool CanInstallSelected => SelectedCount > 0;
-
         public bool DetailsAvailable
         {
             get => _isDetailsAvailable;
             private set => SetProperty(ref _isDetailsAvailable, value);
         }
+
+        public bool DetailsLoading
+        {
+            get => _detailsLoading;
+            private set => SetProperty(ref _detailsLoading, value);
+        }
+
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+
+        public bool CanInstallAll => _packages.Any();
+
+        public bool CanInstallSelected => SelectedCount > 0;
 
         public ICommand SearchCommand => new AsyncRelayCommand(()
             => SerchPackageAsync(SearchQuery, false));
@@ -150,22 +156,47 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            if (_packages.Any(p => p.IsSelected))
+            // Clear the displayed details on multiple items being selected
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    DetailsAvailable = false;
+                    DetailsLoading = false;
+                });
                 return;
             }
 
-            if (value != default)
+            // Clear the details if value is null
+            if (value == default)
             {
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    DetailsAvailable = false;
+                    DetailsLoading = false;
+                });
+                return;
+            }
 
-                var details = await _packageCache.GetPackageDetails(value.Id);
-                _dispatcherQueue.TryEnqueue(() => SelectedPackageDetails = new PackageDetailsViewModel(details));
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = true);
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                DetailsAvailable = false;
+                DetailsLoading = true;
+            });
+
+            var details = await _packageCache.GetPackageDetails(value.Id);
+            if (details != default)
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    SelectedPackageDetails = new PackageDetailsViewModel(details);
+                    DetailsAvailable = true;
+                    DetailsLoading = false;
+                });
             }
             else
             {
-                _dispatcherQueue.TryEnqueue(() => DetailsAvailable = false);
+                _dispatcherQueue.TryEnqueue(() => DetailsLoading = false);
             }
         }
 
@@ -200,7 +231,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var item in e.OldItems)
                 {
-
                     if (item is WingetPackageViewModel packageViewModel)
                     {
                         packageViewModel.PropertyChanged -= OnPackagePropertyChanged;
