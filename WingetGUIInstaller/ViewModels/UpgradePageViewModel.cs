@@ -97,13 +97,6 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount => _packages.Any(p => p.IsSelected) ?
-            _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
-
-        public bool CanUpgradeAll => _packages.Any();
-
-        public bool CanUpgradeSelected => SelectedCount > 0;
-
         public bool DetailsAvailable
         {
             get => _isDetailsAvailable;
@@ -115,6 +108,13 @@ namespace WingetGUIInstaller.ViewModels
             get => _detailsLoading;
             private set => SetProperty(ref _detailsLoading, value);
         }
+
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ?
+            _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+
+        public bool CanUpgradeAll => _packages.Any();
+
+        public bool CanUpgradeSelected => SelectedCount > 0;
 
         public ICommand RefreshCommand => new AsyncRelayCommand(()
             => ListUpgradableItemsAsync(true));

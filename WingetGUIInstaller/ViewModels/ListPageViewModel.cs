@@ -44,7 +44,7 @@ namespace WingetGUIInstaller.ViewModels
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
-            _ = FetchInstalledPackages();
+            _ = LoadInstalledPackages();
         }
 
         public bool IsLoading
@@ -69,6 +69,18 @@ namespace WingetGUIInstaller.ViewModels
         {
             get => _selectedPackageDetails;
             set => SetProperty(ref _selectedPackageDetails, value);
+        }
+
+        public bool DetailsAvailable
+        {
+            get => _detailsAvailable;
+            private set => SetProperty(ref _detailsAvailable, value);
+        }
+
+        public bool DetailsLoading
+        {
+            get => _detailsLoading;
+            private set => SetProperty(ref _detailsLoading, value);
         }
 
         public WingetPackageViewModel SelectedPackage
@@ -97,10 +109,13 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public int SelectedCount
-            => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ?
+            _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
-        public ICommand ListCommand => new AsyncRelayCommand(RefreshInstalledPackages);
+        public bool IsSomethingSelected => SelectedCount > 0;
+
+        public ICommand ListCommand => new AsyncRelayCommand(() =>
+            LoadInstalledPackages(true));
 
         public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(() =>
              UpgradePackages(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
@@ -111,23 +126,7 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
 
-        public bool IsSomethingSelected => SelectedCount > 0;
 
-        public bool DetailsAvailable
-        {
-            get => _detailsAvailable;
-            private set => SetProperty(ref _detailsAvailable, value);
-        }
-
-        public bool DetailsLoading
-        {
-            get => _detailsLoading;
-            private set => SetProperty(ref _detailsLoading, value);
-        }
-
-        private async Task FetchInstalledPackages() => await LoadInstalledPackages();
-
-        private async Task RefreshInstalledPackages() => await LoadInstalledPackages(true);
 
         private async Task LoadInstalledPackages(bool forceUpdate = false)
         {
@@ -149,7 +148,6 @@ namespace WingetGUIInstaller.ViewModels
         private void UpdateDisplayedPackages(IEnumerable<WingetPackageEntry> packageEntries)
         {
             _packages.Clear();
-
             foreach (var entry in packageEntries)
             {
                 _packages.Add(new WingetPackageViewModel(entry));
@@ -164,7 +162,7 @@ namespace WingetGUIInstaller.ViewModels
                 var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            await RefreshInstalledPackages();
+            await LoadInstalledPackages(true);
         }
 
         private async Task UninstallPackages(IEnumerable<string> packageIds)
@@ -175,7 +173,7 @@ namespace WingetGUIInstaller.ViewModels
                 var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            await RefreshInstalledPackages();
+            await LoadInstalledPackages(true);
         }
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
@@ -246,7 +244,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var item in e.OldItems)
                 {
-
                     if (item is WingetPackageViewModel packageViewModel)
                     {
                         packageViewModel.PropertyChanged -= OnPackagePropertyChanged;
