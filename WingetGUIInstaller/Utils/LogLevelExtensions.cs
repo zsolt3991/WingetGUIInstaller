@@ -7,23 +7,16 @@ namespace WingetGUIInstaller.Utils
     {
         public static LogEventLevel ToSerilogLevel(this LogLevel logLevel)
         {
-            switch (logLevel)
+            return logLevel switch
             {
-                case LogLevel.Trace:
-                    return LogEventLevel.Verbose;
-                case LogLevel.Debug:
-                    return LogEventLevel.Debug;
-                case LogLevel.Information:
-                    return LogEventLevel.Information;
-                case LogLevel.Warning:
-                    return LogEventLevel.Warning;
-                case LogLevel.Error:
-                    return LogEventLevel.Error;
-                case LogLevel.Critical:
-                    return LogEventLevel.Fatal;
-                default:
-                    return LogEventLevel.Information;
-            }
+                LogLevel.Trace => LogEventLevel.Verbose,
+                LogLevel.Debug => LogEventLevel.Debug,
+                LogLevel.Information => LogEventLevel.Information,
+                LogLevel.Warning => LogEventLevel.Warning,
+                LogLevel.Error => LogEventLevel.Error,
+                LogLevel.Critical => LogEventLevel.Fatal,
+                _ => LogEventLevel.Information,
+            };
         }
     }
 }
