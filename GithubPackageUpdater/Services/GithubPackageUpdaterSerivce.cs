@@ -1,5 +1,6 @@
 ﻿using GithubPackageUpdater.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Octokit;
 using System;
 using System.Linq;
@@ -16,10 +17,10 @@ namespace GithubPackageUpdater.Services
         private readonly PackageManager _packageManager;
         private readonly ILogger _logger;
 
-        public GithubPackageUpdaterSerivce(PackageUpdaterOptions options, ILogger<GithubPackageUpdaterSerivce> logger)
+        public GithubPackageUpdaterSerivce(PackageUpdaterOptions options, ILogger<GithubPackageUpdaterSerivce> logger = default)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
+            _logger = logger ?? NullLogger<GithubPackageUpdaterSerivce>.Instance;
             _client = new GitHubClient(new ProductHeaderValue("msixpackageupdater"));
             _packageManager = new();
 
