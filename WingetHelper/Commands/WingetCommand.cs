@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -107,11 +107,6 @@ namespace WingetHelper.Commands
             return this;
         }
 
-        public TResult Execute()
-        {
-            return ExecuteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
         public async Task<TResult> ExecuteAsync()
         {
             var result = default(TResult);
@@ -184,7 +179,14 @@ namespace WingetHelper.Commands
             }
             if (_resultDecoder != default)
             {
-                return _resultDecoder.Invoke(response);
+                try
+                {
+                    return _resultDecoder.Invoke(response);
+                }
+                catch (Exception decodeException)
+                {
+                    return default;
+                }
             }
             else
             {
