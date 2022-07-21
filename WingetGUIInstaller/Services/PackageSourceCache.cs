@@ -33,9 +33,11 @@ namespace WingetGUIInstaller.Services
 
         private async Task LoadPackageSourceListAsync()
         {
-            _availablePackageSources = (await PackageSourceCommands.GetPackageSources()
+            var commandResult = await PackageSourceCommands.GetPackageSources()
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync()).ToList();
+                .ExecuteAsync();
+
+            _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
         }
     }

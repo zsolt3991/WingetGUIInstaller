@@ -15,19 +15,19 @@ namespace WingetHelper.Commands
         public static WingetCommand<IEnumerable<WingetPackageEntry>> GetUpgradablePackages()
         {
             return new WingetCommand<IEnumerable<WingetPackageEntry>>("upgrade")
-                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
+                .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
         }
 
         public static WingetCommand<IEnumerable<WingetPackageEntry>> SearchPackages(string searchQuery)
         {
             return new WingetCommand<IEnumerable<WingetPackageEntry>>("search", searchQuery)
-                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
+                .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
         }
 
         public static WingetCommand<WingetPackageDetails> GetPackageDetails(string packageId)
         {
             return new WingetCommand<WingetPackageDetails>("show", packageId)
-                 .ConfigureResultDecoder(commandResult => ExpressionDataDecoder.ParseDetailsResponse(commandResult));
+                .ConfigureResultDecoder(commandResult => ExpressionDataDecoder.ParseDetailsResponse(commandResult));
         }
 
         public static WingetCommand<bool> InstallPackage(string packageId)

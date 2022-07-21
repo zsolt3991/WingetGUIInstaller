@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -89,11 +90,6 @@ namespace WingetHelper.Commands
             return this;
         }
 
-        public TResult Execute()
-        {
-            return ExecuteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
         public async Task<TResult> ExecuteAsync()
         {
             var requestId = Guid.NewGuid();
@@ -151,7 +147,14 @@ namespace WingetHelper.Commands
             }
             if (_resultDecoder != default)
             {
-                return _resultDecoder.Invoke(response);
+                try
+                {
+                    return _resultDecoder.Invoke(response);
+                }
+                catch (Exception decodeException)
+                {
+                    return default;
+                }
             }
             else
             {

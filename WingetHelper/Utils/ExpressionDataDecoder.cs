@@ -25,8 +25,11 @@ namespace WingetHelper.Utils
             var version = default(Version);
             if (commandResult.Count() == 1)
             {
-                string versionString = commandResult.FirstOrDefault().Replace("v", "");
-                version = new Version(versionString);
+                string versionString = commandResult.FirstOrDefault();
+                if (!string.IsNullOrEmpty(versionString))
+                {
+                    version = new Version(versionString.Replace("v", ""));
+                }
             }
             return version;
         }
