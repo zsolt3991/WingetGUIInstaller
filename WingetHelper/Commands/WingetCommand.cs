@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -185,6 +186,7 @@ namespace WingetHelper.Commands
                 }
                 catch (Exception decodeException)
                 {
+                    _logger?.LogError(decodeException, "Failed to decode command output:");
                     return default;
                 }
             }
