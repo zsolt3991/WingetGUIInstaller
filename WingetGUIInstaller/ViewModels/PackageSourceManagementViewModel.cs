@@ -113,7 +113,8 @@ namespace WingetGUIInstaller.ViewModels
             var wingetSources = await _packageSourceCache.GetAvailablePackageSources(forceReload);
             foreach (var entry in wingetSources)
             {
-                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(new WingetPackageSourceViewModel(entry)));
+                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(
+                    new WingetPackageSourceViewModel(entry, !_disabledPackageSources.Contains(entry.Name))));
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
@@ -211,6 +212,14 @@ namespace WingetGUIInstaller.ViewModels
                     continue;
                 _disabledPackageSources.Add(packageSource.Name);
             }
+
+            foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
+            {
+                if (!_disabledPackageSources.Contains(packageSource.Name))
+                    continue;
+                _disabledPackageSources.Remove(packageSource.Name);
+            }
+
             SaveDisabledPackageSources(_disabledPackageSources);
         }
 
