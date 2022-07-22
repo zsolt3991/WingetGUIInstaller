@@ -106,6 +106,7 @@ namespace GithubPackageUpdater.Services
 
         public async Task TriggerUpdate(Uri updateUrl)
         {
+            _logger.LogInformation("Installing package from: {url}", updateUrl);
             await _packageManager.UpdatePackageAsync(updateUrl, null, DeploymentOptions.ForceApplicationShutdown);
         }
 

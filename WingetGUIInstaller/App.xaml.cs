@@ -118,7 +118,14 @@ namespace WingetGUIInstaller
 
         private LogLevel GetLogLevel()
         {
-            return (LogLevel)_appDataStorage.Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+            try
+            {
+                return (LogLevel)_appDataStorage.Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+            }
+            catch
+            {
+                return LogLevel.Information;
+            }
         }
     }
 }

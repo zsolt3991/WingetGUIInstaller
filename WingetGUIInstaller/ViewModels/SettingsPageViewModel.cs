@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
+using Windows.System;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
 
@@ -150,7 +151,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (SetProperty(ref _selectedLogLevel, value))
                 {
-                    _configurationStore.Save(ConfigurationPropertyKeys.LogLevel, value);
+                    _configurationStore.Save(ConfigurationPropertyKeys.LogLevel, (int)value);
                 }
             }
         }
@@ -158,6 +159,13 @@ namespace WingetGUIInstaller.ViewModels
         public IReadOnlyList<LogLevel> LogLevels => Enum.GetValues<LogLevel>().Cast<LogLevel>().ToList();
 
         public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
+
+        public ICommand OpenLogsFolderCommand => new AsyncRelayCommand(OpenLogsFolder);
+
+        private async Task OpenLogsFolder()
+        {
+            await Launcher.LaunchFolderAsync(_configurationStore.Folder);
+        }
 
         private async Task CheckForUpdatesAsync()
         {

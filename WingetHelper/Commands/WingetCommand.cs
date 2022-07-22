@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace WingetHelper.Commands
         internal WingetCommand(params string[] arguments)
         {
             _requestId = Guid.NewGuid();
+            _logger = NullLogger.Instance;
             _processStartInfo = new ProcessStartInfo(ShellName)
             {
                 CreateNoWindow = true,
@@ -46,9 +48,9 @@ namespace WingetHelper.Commands
                 RedirectStandardOutput = true,
                 StandardOutputEncoding = Encoding.Default
             };
-
             _processStartInfo.ArgumentList.Add(CommandPrefixArgument);
             _processStartInfo.ArgumentList.Add(ExecutableName);
+
             if (arguments.Any())
             {
                 Array.ForEach(arguments, arg => _processStartInfo.ArgumentList.Add(arg));
@@ -66,31 +68,31 @@ namespace WingetHelper.Commands
 
         public WingetCommand<TResult> ConfigureProgressListener(Action<WingetProcessState> progressListener)
         {
-            _progressMonitor = progressListener;
+            _progressMonitor = progressListener ?? throw new ArgumentNullException(nameof(progressListener));
             return this;
         }
 
         public WingetCommand<TResult> ConfigureOutputListener(Action<string> outputListener)
         {
-            _outputListener = outputListener;
+            _outputListener = outputListener ?? throw new ArgumentNullException(nameof(outputListener));
             return this;
         }
 
         public WingetCommand<TResult> ConfigureLogger(ILogger logger)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             return this;
         }
 
         internal WingetCommand<TResult> ConfigureResultDecoder(Func<IEnumerable<string>, TResult> resultDecoder)
         {
-            _resultDecoder = resultDecoder;
+            _resultDecoder = resultDecoder ?? throw new ArgumentNullException(nameof(resultDecoder));
             return this;
         }
 
         internal WingetCommand<TResult> UseShellExecute()
         {
-            _logger?.LogDebug("Setting ShellExecute parameters");
+            _logger.LogDebug("Setting ShellExecute parameters");
             _processStartInfo.UseShellExecute = true;
             _processStartInfo.RedirectStandardOutput = false;
             _processStartInfo.StandardOutputEncoding = default;
@@ -101,7 +103,7 @@ namespace WingetHelper.Commands
         {
             if (_processStartInfo.UseShellExecute == false)
             {
-                _logger?.LogWarning("Cannot run as admin when ShellExecute is not set.");
+                _logger.LogWarning("Cannot run as admin when ShellExecute is not set. Setting ShellExecute");
                 UseShellExecute();
             }
             _processStartInfo.Verb = "runas";
@@ -119,13 +121,13 @@ namespace WingetHelper.Commands
 
             if (_processStartInfo.UseShellExecute)
             {
-                _logger?.LogDebug("[{commandId}] Creating output file", _requestId);
+                _logger.LogDebug("[{commandId}] Creating output file", _requestId);
                 var outputFile = Path.Combine(AppContext.BaseDirectory, _requestId.ToString());
                 Array.ForEach(new string[] { PipeToFile, outputFile }, arg => _processStartInfo.ArgumentList.Add(arg));
             }
 
-            _logger?.LogInformation("[{commandId}] Executing command with arguments: {args}", _requestId,
-                string.Join(',', _processStartInfo.ArgumentList));
+            _logger.LogInformation("[{commandId}] Executing command with arguments: {args}", _requestId,
+                string.Join(", ", _processStartInfo.ArgumentList));
 
             try
             {
@@ -149,7 +151,7 @@ namespace WingetHelper.Commands
 
                 if (_processStartInfo.UseShellExecute)
                 {
-                    _logger?.LogDebug("[{commandId}] Parsing output file", _requestId);
+                    _logger.LogDebug("[{commandId}] Parsing output file", _requestId);
                     var outputFile = Path.Combine(AppContext.BaseDirectory, _requestId.ToString());
                     if (File.Exists(outputFile))
                     {
@@ -162,7 +164,7 @@ namespace WingetHelper.Commands
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "[{commandId}] Exception occured while executing command", _requestId);
+                _logger.LogError(ex, "[{commandId}] Exception occured while executing command", _requestId);
                 throw;
             }
 
@@ -178,15 +180,17 @@ namespace WingetHelper.Commands
                 HandleReceivedLine(line);
                 response.Add(line);
             }
+
             if (_resultDecoder != default)
             {
                 try
                 {
+                    _logger.LogDebug("[{commandId}] Decoding command response", _requestId);
                     return _resultDecoder.Invoke(response);
                 }
                 catch (Exception decodeException)
                 {
-                    _logger?.LogError(decodeException, "Failed to decode command output:");
+                    _logger.LogError(decodeException, "[{commandId}] Failed to decode command output: ", _requestId);
                     return default;
                 }
             }
@@ -198,6 +202,7 @@ namespace WingetHelper.Commands
 
         private void HandleReceivedLine(string line)
         {
+            _logger.LogDebug("[{commandId}] Processing response line: {line}", _requestId, line);
             if (_progressMonitor != default)
             {
                 foreach (var key in _processStateKeywordMap.Keys)

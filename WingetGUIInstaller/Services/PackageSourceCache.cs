@@ -14,16 +14,16 @@ namespace WingetGUIInstaller.Services
         protected static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ILogger<PackageSourceCache> _logger;
-        private readonly ILogger<WingetCommand<object>> _commandLogger;
+        private readonly ILoggerFactory _commandLoggerFactory;
         private List<WingetPackageSource> _availablePackageSources;
         private DateTimeOffset _lastAvailablePackageSourcesRefresh;
 
         public PackageSourceCache(ConsoleOutputCache consoleOutputCache, ILogger<PackageSourceCache> logger,
-            ILogger<WingetCommand<object>> commandLogger)
+           ILoggerFactory commandLoggerFactory)
         {
             _consoleBuffer = consoleOutputCache;
             _logger = logger;
-            _commandLogger = commandLogger;
+            _commandLoggerFactory = commandLoggerFactory;
         }
 
         public async Task<List<WingetPackageSource>> GetAvailablePackageSources(bool forceReload = false)
@@ -48,7 +48,7 @@ namespace WingetGUIInstaller.Services
         {
             var commandResult = await PackageSourceCommands.GetPackageSources()
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ConfigureLogger(_commandLogger)
+                .ConfigureLogger(_commandLoggerFactory.CreateLogger("WingetCommand"))
                 .ExecuteAsync();
 
             _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();

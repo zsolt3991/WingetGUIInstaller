@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.WinUI.Helpers;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,16 +19,18 @@ namespace WingetGUIInstaller.Services
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ILoggerFactory _commandLoggerFactory;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore, ILoggerFactory commandLoggerFactory)
         {
             _consoleBuffer = consoleOutputCache;
             _configurationStore = configurationStore;
+            _commandLoggerFactory = commandLoggerFactory;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
@@ -140,8 +143,9 @@ namespace WingetGUIInstaller.Services
         private async Task<WingetPackageDetails> LoadPackageDetailsAsync(string packageId)
         {
             var details = await PackageCommands.GetPackageDetails(packageId)
-               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-               .ExecuteAsync();
+                .ConfigureLogger(_commandLoggerFactory.CreateLogger("WingetCommand"))
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync();
 
             if (_packageDetailsCache.Count >= DetailsCacheSize)
             {
@@ -179,6 +183,7 @@ namespace WingetGUIInstaller.Services
         {
             // Get all installed packages on the system
             var commandResult = await PackageCommands.GetInstalledPackages()
+                .ConfigureLogger(_commandLoggerFactory.CreateLogger("WingetCommand"))
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
@@ -193,8 +198,9 @@ namespace WingetGUIInstaller.Services
         {
             // Get only packages that have upgrades available
             var commandResult = await PackageCommands.GetUpgradablePackages()
-              .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-              .ExecuteAsync();
+                .ConfigureLogger(_commandLoggerFactory.CreateLogger("WingetCommand"))
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync();
 
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
