@@ -105,6 +105,12 @@ namespace WingetGUIInstaller.Services
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
 
+            if (searchResults == default || !searchResults.Any())
+            {
+                // Return empty result set
+                return new List<WingetPackageEntry>();
+            }
+
             // Ignore Packages already installed
             searchResults = searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
@@ -142,6 +148,11 @@ namespace WingetGUIInstaller.Services
             var details = await PackageCommands.GetPackageDetails(packageId)
                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                .ExecuteAsync();
+
+            if (details == default)
+            {
+                return default;
+            }
 
             if (_packageDetailsCache.Count >= DetailsCacheSize)
             {
