@@ -100,7 +100,7 @@ namespace WingetGUIInstaller.ViewModels
             => AddPackageSourceAsync(NewPackageSourceName, NewPackageSourceUrl));
 
         public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
-            => RemovePackageSourcesAsync(_packageSources.Where(p => p.IsSelected).Select(p => p.Name)));
+            => RemovePackageSourcesAsync(GetSelectedPackageSourceNames()));
 
         private async Task LoadPackageSourcesAsync(bool forceReload = false)
         {
@@ -234,6 +234,23 @@ namespace WingetGUIInstaller.ViewModels
                 packageSource.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
                 || packageSource.Argument.Contains(query, StringComparison.InvariantCultureIgnoreCase)
             );
+        }
+
+        private IEnumerable<string> GetSelectedPackageSourceNames()
+        {
+            // Prioritize Selected Items 
+            if (_packageSources.Any(p => p.IsSelected))
+            {
+                return _packageSources.Where(p => p.IsSelected).Select(p => p.Name);
+            }
+
+            // Use the highlighted item if there is no selection
+            if (_selectedSource != default)
+            {
+                return new List<string>() { _selectedSource.Name };
+            }
+
+            return new List<string>();
         }
     }
 }
