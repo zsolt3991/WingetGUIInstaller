@@ -119,11 +119,11 @@ namespace WingetGUIInstaller.ViewModels
         public ICommand RefreshCommand => new AsyncRelayCommand(()
             => ListUpgradableItemsAsync(true));
 
-        public ICommand UpgradeSelectedCommand
-            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
+        public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(()
+            => UpgradePackagesAsync(GetSelectedPackageIds()));
 
-        public ICommand UpgradeAllCommand
-            => new AsyncRelayCommand(() => UpgradePackagesAsync(_packages.Select(p => p.Id)));
+        public ICommand UpgradeAllCommand => new AsyncRelayCommand(()
+            => UpgradePackagesAsync(_packages.Select(p => p.Id)));
 
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
@@ -276,6 +276,23 @@ namespace WingetGUIInstaller.ViewModels
                 package.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
                 || package.Id.Contains(query, StringComparison.InvariantCultureIgnoreCase)
             );
+        }
+
+        private IEnumerable<string> GetSelectedPackageIds()
+        {
+            // Prioritize Selected Items 
+            if (_packages.Any(p => p.IsSelected))
+            {
+                return _packages.Where(p => p.IsSelected).Select(p => p.Id);
+            }
+
+            // Use the highlighted item if there is no selection
+            if (_selectedPackage != default)
+            {
+                return new List<string>() { _selectedPackage.Id };
+            }
+
+            return new List<string>();
         }
     }
 }

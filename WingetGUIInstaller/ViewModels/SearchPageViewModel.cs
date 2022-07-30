@@ -111,7 +111,7 @@ namespace WingetGUIInstaller.ViewModels
             => SerchPackageAsync(SearchQuery, false));
 
         public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(_packages.Where(p => p.IsSelected).Select(p => p.Id)));
+            => InstallPackagesAsync(GetSelectedPackageIds()));
 
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
             => InstallPackagesAsync(_packages.Select(p => p.Id)));
@@ -255,6 +255,23 @@ namespace WingetGUIInstaller.ViewModels
                 default:
                     break;
             }
+        }
+
+        private IEnumerable<string> GetSelectedPackageIds()
+        {
+            // Prioritize Selected Items 
+            if (_packages.Any(p => p.IsSelected))
+            {
+                return _packages.Where(p => p.IsSelected).Select(p => p.Id);
+            }
+
+            // Use the highlighted item if there is no selection
+            if (_selectedPackage != default)
+            {
+                return new List<string>() { _selectedPackage.Id };
+            }
+
+            return new List<string>();
         }
     }
 }
