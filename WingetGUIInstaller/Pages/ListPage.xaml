@@ -105,7 +105,7 @@
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.UpgradeSelectedCommand}"
                     Content="Upgrade Selected" FontSize="16"
-                    IsEnabled="{x:Bind ViewModel.IsSomethingSelected, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.IsSelectionUpgradable, Mode=OneWay}"
                     RelativePanel.AlignRightWithPanel="True" />
             <Button Name="UninstallSelected"
                     MinWidth="160" Margin="5"

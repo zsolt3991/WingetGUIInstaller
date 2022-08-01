@@ -92,6 +92,7 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(IsSomethingSelected));
+                    OnPropertyChanged(nameof(IsSelectionUpgradable));
                     _ = FetchPackageDetailsAsync(value);
                 }
             }
@@ -113,6 +114,10 @@ namespace WingetGUIInstaller.ViewModels
             _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
         public bool IsSomethingSelected => SelectedCount > 0;
+
+        public bool IsSelectionUpgradable => _packages.Any(p => p.IsSelected) ?
+            _packages.Where(p => p.IsSelected).Any(p => !string.IsNullOrEmpty(p.Available)) :
+            SelectedPackage != default && !string.IsNullOrEmpty(SelectedPackage.Available);
 
         public ICommand ListCommand => new AsyncRelayCommand(() =>
             LoadInstalledPackages(true));
@@ -251,6 +256,7 @@ namespace WingetGUIInstaller.ViewModels
 
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(IsSomethingSelected));
+            OnPropertyChanged(nameof(IsSelectionUpgradable));
         }
 
         private void ViewPackageDetails(PackageDetailsViewModel details)
@@ -272,6 +278,7 @@ namespace WingetGUIInstaller.ViewModels
                 case nameof(WingetPackageViewModel.IsSelected):
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(IsSomethingSelected));
+                    OnPropertyChanged(nameof(IsSelectionUpgradable));
                     _ = FetchPackageDetailsAsync(SelectedPackage);
                     break;
                 default:
