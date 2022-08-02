@@ -153,7 +153,7 @@ namespace WingetGUIInstaller.ViewModels
             _notificationManager.ShowUpdateStatus(returnedPackages.Count != 0, returnedPackages.Count);
         }
 
-        private async Task UpgradePackagesAsync(List<string> packageIds)
+        private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             var successfulInstalls = 0;
@@ -167,17 +167,17 @@ namespace WingetGUIInstaller.ViewModels
                     successfulInstalls++;
                 }
 
-                if (packageIds.Count == 1)
+                if (packageIds.Count() == 1)
                 {
                     _notificationManager.ShowPackageOperationStatus(
                         _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Upgrade, upgradeResult);
                 }
             }
 
-            if (packageIds.Count != 1)
+            if (packageIds.Count() != 1)
             {
                 _notificationManager.ShowMultiplePackageOperationStatus(
-                    InstallOperation.Upgrade, successfulInstalls, packageIds.Count - successfulInstalls);
+                    InstallOperation.Upgrade, successfulInstalls, packageIds.Count() - successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);

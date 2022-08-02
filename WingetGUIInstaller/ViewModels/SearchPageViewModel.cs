@@ -117,7 +117,7 @@ namespace WingetGUIInstaller.ViewModels
             => InstallPackagesAsync(GetSelectedPackageIds()));
 
         public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(_packages.Select(p => p.Id).ToList()));
+            => InstallPackagesAsync(_packages.Select(p => p.Id)));
 
         public ICommand GoToDetailsCommand =>
             new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
@@ -145,7 +145,7 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        private async Task InstallPackagesAsync(List<string> packageIds)
+        private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
             var successfulInstalls = 0;
@@ -160,17 +160,17 @@ namespace WingetGUIInstaller.ViewModels
                     successfulInstalls++;
                 }
 
-                if (packageIds.Count == 1)
+                if (packageIds.Count() == 1)
                 {
                     _notificationManager.ShowPackageOperationStatus(
                         _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Install, installresult);
                 }
             }
 
-            if (packageIds.Count != 1)
+            if (packageIds.Count() != 1)
             {
                 _notificationManager.ShowMultiplePackageOperationStatus(
-                    InstallOperation.Install, successfulInstalls, packageIds.Count - successfulInstalls);
+                    InstallOperation.Install, successfulInstalls, packageIds.Count() - successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
