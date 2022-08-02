@@ -6,12 +6,18 @@ namespace WingetHelper.Commands
 {
     public class PackageSourceCommands
     {
-        public static WingetCommand<object> AddPackageSource(string name, string argument)
+        public static WingetCommand<object> AddPackageSource(string name, string argument, string sourceType)
         {
-            return new WingetCommand<object>("source", "add", "-n", name, "-a", argument)
+            var command = new WingetCommand<object>("source", "add", "-n", name, "-a", argument)
                 .ConfigureResultDecoder(commandResult => commandResult)
                 .UseShellExecute()
                 .AsAdministrator();
+
+            if (!string.IsNullOrEmpty(sourceType))
+            {
+                command.AddExtraArguments("-t", sourceType);
+            }
+            return command;
         }
 
         public static WingetCommand<object> RemovePackageSource(string name)
@@ -25,7 +31,7 @@ namespace WingetHelper.Commands
         public static WingetCommand<IEnumerable<WingetPackageSource>> GetPackageSources()
         {
             return new WingetCommand<IEnumerable<WingetPackageSource>>("source", "list")
-                .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseResultsTable<WingetPackageSource>(commandResult));
+                .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageSource>(commandResult));
         }
     }
 }

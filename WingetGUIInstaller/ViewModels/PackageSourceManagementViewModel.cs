@@ -90,6 +90,9 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
+            _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
+
         public ICommand RefreshSourcesCommand => new AsyncRelayCommand(()
             => LoadPackageSourcesAsync(true));
 
@@ -97,10 +100,7 @@ namespace WingetGUIInstaller.ViewModels
             => AddPackageSourceAsync(NewPackageSourceName, NewPackageSourceUrl));
 
         public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
-            => RemovePackageSourcesAsync(_packageSources.Where(p => p.IsSelected).Select(p => p.Name)));
-
-        public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
-            _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
+            => RemovePackageSourcesAsync(GetSelectedPackageSourceNames()));
 
         private async Task LoadPackageSourcesAsync(bool forceReload = false)
         {
@@ -113,7 +113,8 @@ namespace WingetGUIInstaller.ViewModels
             var wingetSources = await _packageSourceCache.GetAvailablePackageSources(forceReload);
             foreach (var entry in wingetSources)
             {
-                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(new WingetPackageSourceViewModel(entry)));
+                _dispatcherQueue.TryEnqueue(() => _packageSources.Add(
+                    new WingetPackageSourceViewModel(entry, !_disabledPackageSources.Contains(entry.Name))));
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
@@ -165,7 +166,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 foreach (var item in e.OldItems)
                 {
-
                     if (item is WingetPackageSourceViewModel packageSourceViewModel)
                     {
                         packageSourceViewModel.PropertyChanged -= OnPackagePropertyChanged;
@@ -212,6 +212,14 @@ namespace WingetGUIInstaller.ViewModels
                     continue;
                 _disabledPackageSources.Add(packageSource.Name);
             }
+
+            foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
+            {
+                if (!_disabledPackageSources.Contains(packageSource.Name))
+                    continue;
+                _disabledPackageSources.Remove(packageSource.Name);
+            }
+
             SaveDisabledPackageSources(_disabledPackageSources);
         }
 
@@ -226,6 +234,23 @@ namespace WingetGUIInstaller.ViewModels
                 packageSource.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
                 || packageSource.Argument.Contains(query, StringComparison.InvariantCultureIgnoreCase)
             );
+        }
+
+        private IEnumerable<string> GetSelectedPackageSourceNames()
+        {
+            // Prioritize Selected Items 
+            if (_packageSources.Any(p => p.IsSelected))
+            {
+                return _packageSources.Where(p => p.IsSelected).Select(p => p.Name);
+            }
+
+            // Use the highlighted item if there is no selection
+            if (_selectedSource != default)
+            {
+                return new List<string>() { _selectedSource.Name };
+            }
+
+            return new List<string>();
         }
     }
 }

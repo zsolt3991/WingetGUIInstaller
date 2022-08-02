@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -28,7 +29,7 @@ namespace WingetHelper.Commands
 
         private Action<WingetProcessState> _progressMonitor;
         private Action<string> _outputListener;
-        private Func<List<string>, TResult> _resultDecoder;
+        private Func<IEnumerable<string>, TResult> _resultDecoder;
 
         internal WingetCommand(params string[] arguments)
         {
@@ -65,7 +66,7 @@ namespace WingetHelper.Commands
             return this;
         }
 
-        internal WingetCommand<TResult> ConfigureResultDecoder(Func<List<string>, TResult> resultDecoder)
+        internal WingetCommand<TResult> ConfigureResultDecoder(Func<IEnumerable<string>, TResult> resultDecoder)
         {
             _resultDecoder = resultDecoder;
             return this;
@@ -87,11 +88,6 @@ namespace WingetHelper.Commands
             }
             _processStartInfo.Verb = "runas";
             return this;
-        }
-
-        public TResult Execute()
-        {
-            return ExecuteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<TResult> ExecuteAsync()
@@ -151,7 +147,14 @@ namespace WingetHelper.Commands
             }
             if (_resultDecoder != default)
             {
-                return _resultDecoder.Invoke(response);
+                try
+                {
+                    return _resultDecoder.Invoke(response);
+                }
+                catch (Exception decodeException)
+                {
+                    return default;
+                }
             }
             else
             {

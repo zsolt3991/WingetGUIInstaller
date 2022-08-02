@@ -84,11 +84,16 @@ namespace WingetGUIInstaller.ViewModels
             if (_recommendedItemList != default && _recommendedItemList.Count > 0)
             {
                 var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
-                var recommedationsList = _recommendedItemList.Select(r => new RecommendedItemViewModel(r)
-                {
-                    IsInstalled = installedPackages.Any(p => p.Id == r.Id),
-                }).GroupBy(r => r.Group, (key, values) => new RecommendedItemsGroup(key, values
-                    .OrderBy(r => r.Name).OrderBy(r => r.IsInstalled))).OrderBy(g => g.Key);
+                var recommedationsList = _recommendedItemList
+                    .Select(r => new RecommendedItemViewModel(r)
+                    {
+                        IsInstalled = installedPackages.Any(p => p.Id == r.Id),
+                    })
+                    .GroupBy(r => r.Group, (key, values) =>
+                        new RecommendedItemsGroup(key, values
+                        .OrderBy(r => r.Name)
+                        .OrderBy(r => r.IsInstalled)))
+                    .OrderBy(g => g.Key);
 
                 _dispatcherQueue.TryEnqueue(() =>
                 {

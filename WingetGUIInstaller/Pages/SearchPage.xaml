@@ -84,16 +84,17 @@
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 
+        <ProgressBar Height="10"
+                     Grid.Row="3" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                     IsEnabled="{x:Bind ViewModel.DetailsLoading, Mode=OneWay}"
+                     IsIndeterminate="{x:Bind ViewModel.DetailsLoading, Mode=OneWay}"
+                     Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource negatedVisibilityConverter}, Mode=OneWay}" />
+
 
         <controls:PackageDetailsView Grid.Row="3" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                      MoreButtonCommand="{x:Bind ViewModel.GoToDetailsCommand}"
                                      PackageDetails="{x:Bind ViewModel.SelectedPackageDetails, Mode=OneWay}"
                                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
-
-        <ProgressBar Height="10"
-                     Grid.Row="3" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                     IsIndeterminate="{x:Bind ViewModel.CanInstallSelected, Mode=OneWay}"
-                     Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource negatedVisibilityConverter}, Mode=OneWay}" />
 
         <RelativePanel Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Name="SelectedText"

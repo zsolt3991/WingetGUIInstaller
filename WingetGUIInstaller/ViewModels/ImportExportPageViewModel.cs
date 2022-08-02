@@ -99,13 +99,13 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanImport => ImportFile != default;
 
-        public ICommand BrowseImportFileCommand => new AsyncRelayCommand(BrowseImportFileAsync);
-
-        public ICommand ImportPackageListCommand => new AsyncRelayCommand(ImportPackageListAsync);
-
         public string ExportFileText => ExportFile != default ? ExportFile.Path : "No file selected";
 
         public bool CanExport => ExportFile != default;
+
+        public ICommand BrowseImportFileCommand => new AsyncRelayCommand(BrowseImportFileAsync);
+
+        public ICommand ImportPackageListCommand => new AsyncRelayCommand(ImportPackageListAsync);
 
         public ICommand BrowseExportFileCommand => new AsyncRelayCommand(BrowseExportFileAsync);
 

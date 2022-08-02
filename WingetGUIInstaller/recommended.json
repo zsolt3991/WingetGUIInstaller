@@ -71,12 +71,12 @@
   },
   {
     "Name": ".NET 6 Runtime",
-    "Id": "Microsoft.dotnet.Runtime.6",
+    "Id": "Microsoft.DotNet.Runtime.6",
     "Group": "BasicUtilities"
   },
   {
-    "Name": ".NET SDK (Stable)",
-    "Id": "Microsoft.dotnet",
+    "Name": ".NET 6 SDK (Stable)",
+    "Id": "Microsoft.DotNet.SDK.6",
     "Group": "Development"
   }
 ]

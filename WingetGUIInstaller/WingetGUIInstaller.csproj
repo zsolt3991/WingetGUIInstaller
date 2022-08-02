@@ -8,6 +8,7 @@
     <Platforms>x86;x64;arm64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <Nullable>warnings</Nullable>
@@ -23,7 +24,6 @@
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
@@ -40,9 +40,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.197" />
-    <PackageReference Include="Microsoft.WindowsPackageManager.Utils" Version="1.1.6" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.3" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.1" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 

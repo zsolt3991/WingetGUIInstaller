@@ -11,7 +11,7 @@ namespace WingetGUIInstaller.Services
     {
         // Define a Treshold after which data is automatically fetched again
         protected static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
-        private ConsoleOutputCache _consoleBuffer;
+        private readonly ConsoleOutputCache _consoleBuffer;
         private List<WingetPackageSource> _availablePackageSources;
         private DateTimeOffset _lastAvailablePackageSourcesRefresh;
 
@@ -33,9 +33,11 @@ namespace WingetGUIInstaller.Services
 
         private async Task LoadPackageSourceListAsync()
         {
-            _availablePackageSources = (await PackageSourceCommands.GetPackageSources()
+            var commandResult = await PackageSourceCommands.GetPackageSources()
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync()).ToList();
+                .ExecuteAsync();
+
+            _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
         }
     }

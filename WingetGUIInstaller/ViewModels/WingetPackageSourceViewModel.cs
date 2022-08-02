@@ -10,10 +10,11 @@ namespace WingetGUIInstaller.ViewModels
         private string _argument;
         private bool _isEnabled;
 
-        public WingetPackageSourceViewModel(WingetPackageSource packageSource)
+        public WingetPackageSourceViewModel(WingetPackageSource packageSource, bool isEnabled = false)
         {
             _name = packageSource.Name;
             _argument = packageSource.Argument;
+            _isEnabled = isEnabled;
         }
 
         public bool IsSelected

@@ -8,7 +8,7 @@ namespace WingetHelper.Commands
         public static WingetCommand<Version> GetWingetVersion()
         {
             return new WingetCommand<Version>("--version")
-                .ConfigureResultDecoder(commandResult => ResponseDecoder.ParseResultsVersion(commandResult));
+                .ConfigureResultDecoder(commandResult => ExpressionDataDecoder.ParseResultsVersion(commandResult));
         }
 
         public static WingetCommand<object> CustomWingetCommand(string[] arguments, bool requiresAdmin = false)

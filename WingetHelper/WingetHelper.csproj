@@ -7,9 +7,10 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zsolt3991/WingetGUIInstaller</RepositoryUrl>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Nullable>warnings</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="27.2.1" />
+    <PackageReference Include="CsvHelper" Version="28.0.1" />
   </ItemGroup>
 </Project>

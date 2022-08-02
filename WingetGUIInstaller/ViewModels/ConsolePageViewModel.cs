@@ -43,7 +43,7 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            var arguments = new Regex(RegexPattern).Split(CommandLine);
+            var arguments = Regex.Split(CommandLine, RegexPattern);
             var commandResult = await WingetInfo.CustomWingetCommand(arguments)
                 .ConfigureOutputListener(_cache.IngestMessage)
                 .ExecuteAsync();

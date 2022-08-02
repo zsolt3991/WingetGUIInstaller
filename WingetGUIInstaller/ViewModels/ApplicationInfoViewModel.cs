@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -15,17 +17,28 @@ namespace WingetGUIInstaller.ViewModels
         public ApplicationInfoViewModel(DispatcherQueue dispatcherQueue)
         {
             ApplicationName = Package.Current.DisplayName;
-            ApplicationIconPath = "ms-appx:///Assets/Square150x150Logo.scale-200.png";
             ApplicationVersion = Package.Current.Id.Version.ToVersion();
+            ApplicationPlatform = Package.Current.Id.Architecture.ToString();
+            ApplicationIcon = new BitmapImage(Package.Current.Logo);
+
+            ApplicationRepositoryUrl = new Uri("https://github.com/zsolt3991/WingetGUIInstaller");
+            ApplicationReportUrl = new Uri("https://github.com/zsolt3991/WingetGUIInstaller/issues/new/choose");
+
             _dispatcherQueue = dispatcherQueue;
             _ = CheckWingetVersion();
         }
 
         public string ApplicationName { get; }
 
-        public string ApplicationIconPath { get; }
-
         public Version ApplicationVersion { get; }
+
+        public string ApplicationPlatform { get; }
+
+        public ImageSource ApplicationIcon { get; }
+
+        public Uri ApplicationRepositoryUrl { get; }
+
+        public Uri ApplicationReportUrl { get; }
 
         public bool WingetInstalled => InstalledWingetVersion != default;
 

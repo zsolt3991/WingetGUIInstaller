@@ -1,4 +1,4 @@
-﻿using WingetHelper.Utils;
+﻿using System.Runtime.Serialization;
 
 namespace WingetHelper.Models
 {
@@ -14,10 +14,10 @@ namespace WingetHelper.Models
 
         public string Publisher { get; set; }
 
-        [DeserializerName("Publisher Url")]
+        [DataMember(Name = "Publisher Url")]
         public string Publisher_Url { get; set; }
 
-        [DeserializerName("Publisher Support Url")]
+        [DataMember(Name = "Publisher Support Url")]
         public string Publisher_Support_Url { get; set; }
 
         public string Moniker { get; set; }
@@ -28,21 +28,21 @@ namespace WingetHelper.Models
 
         public string License { get; set; }
 
-        [DeserializerName("License Url")]
+        [DataMember(Name = "License Url")]
         public string License_Url { get; set; }
 
-        [DeserializerName("Privacy Url")]
+        [DataMember(Name = "Privacy Url")]
         public string Privacy_Url { get; set; }
 
         public string Copyright { get; set; }
 
-        [DeserializerName("Copyright Url")]
+        [DataMember(Name = "Copyright Url")]
         public string Copyright_Url { get; set; }
 
-        [DeserializerName("Release Notes")]
+        [DataMember(Name = "Release Notes")]
         public string Release_Notes { get; set; }
 
-        [DeserializerName("Release Notes Url")]
+        [DataMember(Name = "Release Notes Url")]
         public string Release_Notes_Url { get; set; }
 
         public WingetPackageInstaller Installer { get; set; }
@@ -52,7 +52,7 @@ namespace WingetHelper.Models
     {
         public string Type { get; set; }
 
-        [DeserializerName("Download Url")]
+        [DataMember(Name = "Download Url")]
         public string Download_Url { get; set; }
 
         public string SHA256 { get; set; }

@@ -105,6 +105,12 @@ namespace WingetGUIInstaller.Services
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
 
+            if (searchResults == default || !searchResults.Any())
+            {
+                // Return empty result set
+                return new List<WingetPackageEntry>();
+            }
+
             // Ignore Packages already installed
             searchResults = searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
@@ -143,6 +149,11 @@ namespace WingetGUIInstaller.Services
                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                .ExecuteAsync();
 
+            if (details == default)
+            {
+                return default;
+            }
+
             if (_packageDetailsCache.Count >= DetailsCacheSize)
             {
                 var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
@@ -178,9 +189,10 @@ namespace WingetGUIInstaller.Services
         private async Task LoadInstalledPackageList()
         {
             // Get all installed packages on the system
-            _installedPackages = (await PackageCommands.GetInstalledPackages()
+            var commandResult = await PackageCommands.GetInstalledPackages()
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync()).ToList();
+                .ExecuteAsync();
+            _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
 
             // Filter out the upgradable items as well to save one request so that all changes are accounted for
             _upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
@@ -191,9 +203,11 @@ namespace WingetGUIInstaller.Services
         private async Task LoadUpgradablePackages()
         {
             // Get only packages that have upgrades available
-            _upgradablePackages = (await PackageCommands.GetUpgradablePackages()
+            var commandResult = await PackageCommands.GetUpgradablePackages()
               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-              .ExecuteAsync()).ToList();
+              .ExecuteAsync();
+
+            _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
         }
 

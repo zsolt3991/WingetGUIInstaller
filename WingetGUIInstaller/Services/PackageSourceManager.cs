@@ -14,7 +14,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task AddPackageSource(string packageSourceName, string packageSourceArgument, string packageSourceType = default)
         {
-            var command = await PackageSourceCommands.AddPackageSource(packageSourceName, packageSourceArgument)
+            var command = await PackageSourceCommands.AddPackageSource(packageSourceName, packageSourceArgument, packageSourceType)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
         }

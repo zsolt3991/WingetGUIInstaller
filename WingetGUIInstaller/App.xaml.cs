@@ -77,12 +77,9 @@ namespace WingetGUIInstaller
                 .AddSingleton<ImportExportPageViewModel>()
                 .AddSingleton<PackageSourceManagementViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
-                .AddGithubUpdater(options =>
-                {
-                    options
+                .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
-                        .ConfigureRepository("WingetGUIInstaller");
-                })
+                    .ConfigureRepository("WingetGUIInstaller"))
                 .BuildServiceProvider());
         }
 
