@@ -98,11 +98,11 @@ namespace WingetGUIInstaller
             {
                 _window = new MainWindow();
                 _window.Activate();
-                WindowHelper.ShowWindow(_window);
+                WindowInteropUtils.ShowWindow(_window);
             }
             else
             {
-                WindowHelper.ShowWindow(_window);
+                WindowInteropUtils.ShowWindow(_window);
             }
         }
     }
