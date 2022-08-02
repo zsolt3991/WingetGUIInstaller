@@ -20,8 +20,18 @@ namespace WingetGUIInstaller.Services
         protected bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
             ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
 
-        public void ShowPackageOperationStatus(string packageName,
-            InstallOperation installOperation = InstallOperation.Install, bool installComplete = true)
+        public void ShowGenericNotification(string titleText, string contentText)
+        {
+            if (!NotificationsEnabled)
+                return;
+
+            new ToastContentBuilder()
+                .AddText(titleText)
+                .AddText(contentText)
+                .Show();
+        }
+
+        public void ShowPackageOperationStatus(string packageName, InstallOperation installOperation, bool installComplete)
         {
             if (!NotificationsEnabled)
                 return;
@@ -51,17 +61,24 @@ namespace WingetGUIInstaller.Services
             toastContent.Show();
         }
 
-        public void ShowUpdateStatus(bool updatesAvailable, int updateCount)
+        public void ShowUpdateStatus(int updateCount)
         {
             if (!NotificationsEnabled)
                 return;
 
-            new ToastContentBuilder()
-                .AddArgument("redirect", NavigationItemKey.Upgrades)
-                .AddText(updatesAvailable ?
-                    string.Format("Found {0} packages that can be upgraded", updateCount) :
-                    "All packages are up to date")
-                .Show();
+            var toastContent = new ToastContentBuilder();
+            if (updateCount > 0)
+            {
+                toastContent
+                    .AddArgument("redirect", NavigationItemKey.Upgrades)
+                    .AddText(string.Format("Found {0} packages that can be upgraded", updateCount));
+            }
+            else
+            {
+                toastContent.AddText("All packages are up to date");
+            }
+
+            toastContent.Show();
         }
 
         internal void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)

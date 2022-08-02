@@ -71,8 +71,7 @@ namespace WingetGUIInstaller.Services
 
             if (showNotification)
             {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Any(p => !string.IsNullOrEmpty(p.Available)),
-                    filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)));
+                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)));
             }
 
             return filteredPackages.ToList();
@@ -105,7 +104,7 @@ namespace WingetGUIInstaller.Services
 
             if (showNotification)
             {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Any(), filteredPackages.Count());
+                _notificationManager.ShowUpdateStatus(filteredPackages.Count());
             }
 
             return filteredPackages.ToList();
