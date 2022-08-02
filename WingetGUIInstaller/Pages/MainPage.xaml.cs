@@ -13,7 +13,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.Home)]
+    [PageKey(NavigationItemKey.Home)]
     public sealed partial class MainPage : Page
     {
         private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
@@ -70,9 +70,8 @@ namespace WingetGUIInstaller.Pages
 
         private void ChangeSelectedItem(NavigationItemKey navigationItemKey)
         {
-            NavView.SelectedItem =
-                NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
-                string.Equals(navItem.Tag.ToString(), navigationItemKey.ToString(), StringComparison.InvariantCultureIgnoreCase));
+            NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
+                Enum.TryParse<NavigationItemKey>(navItem.Tag.ToString(), out var navItemTag) && navItemTag == navigationItemKey);
         }
 
         private async void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
