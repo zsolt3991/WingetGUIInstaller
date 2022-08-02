@@ -5,13 +5,13 @@
         About,
         Console,
         Home,
+        ImportExport,
         InstalledPackages,
+        PackageDetails,
+        PackageSources,
         Recommendations,
         Search,
         Settings,
         Upgrades,
-        PackageDetails,
-        ImportExport,
-        PackageSources,
     }
 }

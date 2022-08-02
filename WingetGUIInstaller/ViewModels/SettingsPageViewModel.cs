@@ -4,16 +4,21 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Services;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
     public class SettingsPageViewModel : ObservableObject
     {
+        private readonly NavigationItemKey[] _disallowedKeys = new NavigationItemKey[] {
+            NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private bool? _consoleTabEnabled;
@@ -21,6 +26,8 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _packageSourceFilteringEnabled;
         private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _automaticUpdatesEnabled;
+        private NavigationItemKey? _selectedPage;
+
 
         public SettingsPageViewModel(ApplicationDataStorageHelper configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce)
@@ -129,7 +136,30 @@ namespace WingetGUIInstaller.ViewModels
                     _configurationStore.Save(ConfigurationPropertyKeys.AutomaticUpdates, value);
                 }
             }
-        }      
+        }
+
+        public NavigationItemKey SelectedPage
+        {
+            get
+            {
+                if (_selectedPage == null)
+                {
+                    _selectedPage = (NavigationItemKey)_configurationStore
+                        .Read(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
+                }
+                return _selectedPage.Value;
+            }
+            set
+            {
+                if (SetProperty(ref _selectedPage, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.SelectedPage, (int)value);
+                }
+            }
+        }
+
+        public IReadOnlyList<NavigationItemKey> AvailablePages => Enum.GetValues<NavigationItemKey>().Cast<NavigationItemKey>()
+            .Where(key => !_disallowedKeys.Contains(key)).ToList();
 
         public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
 
