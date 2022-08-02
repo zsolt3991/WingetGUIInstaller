@@ -34,16 +34,21 @@ namespace WingetGUIInstaller.Services
                 .Show();
         }
 
-        public void ShowMultiplePackageOperationStatus(InstallOperation installOperation, int successfulCount, int failedCount)
+        public void ShowBatchPackageOperationStatus(InstallOperation installOperation, int attemptedCount, int completedCount)
         {
             if (!NotificationsEnabled)
                 return;
 
-            new ToastContentBuilder()
+            var toastContent = new ToastContentBuilder()
                 .AddText(string.Format("Package {0} complete", installOperation.ToString()))
-                .AddText(string.Format("Succesful: {0} packages", successfulCount))
-                .AddText(string.Format("Failed: {0} packages ", failedCount))
-                .Show();
+                .AddText(string.Format("Succesful: {0} packages", completedCount));
+
+            if (attemptedCount != completedCount)
+            {
+                toastContent.AddText(string.Format("Failed: {0} packages", attemptedCount - completedCount));
+            }
+
+            toastContent.Show();
         }
 
         public void ShowUpdateStatus(bool updatesAvailable, int updateCount)

@@ -35,7 +35,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isDetailsAvailable;
         private bool _detailsLoading;
 
-        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager, 
+        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager,
             ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
@@ -150,34 +150,26 @@ namespace WingetGUIInstaller.ViewModels
                 IsLoading = false;
             });
 
-            _notificationManager.ShowUpdateStatus(returnedPackages.Count != 0, returnedPackages.Count);
         }
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
             var successfulInstalls = 0;
-
             foreach (var id in packageIds)
-            {                
+            {
                 var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
-
                 if (upgradeResult)
                 {
                     successfulInstalls++;
                 }
-
-                if (packageIds.Count() == 1)
-                {
-                    _notificationManager.ShowPackageOperationStatus(
-                        _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Upgrade, upgradeResult);
-                }
             }
 
-            if (packageIds.Count() != 1)
+            if (packageIds.Any())
             {
-                _notificationManager.ShowMultiplePackageOperationStatus(
-                    InstallOperation.Upgrade, successfulInstalls, packageIds.Count() - successfulInstalls);
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Upgrade, packageIds.Count(), successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);

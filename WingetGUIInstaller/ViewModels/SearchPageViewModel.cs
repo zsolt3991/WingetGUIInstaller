@@ -148,29 +148,22 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            var successfulInstalls = 0;
 
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
-                
-                var installresult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
 
+                var installresult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
                 if (installresult)
                 {
                     successfulInstalls++;
                 }
-
-                if (packageIds.Count() == 1)
-                {
-                    _notificationManager.ShowPackageOperationStatus(
-                        _packages.FirstOrDefault(p => p.Id == id)?.Name, InstallOperation.Install, installresult);
-                }
             }
 
-            if (packageIds.Count() != 1)
+            if (packageIds.Any())
             {
-                _notificationManager.ShowMultiplePackageOperationStatus(
-                    InstallOperation.Install, successfulInstalls, packageIds.Count() - successfulInstalls);
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Install, packageIds.Count(), successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
