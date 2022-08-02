@@ -1,11 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.Helpers;
+using CommunityToolkit.WinUI.Notifications;
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller
@@ -15,9 +17,11 @@ namespace WingetGUIInstaller
     /// </summary>
     public partial class App : Application
     {
-        public static Window Window => _window;
-
+        private readonly ToastNotificationManager _notificationManager;
+        private readonly DispatcherQueue _dispatcherQueue;
         private static Window _window;
+        
+        public static Window Window => _window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -27,6 +31,8 @@ namespace WingetGUIInstaller
         {
             ConfigureServices();
             InitializeComponent();
+            _notificationManager = Ioc.Default.GetRequiredService<ToastNotificationManager>();
+            _dispatcherQueue = Ioc.Default.GetRequiredService<DispatcherQueue>();
             Current.RequestedTheme = ApplicationTheme.Dark;
         }
 
@@ -37,8 +43,11 @@ namespace WingetGUIInstaller
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            _window = new MainWindow();
-            _window.Activate();
+            ToastNotificationManagerCompat.OnActivated += HandleToastActivation;
+            if (!ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
+            {
+                LaunchAndBringToForegroundIfNeeded();
+            }
         }
 
         private void ConfigureServices()
@@ -50,6 +59,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
+                .AddSingleton<ToastNotificationManager>()
                 .AddSingleton<PackageSourceCache>()
                 .AddSingleton<PackageSourceManager>()
                 .AddSingleton<PageLocatorService<NavigationItemKey>>()
@@ -71,6 +81,29 @@ namespace WingetGUIInstaller
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))
                 .BuildServiceProvider());
+        }
+
+        private void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                LaunchAndBringToForegroundIfNeeded();
+                _notificationManager.HandleToastActivation(e);
+            });
+        }
+
+        private void LaunchAndBringToForegroundIfNeeded()
+        {
+            if (_window == null)
+            {
+                _window = new MainWindow();
+                _window.Activate();
+                WindowInteropUtils.ShowWindow(_window);
+            }
+            else
+            {
+                WindowInteropUtils.ShowWindow(_window);
+            }
         }
     }
 }

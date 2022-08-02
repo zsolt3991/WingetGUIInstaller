@@ -23,6 +23,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
+        private readonly ToastNotificationManager _notificationManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
         private bool _isLoading;
@@ -35,11 +36,13 @@ namespace WingetGUIInstaller.ViewModels
         private bool _detailsLoading;
 
         public ListPageViewModel(DispatcherQueue dispatcherQueue,
-            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
+            PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager,
+            INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
@@ -160,10 +163,23 @@ namespace WingetGUIInstaller.ViewModels
         private async Task UpgradePackages(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
                 var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
+                if (upgradeResult)
+                {
+                    successfulInstalls++;
+                }
             }
+
+            if (packageIds.Any())
+            {
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Upgrade, packageIds.Count(), successfulInstalls);
+            }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await LoadInstalledPackages(true);
         }
@@ -171,10 +187,23 @@ namespace WingetGUIInstaller.ViewModels
         private async Task UninstallPackages(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
                 var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
+                if (uninstallResult)
+                {
+                    successfulInstalls++;
+                }
             }
+
+            if (packageIds.Any())
+            {
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Uninstall, packageIds.Count(), successfulInstalls);
+            }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await LoadInstalledPackages(true);
         }

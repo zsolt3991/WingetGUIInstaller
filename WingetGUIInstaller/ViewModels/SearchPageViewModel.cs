@@ -20,6 +20,7 @@ namespace WingetGUIInstaller.ViewModels
     public class SearchPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ToastNotificationManager _notificationManager;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
@@ -33,14 +34,16 @@ namespace WingetGUIInstaller.ViewModels
         private AdvancedCollectionView _packagesView;
         private bool _detailsLoading;
 
-        public SearchPageViewModel(DispatcherQueue dispatcherQueue,
+        public SearchPageViewModel(DispatcherQueue dispatcherQueue, ToastNotificationManager notificationManager,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
+            _notificationManager = notificationManager;
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
         }
@@ -145,9 +148,22 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
+
                 var installresult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
+                if (installresult)
+                {
+                    successfulInstalls++;
+                }
+            }
+
+            if (packageIds.Any())
+            {
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Install, packageIds.Count(), successfulInstalls);
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);

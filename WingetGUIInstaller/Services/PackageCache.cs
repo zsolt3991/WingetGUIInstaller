@@ -18,16 +18,19 @@ namespace WingetGUIInstaller.Services
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ToastNotificationManager _notificationManager;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore,
+            ToastNotificationManager notificationManager)
         {
             _consoleBuffer = consoleOutputCache;
             _configurationStore = configurationStore;
+            _notificationManager = notificationManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
@@ -43,54 +46,68 @@ namespace WingetGUIInstaller.Services
 
         public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
         {
+            bool showNotification = false;
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
+                showNotification = true;
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages;
+            IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages ?? new List<WingetPackageEntry>();
 
             // Filter packages with no source
             if (IgnoreEmptyPackageSource)
             {
-                filteredPackages = filteredPackages?.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
             // Filter Ignored Sources
             if (IsFilteringActive)
             {
-                filteredPackages = filteredPackages?
+                filteredPackages = filteredPackages
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            return filteredPackages?.ToList();
+            if (showNotification)
+            {
+                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)));
+            }
+
+            return filteredPackages.ToList();
         }
 
         public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload)
         {
+            bool showNotification = false;
             if (_upgradablePackages == default || forceReload ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
                 await LoadUpgradablePackages();
+                showNotification = true;
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages;
+            IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages ?? new List<WingetPackageEntry>();
 
             // Filter packages with no source
             if (IgnoreEmptyPackageSource)
             {
-                filteredPackages = filteredPackages?.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
             // Filter Ignored Sources
             if (IsFilteringActive)
             {
-                filteredPackages = filteredPackages?
+                filteredPackages = filteredPackages
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            return filteredPackages?.ToList();
+            if (showNotification)
+            {
+                _notificationManager.ShowUpdateStatus(filteredPackages.Count());
+            }
+
+            return filteredPackages.ToList();
         }
 
         public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool refreshInstalled)

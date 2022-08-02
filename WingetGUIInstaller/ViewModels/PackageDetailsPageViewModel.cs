@@ -16,16 +16,19 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageManager _packageManager;
         private readonly PackageCache _packageCache;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ToastNotificationManager _toastNotificationManager;
         private PackageDetailsViewModel _packageDetails;
         private AvailableOperation _availableOperation;
         private string _loadingText;
         private bool _isLoading;
 
-        public PackageDetailsPageViewModel(PackageManager packageManager, PackageCache packageCache, DispatcherQueue dispatcherQueue)
+        public PackageDetailsPageViewModel(PackageManager packageManager, PackageCache packageCache, DispatcherQueue dispatcherQueue,
+            ToastNotificationManager toastNotificationManager)
         {
             _packageManager = packageManager;
             _packageCache = packageCache;
             _dispatcherQueue = dispatcherQueue;
+            _toastNotificationManager = toastNotificationManager;
         }
 
         public PackageDetailsViewModel PackageDetails
@@ -84,12 +87,14 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
             var installresult = await _packageManager.InstallPacakge(packageId, OnPackageInstallProgress);
             if (installresult)
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Install;
             }
 
+            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Install, installresult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
@@ -101,12 +106,14 @@ namespace WingetGUIInstaller.ViewModels
         private async Task UpgradePackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
             var upgradeResult = await _packageManager.UpgradePackage(packageId, OnPackageInstallProgress);
             if (upgradeResult)
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Update;
             }
 
+            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
@@ -118,12 +125,14 @@ namespace WingetGUIInstaller.ViewModels
         private async Task UninstallPackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
             var uninstallResult = await _packageManager.RemovePackage(packageId, OnPackageInstallProgress);
             if (uninstallResult)
             {
                 _availableOperation = _availableOperation &= ~AvailableOperation.Uninstall;
             }
 
+            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;

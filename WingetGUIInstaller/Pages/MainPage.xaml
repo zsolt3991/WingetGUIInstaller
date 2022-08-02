@@ -9,7 +9,6 @@
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
-        <utils:NavigationItemKeyTagConverter x:Key="navigationTagConverter" />
     </Page.Resources>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -23,20 +22,21 @@
                                  IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
+
                 <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar"
-                                             Tag="{x:Bind enums:NavigationItemKey.Recommendations, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.Recommendations}" />
                 <controls:NavigationViewItem Content="Search Packages" Icon="Find"
-                                             Tag="{x:Bind enums:NavigationItemKey.Search, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.Search}" />
                 <controls:NavigationViewItem Content="Update Packages" Icon="Refresh"
-                                             Tag="{x:Bind enums:NavigationItemKey.Upgrades, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.Upgrades}" />
                 <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps"
-                                             Tag="{x:Bind enums:NavigationItemKey.InstalledPackages, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.InstalledPackages}" />
                 <controls:NavigationViewItem Content="Import/Export Pacakge Lists" Icon="Import"
-                                             Tag="{x:Bind enums:NavigationItemKey.ImportExport, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.ImportExport}" />
                 <controls:NavigationViewItem Content="Manage Package Sources" Icon="Manage"
-                                             Tag="{x:Bind enums:NavigationItemKey.PackageSources, Converter={StaticResource navigationTagConverter}}" />
+                                             Tag="{x:Bind enums:NavigationItemKey.PackageSources}" />
                 <controls:NavigationViewItem Content="Console"
-                                             Tag="{x:Bind enums:NavigationItemKey.Console, Converter={StaticResource navigationTagConverter}}"
+                                             Tag="{x:Bind enums:NavigationItemKey.Console}"
                                              Visibility="{x:Bind ViewModel.IsConsoleEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;" />
@@ -45,8 +45,8 @@
             </controls:NavigationView.MenuItems>
             <controls:NavigationView.FooterMenuItems>
                 <controls:NavigationViewItem Content="Settings" Icon="Setting"
-                                             Tag="{x:Bind enums:NavigationItemKey.Settings, Converter={StaticResource navigationTagConverter}}" />
-                <controls:NavigationViewItem Content="About" Tag="{x:Bind enums:NavigationItemKey.About, Converter={StaticResource navigationTagConverter}}">
+                                             Tag="{x:Bind enums:NavigationItemKey.Settings}" />
+                <controls:NavigationViewItem Content="About" Tag="{x:Bind enums:NavigationItemKey.About}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
                     </NavigationViewItem.Icon>

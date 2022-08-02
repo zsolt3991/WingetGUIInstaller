@@ -21,6 +21,7 @@ namespace WingetGUIInstaller.ViewModels
     public class UpgradePageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ToastNotificationManager _notificationManager;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
@@ -34,12 +35,13 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isDetailsAvailable;
         private bool _detailsLoading;
 
-        public UpgradePageViewModel(DispatcherQueue dispatcherQueue,
-            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
+        public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager,
+            ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
@@ -147,15 +149,29 @@ namespace WingetGUIInstaller.ViewModels
                 }
                 IsLoading = false;
             });
+
         }
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
                 var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
+                if (upgradeResult)
+                {
+                    successfulInstalls++;
+                }
             }
+
+            if (packageIds.Any())
+            {
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Upgrade, packageIds.Count(), successfulInstalls);
+            }
+
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await ListUpgradableItemsAsync(true);
         }

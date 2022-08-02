@@ -23,17 +23,19 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
+        private readonly ToastNotificationManager _notificationManager;
         private readonly IReadOnlyList<RecommendedItem> _recommendedItemList;
         private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
         private string _loadingText;
         private bool _isLoading;
 
         public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue,
-            PackageCache packageCache, PackageManager packageManager)
+            PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _notificationManager = notificationManager;
             _recommendedItemList = LoadRecommendationsFile();
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
@@ -119,12 +121,24 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+
+            var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
-                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
+                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress); 
+                if (installResult)
+                {
+                    successfulInstalls++;
+                }
             }
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
 
+            if (packageIds.Any())
+            {
+                _notificationManager.ShowBatchPackageOperationStatus(
+                    InstallOperation.Install, packageIds.Count(), successfulInstalls);
+            }
+
+            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             await LoadRecommendedItemsAsync(true);
         }
 

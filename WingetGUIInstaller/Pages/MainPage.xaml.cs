@@ -1,18 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Linq;
+using Windows.System;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.Home)]
+    [PageKey(NavigationItemKey.Home)]
     public sealed partial class MainPage : Page
     {
+        private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
+        private bool _pageLoaded = false;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
         public MainPageViewModel ViewModel { get; }
 
@@ -25,7 +30,22 @@ namespace WingetGUIInstaller.Pages
             _navigationService.AddNavigationLevel(ContentFrame);
             DataContext = ViewModel = Ioc.Default.GetRequiredService<MainPageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            WeakReferenceMessenger.Default.Register(this, (MessageHandler<object, NavigationRequestedMessage>)((r, m) =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (!_pageLoaded)
+                    {
+                        _defaultPage = m.Value;
+                    }
+                    else
+                    {
+                        ChangeSelectedItem(m.Value);
+                    }
+                });
+            }));
         }
+
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
@@ -43,8 +63,15 @@ namespace WingetGUIInstaller.Pages
 
         private void MainPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
+            _pageLoaded = true;
             // Select the first clickable item when the page is shown
-            NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(m => m is NavigationViewItem);
+            ChangeSelectedItem(_defaultPage);
+        }
+
+        private void ChangeSelectedItem(NavigationItemKey navigationItemKey)
+        {
+            NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
+                Enum.TryParse<NavigationItemKey>(navItem.Tag.ToString(), out var navItemTag) && navItemTag == navigationItemKey);
         }
 
         private async void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
