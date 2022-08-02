@@ -40,6 +40,14 @@
                                                                 IsOn="{x:Bind ViewModel.ConsoleTabEnabled, Mode=TwoWay}"
                                                                 PrimaryText="Show Console output"
                                                                 SecondaryText="Enables the ability to view raw command ouput for actions" />
+                    <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" PrimaryText="Default Page"
+                                                                 SecondaryText="Change the page that is shown when the application starts up">
+                        <customControls:CustomContentSettingsControl.CustomContent>
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                      ItemsSource="{x:Bind ViewModel.AvailablePages, Mode=OneTime}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedPage, Mode=TwoWay}" />
+                        </customControls:CustomContentSettingsControl.CustomContent>
+                    </customControls:CustomContentSettingsControl>
                 </StackPanel>
             </Expander>
 

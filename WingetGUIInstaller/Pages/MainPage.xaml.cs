@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Linq;
 using Windows.System;
+using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
@@ -16,6 +18,7 @@ namespace WingetGUIInstaller.Pages
     [PageKey(NavigationItemKey.Home)]
     public sealed partial class MainPage : Page
     {
+        private readonly ApplicationDataStorageHelper _applicationSettings;
         private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
         private bool _pageLoaded = false;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
@@ -26,10 +29,16 @@ namespace WingetGUIInstaller.Pages
             InitializeComponent();
             Loaded += MainPage_Loaded;
             Unloaded += MainPage_Unloaded;
+
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _navigationService.AddNavigationLevel(ContentFrame);
+            _applicationSettings = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
+            _defaultPage = (NavigationItemKey)_applicationSettings
+                .Read(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
+
             DataContext = ViewModel = Ioc.Default.GetRequiredService<MainPageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+
             WeakReferenceMessenger.Default.Register(this, (MessageHandler<object, NavigationRequestedMessage>)((r, m) =>
             {
                 DispatcherQueue.TryEnqueue(() =>
