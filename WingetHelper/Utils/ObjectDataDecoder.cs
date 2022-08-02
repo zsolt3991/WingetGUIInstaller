@@ -48,11 +48,11 @@ namespace WingetHelper.Utils
 
                     if (currentProperty != default)
                     {
-                        currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
-
-                        currentProperty = GetPropertyForName(targetType, currentKeyword);
-                        if (currentProperty != default)
+                        var nextProperty = GetPropertyForName(targetType, currentKeyword);
+                        if (nextProperty != default)
                         {
+                            currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
+                            currentProperty = nextProperty;
                             if (currentProperty.PropertyType == typeof(string))
                             {
                                 fieldValue = new List<string>();
@@ -68,6 +68,14 @@ namespace WingetHelper.Utils
                                     nestingLevel + 1, out var internalConsumed));
                                 i += internalConsumed;
                                 currentProperty = default;
+                            }
+                        }
+                        else
+                        {
+                            // String was matched as a property, however it is not a field in the given type
+                            if (!string.IsNullOrEmpty(line))
+                            {
+                                fieldValue.Add(line);
                             }
                         }
                     }
