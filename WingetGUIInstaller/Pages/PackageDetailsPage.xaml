@@ -170,7 +170,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <StackPanel Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+        <StackPanel Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Orientation="Horizontal"
                     Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
             <Button Name="Install"
                     MinWidth="160" Margin="5"

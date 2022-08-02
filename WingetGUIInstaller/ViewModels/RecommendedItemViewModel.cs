@@ -11,6 +11,7 @@ namespace WingetGUIInstaller.ViewModels
         private RecommendationGroupType _group;
         private bool _isInstalled;
         private bool _isSelected;
+        private bool _hasUpdate;
 
         public RecommendedItemViewModel(RecommendedItem recommendedItem)
         {
@@ -49,6 +50,12 @@ namespace WingetGUIInstaller.ViewModels
         {
             get => _isSelected;
             set => SetProperty(ref _isSelected, value);
+        }
+
+        public bool HasUpdate
+        {
+            get => _hasUpdate;
+            set => SetProperty(ref _hasUpdate, value);
         }
     }
 }
