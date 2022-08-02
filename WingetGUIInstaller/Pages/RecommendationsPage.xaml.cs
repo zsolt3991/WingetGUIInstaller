@@ -26,9 +26,15 @@ namespace WingetGUIInstaller.Pages
         {
             if (e.ClickedItem is RecommendedItemViewModel recommendedItem)
             {
+                var availableOperations = recommendedItem.IsInstalled ? AvailableOperation.Uninstall : AvailableOperation.Install;
+                if (recommendedItem.HasUpdate)
+                {
+                    availableOperations |= AvailableOperation.Update;
+                }
+
                 _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
                 {
-                    AvailableOperation = recommendedItem.IsInstalled ? AvailableOperation.Uninstall : AvailableOperation.Install,
+                    AvailableOperation = availableOperations,
                     PackageId = recommendedItem.Id,
                 });
             }
