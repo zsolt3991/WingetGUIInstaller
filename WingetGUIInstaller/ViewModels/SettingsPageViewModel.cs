@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
@@ -15,7 +14,7 @@ using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class SettingsPageViewModel : ObservableObject
+    public partial class SettingsPageViewModel : ObservableObject
     {
         private readonly NavigationItemKey[] _disallowedKeys = new NavigationItemKey[] {
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
@@ -161,8 +160,7 @@ namespace WingetGUIInstaller.ViewModels
         public IReadOnlyList<NavigationItemKey> AvailablePages => Enum.GetValues<NavigationItemKey>().Cast<NavigationItemKey>()
             .Where(key => !_disallowedKeys.Contains(key)).ToList();
 
-        public ICommand CheckForUpdatesCommand => new AsyncRelayCommand(CheckForUpdatesAsync);
-
+        [RelayCommand]
         private async Task CheckForUpdatesAsync()
         {
             var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);

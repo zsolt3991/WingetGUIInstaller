@@ -174,19 +174,19 @@
                     Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
             <Button Name="Install"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.InstallCommand}"
+                    Command="{x:Bind ViewModel.InstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Install " FontSize="16"
                     Visibility="{x:Bind ViewModel.IsInstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Upgrade"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.UpdateCommand}"
+                    Command="{x:Bind ViewModel.UpgradePackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Upgrade" FontSize="16"
                     Visibility="{x:Bind ViewModel.IsUpdateSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Uninstall"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.UninstallCommand}"
+                    Command="{x:Bind ViewModel.UninstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Uninstall" FontSize="16"
                     Visibility="{x:Bind ViewModel.IsUninstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />

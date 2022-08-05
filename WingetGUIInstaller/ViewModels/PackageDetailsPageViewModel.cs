@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
@@ -11,16 +10,27 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    internal class PackageDetailsPageViewModel : ObservableObject
+    internal partial class PackageDetailsPageViewModel : ObservableObject
     {
         private readonly PackageManager _packageManager;
         private readonly PackageCache _packageCache;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _toastNotificationManager;
-        private PackageDetailsViewModel _packageDetails;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsInstallSupported))]
+        [NotifyPropertyChangedFor(nameof(IsUpdateSupported))]
+        [NotifyPropertyChangedFor(nameof(IsUninstallSupported))]
         private AvailableOperation _availableOperation;
+
+        [ObservableProperty]
         private string _loadingText;
+
+        [ObservableProperty]
         private bool _isLoading;
+
+        [ObservableProperty]
+        private PackageDetailsViewModel _packageDetails;
 
         public PackageDetailsPageViewModel(PackageManager packageManager, PackageCache packageCache, DispatcherQueue dispatcherQueue,
             ToastNotificationManager toastNotificationManager)
@@ -31,35 +41,11 @@ namespace WingetGUIInstaller.ViewModels
             _toastNotificationManager = toastNotificationManager;
         }
 
-        public PackageDetailsViewModel PackageDetails
-        {
-            get => _packageDetails;
-            set => SetProperty(ref _packageDetails, value);
-        }
-
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public string LoadingText
-        {
-            get => _loadingText;
-            set => SetProperty(ref _loadingText, value);
-        }
-
         public bool IsInstallSupported => _availableOperation.HasFlag(AvailableOperation.Install);
 
         public bool IsUpdateSupported => _availableOperation.HasFlag(AvailableOperation.Update);
 
         public bool IsUninstallSupported => _availableOperation.HasFlag(AvailableOperation.Uninstall);
-
-        public ICommand InstallCommand => new AsyncRelayCommand<string>(InstallPackageAsync);
-
-        public ICommand UpdateCommand => new AsyncRelayCommand<string>(UpgradePackageAsync);
-
-        public ICommand UninstallCommand => new AsyncRelayCommand<string>(UninstallPackageAsync);
 
         public void UpdateData(PackageDetailsNavigationArgs packageDetails)
         {
@@ -78,12 +64,10 @@ namespace WingetGUIInstaller.ViewModels
                     throw new Exception("Unexpected input");
                 }
             }
-            _availableOperation = packageDetails.AvailableOperation;
-            OnPropertyChanged(nameof(IsInstallSupported));
-            OnPropertyChanged(nameof(IsUninstallSupported));
-            OnPropertyChanged(nameof(IsUpdateSupported));
+            AvailableOperation = packageDetails.AvailableOperation;
         }
 
+        [RelayCommand]
         private async Task InstallPackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
@@ -91,7 +75,7 @@ namespace WingetGUIInstaller.ViewModels
             var installresult = await _packageManager.InstallPacakge(packageId, OnPackageInstallProgress);
             if (installresult)
             {
-                _availableOperation = _availableOperation &= ~AvailableOperation.Install;
+                AvailableOperation = AvailableOperation &= ~AvailableOperation.Install;
             }
 
             _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Install, installresult);
@@ -103,6 +87,7 @@ namespace WingetGUIInstaller.ViewModels
             });
         }
 
+        [RelayCommand]
         private async Task UpgradePackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
@@ -110,7 +95,7 @@ namespace WingetGUIInstaller.ViewModels
             var upgradeResult = await _packageManager.UpgradePackage(packageId, OnPackageInstallProgress);
             if (upgradeResult)
             {
-                _availableOperation = _availableOperation &= ~AvailableOperation.Update;
+                AvailableOperation = AvailableOperation &= ~AvailableOperation.Update;
             }
 
             _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
@@ -122,6 +107,7 @@ namespace WingetGUIInstaller.ViewModels
             });
         }
 
+        [RelayCommand]
         private async Task UninstallPackageAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
@@ -129,7 +115,7 @@ namespace WingetGUIInstaller.ViewModels
             var uninstallResult = await _packageManager.RemovePackage(packageId, OnPackageInstallProgress);
             if (uninstallResult)
             {
-                _availableOperation = _availableOperation &= ~AvailableOperation.Uninstall;
+                AvailableOperation = AvailableOperation &= ~AvailableOperation.Uninstall;
             }
 
             _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);

@@ -18,16 +18,22 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class RecommendationsPageViewModel : ObservableObject
+    public partial class RecommendationsPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly ToastNotificationManager _notificationManager;
         private readonly IReadOnlyList<RecommendedItem> _recommendedItemList;
-        private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
+
+        [ObservableProperty]
         private string _loadingText;
+
+        [ObservableProperty]
         private bool _isLoading;
+
+        [ObservableProperty]
+        private ObservableCollection<RecommendedItemsGroup> _recommendedItems;
 
         public RecommendationsPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager)
@@ -40,24 +46,6 @@ namespace WingetGUIInstaller.ViewModels
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
             _ = LoadRecommendedItemsAsync(true);
-        }
-
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public string LoadingText
-        {
-            get => _loadingText;
-            set => SetProperty(ref _loadingText, value);
-        }
-
-        public ObservableCollection<RecommendedItemsGroup> RecommendedItems
-        {
-            get => _recommendedItems;
-            set => SetProperty(ref _recommendedItems, value);
         }
 
         public int SelectedCount => RecommendedItems.Sum(group => group.Count(p => p.IsSelected));
@@ -125,7 +113,7 @@ namespace WingetGUIInstaller.ViewModels
             var successfulInstalls = 0;
             foreach (var id in packageIds)
             {
-                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress); 
+                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
                 if (installResult)
                 {
                     successfulInstalls++;
@@ -189,9 +177,9 @@ namespace WingetGUIInstaller.ViewModels
                 new JsonSerializerOptions
                 {
                     Converters =
-                  {
+                    {
                         new JsonStringEnumConverter()
-                  }
+                    }
                 });
         }
 
