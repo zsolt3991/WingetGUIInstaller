@@ -29,6 +29,8 @@ namespace WingetGUIInstaller.ViewModels
         private bool _isLoading;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SearchQueryValid))]
+        [NotifyCanExecuteChangedFor(nameof(SearchPackagesCommand))]
         private string _searchQuery;
 
         [ObservableProperty]
@@ -73,6 +75,8 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanInstallSelected => SelectedCount > 0;
 
+        public bool SearchQueryValid => !string.IsNullOrWhiteSpace(SearchQuery);
+
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
         private void ViewPackageDetails(PackageDetailsViewModel details)
         {
@@ -95,7 +99,7 @@ namespace WingetGUIInstaller.ViewModels
             await InstallPackagesAsync(_packages.Select(p => p.Id));
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(SearchQueryValid))]
         private async Task SearchPackagesAsync()
         {
             await SerchPackagesAsync(SearchQuery, false);
@@ -108,12 +112,12 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task SerchPackagesAsync(string searchQuery, bool refreshInstalled = false)
         {
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            if (SearchQueryValid)
             {
                 {
                     _dispatcherQueue.TryEnqueue(() =>
                     {
-                        PackagesView.Clear();
+                        _packages.Clear();
                         LoadingText = "Loading";
                         IsLoading = true;
                     });
@@ -122,7 +126,7 @@ namespace WingetGUIInstaller.ViewModels
 
                     foreach (var entry in searchResults)
                     {
-                        _dispatcherQueue.TryEnqueue(() => PackagesView.Add(new WingetPackageViewModel(entry)));
+                        _dispatcherQueue.TryEnqueue(() => _packages.Add(new WingetPackageViewModel(entry)));
                     }
                     _dispatcherQueue.TryEnqueue(() => IsLoading = false);
                 }
