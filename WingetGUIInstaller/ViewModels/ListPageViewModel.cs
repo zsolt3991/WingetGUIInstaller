@@ -9,7 +9,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
@@ -18,7 +17,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class ListPageViewModel : ObservableObject
+    public partial class ListPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
@@ -26,14 +25,36 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ToastNotificationManager _notificationManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
+
+        [ObservableProperty]
         private bool _isLoading;
-        private WingetPackageViewModel _selectedPackage;
+
+        [ObservableProperty]
         private string _filterText;
+
+        [ObservableProperty]
         private string _loadingText;
-        private PackageDetailsViewModel _selectedPackageDetails;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(ViewPackageDetailsCommand))]
         private bool _detailsAvailable;
-        private AdvancedCollectionView _packagesView;
+
+        [ObservableProperty]
         private bool _detailsLoading;
+
+        [ObservableProperty]
+        private AdvancedCollectionView _packagesView;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectedCount))]
+        [NotifyPropertyChangedFor(nameof(IsSomethingSelected))]
+        [NotifyPropertyChangedFor(nameof(IsSelectionUpgradable))]
+        [NotifyCanExecuteChangedFor(nameof(UpgradePackagesCommand))]
+        [NotifyCanExecuteChangedFor(nameof(UninstallPackagesCommand))]
+        private WingetPackageViewModel _selectedPackage;
+
+        [ObservableProperty]
+        private PackageDetailsViewModel _selectedPackageDetails;
 
         public ListPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager,
@@ -50,69 +71,6 @@ namespace WingetGUIInstaller.ViewModels
             _ = LoadInstalledPackages();
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public string LoadingText
-        {
-            get => _loadingText;
-            set => SetProperty(ref _loadingText, value);
-        }
-
-        public AdvancedCollectionView PackagesView
-        {
-            get => _packagesView;
-            set => SetProperty(ref _packagesView, value);
-        }
-
-        public PackageDetailsViewModel SelectedPackageDetails
-        {
-            get => _selectedPackageDetails;
-            set => SetProperty(ref _selectedPackageDetails, value);
-        }
-
-        public bool DetailsAvailable
-        {
-            get => _detailsAvailable;
-            private set => SetProperty(ref _detailsAvailable, value);
-        }
-
-        public bool DetailsLoading
-        {
-            get => _detailsLoading;
-            private set => SetProperty(ref _detailsLoading, value);
-        }
-
-        public WingetPackageViewModel SelectedPackage
-        {
-            get => _selectedPackage;
-            set
-            {
-                if (SetProperty(ref _selectedPackage, value))
-                {
-                    OnPropertyChanged(nameof(SelectedCount));
-                    OnPropertyChanged(nameof(IsSomethingSelected));
-                    OnPropertyChanged(nameof(IsSelectionUpgradable));
-                    _ = FetchPackageDetailsAsync(value);
-                }
-            }
-        }
-
-        public string FilterText
-        {
-            get => _filterText;
-            set
-            {
-                if (SetProperty(ref _filterText, value))
-                {
-                    ApplyPackageFilter(value);
-                }
-            }
-        }
-
         public int SelectedCount => _packages.Any(p => p.IsSelected) ?
             _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
@@ -122,49 +80,32 @@ namespace WingetGUIInstaller.ViewModels
             _packages.Where(p => p.IsSelected).Any(p => !string.IsNullOrEmpty(p.Available)) :
             SelectedPackage != default && !string.IsNullOrEmpty(SelectedPackage.Available);
 
-        public ICommand ListCommand => new AsyncRelayCommand(() =>
-            LoadInstalledPackages(true));
-
-        public ICommand UpgradeSelectedCommand => new AsyncRelayCommand(() =>
-             UpgradePackages(GetSelectedPackageIds()));
-
-        public ICommand UninstallSelectedCommand => new AsyncRelayCommand(() =>
-            UninstallPackages(GetSelectedPackageIds()));
-
-        public ICommand GoToDetailsCommand =>
-            new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
-
-        private async Task LoadInstalledPackages(bool forceUpdate = false)
+        [RelayCommand]
+        private async Task RefreshPackageList()
         {
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                IsLoading = true;
-                LoadingText = "Loading";
-            });
+            await LoadInstalledPackages(true);
+        }
 
-            var returnedPackages = await _packageCache.GetInstalledPackages(forceUpdate);
+        [RelayCommand(CanExecute = nameof(DetailsAvailable))]
+        private void ViewPackageDetails(PackageDetailsViewModel details)
+        {
+            var upgradeOperation = !string.IsNullOrEmpty(_packages.FirstOrDefault(p => p.Id == details.PackageId)?.Available) ?
+                AvailableOperation.Update : AvailableOperation.None;
 
-            _dispatcherQueue.TryEnqueue(() =>
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
             {
-                UpdateDisplayedPackages(returnedPackages);
-                IsLoading = false;
+                PackageDetails = details,
+                AvailableOperation = AvailableOperation.Uninstall | upgradeOperation
             });
         }
 
-        private void UpdateDisplayedPackages(IEnumerable<WingetPackageEntry> packageEntries)
-        {
-            _packages.Clear();
-            foreach (var entry in packageEntries)
-            {
-                _packages.Add(new WingetPackageViewModel(entry));
-            }
-        }
-
-        private async Task UpgradePackages(IEnumerable<string> packageIds)
+        [RelayCommand(CanExecute = nameof(IsSelectionUpgradable))]
+        private async Task UpgradePackages()
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
 
             var successfulInstalls = 0;
+            var packageIds = GetSelectedPackageIds();
             foreach (var id in packageIds)
             {
                 var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
@@ -184,11 +125,13 @@ namespace WingetGUIInstaller.ViewModels
             await LoadInstalledPackages(true);
         }
 
-        private async Task UninstallPackages(IEnumerable<string> packageIds)
+        [RelayCommand(CanExecute = nameof(IsSomethingSelected))]
+        private async Task UninstallPackages()
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
 
             var successfulInstalls = 0;
+            var packageIds = GetSelectedPackageIds();
             foreach (var id in packageIds)
             {
                 var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
@@ -208,10 +151,49 @@ namespace WingetGUIInstaller.ViewModels
             await LoadInstalledPackages(true);
         }
 
+        partial void OnSelectedPackageChanged(WingetPackageViewModel value)
+        {
+            _ = FetchPackageDetailsAsync(value);
+        }
+
+        partial void OnFilterTextChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                PackagesView.ClearFiltering();
+            }
+
+            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
+                package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+            );
+        }
+
+        private async Task LoadInstalledPackages(bool forceUpdate = false)
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                IsLoading = true;
+                LoadingText = "Loading";
+            });
+
+            var returnedPackages = await _packageCache.GetInstalledPackages(forceUpdate);
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                _packages.Clear();
+                foreach (var entry in returnedPackages)
+                {
+                    _packages.Add(new WingetPackageViewModel(entry));
+                }
+                IsLoading = false;
+            });
+        }
+
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            // Clear the displayed details on multiple items being selected
-            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
+            // Clear the details if value is null
+            if (value == default)
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
@@ -221,8 +203,8 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            // Clear the details if value is null
-            if (value == default)
+            // Clear the displayed details on multiple items being selected
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
@@ -286,18 +268,8 @@ namespace WingetGUIInstaller.ViewModels
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(IsSomethingSelected));
             OnPropertyChanged(nameof(IsSelectionUpgradable));
-        }
-
-        private void ViewPackageDetails(PackageDetailsViewModel details)
-        {
-            var upgradeOperation = !string.IsNullOrEmpty(_packages.FirstOrDefault(p => p.Id == details.PackageId)?.Available) ?
-                AvailableOperation.Update : AvailableOperation.None;
-
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
-            {
-                PackageDetails = details,
-                AvailableOperation = AvailableOperation.Uninstall | upgradeOperation
-            });
+            UpgradePackagesCommand.NotifyCanExecuteChanged();
+            UninstallPackagesCommand.NotifyCanExecuteChanged();
         }
 
         private void OnPackagePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -308,24 +280,13 @@ namespace WingetGUIInstaller.ViewModels
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(IsSomethingSelected));
                     OnPropertyChanged(nameof(IsSelectionUpgradable));
+                    UpgradePackagesCommand.NotifyCanExecuteChanged();
+                    UninstallPackagesCommand.NotifyCanExecuteChanged();
                     _ = FetchPackageDetailsAsync(SelectedPackage);
                     break;
                 default:
                     break;
             }
-        }
-
-        private void ApplyPackageFilter(string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                PackagesView.ClearFiltering();
-            }
-
-            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
-                package.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-                || package.Id.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-            );
         }
 
         private IEnumerable<string> GetSelectedPackageIds()

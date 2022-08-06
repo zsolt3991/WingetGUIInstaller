@@ -41,11 +41,13 @@ namespace WingetGUIInstaller.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ImportFileText))]
         [NotifyPropertyChangedFor(nameof(CanImport))]
+        [NotifyCanExecuteChangedFor(nameof(ImportPackageListCommand))]
         private StorageFile _importFile;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ExportFileText))]
         [NotifyPropertyChangedFor(nameof(CanExport))]
+        [NotifyCanExecuteChangedFor(nameof(ExportPackageListCommand))]
         private StorageFile _exportFile;
 
         public ImportExportPageViewModel(DispatcherQueue dispatcherQueue, PackageManager packageManager,
@@ -60,7 +62,7 @@ namespace WingetGUIInstaller.ViewModels
             ExportVersions = false;
 
             _ = LoadPackageSourceListAsync();
-        }     
+        }
 
         public string ImportFileText => ImportFile != default ? ImportFile.Path : "No file selected";
 
@@ -70,7 +72,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanExport => ExportFile != default;
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanExport))]
         private async Task ExportPackageListAsync()
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -84,7 +86,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanImport))]
         private async Task ImportPackageListAsync()
         {
             _dispatcherQueue.TryEnqueue(() =>

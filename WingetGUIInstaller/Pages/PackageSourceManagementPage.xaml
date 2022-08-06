@@ -30,7 +30,7 @@
                      Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="RefreshContent"
                     Margin="5" HorizontalAlignment="Right"
-                    Command="{x:Bind ViewModel.RefreshSourcesCommand}"
+                    Command="{x:Bind ViewModel.RefreshPackageSourceListCommand}"
                     Content="&#xE149;"
                     FontFamily="{StaticResource SymbolThemeFontFamily}"
                     FontSize="20" RelativePanel.AlignRightWithPanel="True" ToolTipService.ToolTip="Refresh (F5)">
@@ -102,7 +102,7 @@
                     FontSize="16" RelativePanel.AlignRightWithPanel="True" />
             <Button Name="DeleteSelected"
                     Grid.Row="0" MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.RemoveSelectedSourcesCommand}"
+                    Command="{x:Bind ViewModel.RemoveSelectedPackageSourcesCommand}"
                     Content="Delete Selected" FontSize="16" RelativePanel.LeftOf="AddSource" />
         </RelativePanel>
     </Grid>

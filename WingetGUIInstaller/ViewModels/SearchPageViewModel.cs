@@ -9,7 +9,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
@@ -17,7 +16,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class SearchPageViewModel : ObservableObject
+    public partial class SearchPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -25,14 +24,34 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
+
+        [ObservableProperty]
         private bool _isLoading;
-        private WingetPackageViewModel _selectedPackage;
+
+        [ObservableProperty]
         private string _searchQuery;
+
+        [ObservableProperty]
         private string _loadingText;
-        private bool _isDetailsAvailable;
-        private PackageDetailsViewModel _selectedPackageDetails;
-        private AdvancedCollectionView _packagesView;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(ViewPackageDetailsCommand))]
+        private bool _detailsAvailable;
+
+        [ObservableProperty]
         private bool _detailsLoading;
+
+        [ObservableProperty]
+        private AdvancedCollectionView _packagesView;
+
+        [ObservableProperty]
+        private PackageDetailsViewModel _selectedPackageDetails;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectedCount))]
+        [NotifyPropertyChangedFor(nameof(CanInstallSelected))]
+        [NotifyCanExecuteChangedFor(nameof(InstallSelectedPackagesCommand))]
+        private WingetPackageViewModel _selectedPackage;
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue, ToastNotificationManager notificationManager,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
@@ -48,81 +67,46 @@ namespace WingetGUIInstaller.ViewModels
             PackagesView = new AdvancedCollectionView(_packages, true);
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public string LoadingText
-        {
-            get => _loadingText;
-            set => SetProperty(ref _loadingText, value);
-        }
-
-        public AdvancedCollectionView PackagesView
-        {
-            get => _packagesView;
-            set => SetProperty(ref _packagesView, value);
-        }
-
-        public string SearchQuery
-        {
-            get => _searchQuery;
-            set => SetProperty(ref _searchQuery, value);
-        }
-
-        public PackageDetailsViewModel SelectedPackageDetails
-        {
-            get => _selectedPackageDetails;
-            set => SetProperty(ref _selectedPackageDetails, value);
-        }
-
-        public WingetPackageViewModel SelectedPackage
-        {
-            get => _selectedPackage;
-            set
-            {
-                if (SetProperty(ref _selectedPackage, value))
-                {
-                    OnPropertyChanged(nameof(SelectedCount));
-                    OnPropertyChanged(nameof(CanInstallSelected));
-                    _ = FetchPackageDetailsAsync(value);
-                }
-            }
-        }
-
-        public bool DetailsAvailable
-        {
-            get => _isDetailsAvailable;
-            private set => SetProperty(ref _isDetailsAvailable, value);
-        }
-
-        public bool DetailsLoading
-        {
-            get => _detailsLoading;
-            private set => SetProperty(ref _detailsLoading, value);
-        }
-
         public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
         public bool CanInstallAll => _packages.Any();
 
         public bool CanInstallSelected => SelectedCount > 0;
 
-        public ICommand SearchCommand => new AsyncRelayCommand(()
-            => SerchPackageAsync(SearchQuery, false));
+        [RelayCommand(CanExecute = nameof(DetailsAvailable))]
+        private void ViewPackageDetails(PackageDetailsViewModel details)
+        {
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            {
+                PackageDetails = details,
+                AvailableOperation = AvailableOperation.Install
+            });
+        }
 
-        public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(GetSelectedPackageIds()));
+        [RelayCommand(CanExecute = nameof(CanInstallSelected))]
+        private async Task InstallSelectedPackages()
+        {
+            await InstallPackagesAsync(GetSelectedPackageIds());
+        }
 
-        public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(_packages.Select(p => p.Id)));
+        [RelayCommand(CanExecute = nameof(CanInstallAll))]
+        private async Task InstallAllPackages()
+        {
+            await InstallPackagesAsync(_packages.Select(p => p.Id));
+        }
 
-        public ICommand GoToDetailsCommand =>
-            new RelayCommand<PackageDetailsViewModel>(ViewPackageDetails);
+        [RelayCommand]
+        private async Task SearchPackagesAsync()
+        {
+            await SerchPackagesAsync(SearchQuery, false);
+        }
 
-        private async Task SerchPackageAsync(string searchQuery, bool refreshInstalled = false)
+        partial void OnSelectedPackageChanged(WingetPackageViewModel value)
+        {
+            _ = FetchPackageDetailsAsync(value);
+        }
+
+        private async Task SerchPackagesAsync(string searchQuery, bool refreshInstalled = false)
         {
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
@@ -167,13 +151,13 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            await SerchPackageAsync(SearchQuery, true);
+            await SerchPackagesAsync(SearchQuery, true);
         }
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            // Clear the displayed details on multiple items being selected
-            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
+            // Clear the details if value is null
+            if (value == default)
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
@@ -183,8 +167,8 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            // Clear the details if value is null
-            if (value == default)
+            // Clear the displayed details on multiple items being selected
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
@@ -214,15 +198,6 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _dispatcherQueue.TryEnqueue(() => DetailsLoading = false);
             }
-        }
-
-        private void ViewPackageDetails(PackageDetailsViewModel details)
-        {
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
-            {
-                PackageDetails = details,
-                AvailableOperation = AvailableOperation.Install
-            });
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)
@@ -257,6 +232,8 @@ namespace WingetGUIInstaller.ViewModels
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(CanInstallSelected));
             OnPropertyChanged(nameof(CanInstallAll));
+            InstallSelectedPackagesCommand.NotifyCanExecuteChanged();
+            InstallAllPackagesCommand.NotifyCanExecuteChanged();
         }
 
         private void OnPackagePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -266,6 +243,8 @@ namespace WingetGUIInstaller.ViewModels
                 case nameof(WingetPackageViewModel.IsSelected):
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(CanInstallSelected));
+                    InstallSelectedPackagesCommand.NotifyCanExecuteChanged();
+                    InstallAllPackagesCommand.NotifyCanExecuteChanged();
                     _ = FetchPackageDetailsAsync(SelectedPackage);
                     break;
                 default:

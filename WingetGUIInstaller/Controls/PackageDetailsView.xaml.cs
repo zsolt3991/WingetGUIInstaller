@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Controls
 {
-    [ObservableObject]
+    [INotifyPropertyChanged]
     public sealed partial class PackageDetailsView : UserControl
     {
         private Visibility _moreButtonVisibility = Visibility.Collapsed;
