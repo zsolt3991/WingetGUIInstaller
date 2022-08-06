@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Models;
@@ -54,14 +53,17 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanInstallAll => RecommendedItems.Any(group => group.Any(p => !p.IsInstalled));
 
-        public ICommand InstallSelectedCommand => new AsyncRelayCommand(()
-          => InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => p.IsSelected).Select(p => p.Id))));
+        [RelayCommand(CanExecute = nameof(CanInstallAll))]
+        private async Task InstallAllPackagesAsync()
+        {
+            await InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => !p.IsInstalled).Select(p => p.Id)));
+        }
 
-        public ICommand InstalAllCommand => new AsyncRelayCommand(()
-            => InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => !p.IsInstalled).Select(p => p.Id))));
-
-        public ICommand InstallGroupCommand => new AsyncRelayCommand<RecommendedItemsGroup>((group)
-            => InstallPackagesAsync(group?.Where(p => !p.IsInstalled).Select(p => p.Id)));
+        [RelayCommand(CanExecute = nameof(CanInstallSelected))]
+        private async Task InstallSelectedPackagesAsync()
+        {
+            await InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => p.IsSelected).Select(p => p.Id)));
+        }
 
         private async Task LoadRecommendedItemsAsync(bool forceRefresh = false)
         {
@@ -168,6 +170,8 @@ namespace WingetGUIInstaller.ViewModels
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(CanInstallSelected));
             OnPropertyChanged(nameof(CanInstallAll));
+            InstallSelectedPackagesCommand.NotifyCanExecuteChanged();
+            InstallAllPackagesCommand.NotifyCanExecuteChanged();
         }
 
         private IReadOnlyList<RecommendedItem> LoadRecommendationsFile()
@@ -190,6 +194,7 @@ namespace WingetGUIInstaller.ViewModels
                 case nameof(RecommendedItemViewModel.IsSelected):
                     OnPropertyChanged(nameof(SelectedCount));
                     OnPropertyChanged(nameof(CanInstallSelected));
+                    InstallSelectedPackagesCommand.NotifyCanExecuteChanged();
                     break;
                 default:
                     break;

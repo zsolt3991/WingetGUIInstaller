@@ -97,16 +97,16 @@
 
         <RelativePanel Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Name="SelectedText"
-                       Margin="5,10,5,10" VerticalAlignment="Stretch" FontSize="16" RelativePanel.AlignLeftWithPanel="True"
-                       Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
-            <TextBlock Margin="0,10,5,10" VerticalAlignment="Stretch" FontSize="16" RelativePanel.RightOf="SelectedText"
-                       Text="package(s) selected" />
+                       Margin="10" VerticalAlignment="Center" FontSize="16" RelativePanel.AlignLeftWithPanel="True">
+                <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
+                <Run Text="package(s) selected" />
+            </TextBlock>
             <Button Name="InstallSelected"
-                    Grid.Row="0" MinWidth="160" Margin="5"
+                    MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallSelectedPackagesCommand}"
                     Content="Install Selected" FontSize="16" RelativePanel.AlignRightWithPanel="True" />
             <Button Name="InstallAll"
-                    Grid.Row="0" MinWidth="160" Margin="5"
+                    MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallAllPackagesCommand}"
                     Content="Install All" FontSize="16" RelativePanel.LeftOf="InstallSelected" />
         </RelativePanel>
