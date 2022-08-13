@@ -5,37 +5,31 @@ using Microsoft.UI.Dispatching;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class ConsolePageViewModel : ObservableObject
+    public partial class ConsolePageViewModel : ObservableObject
     {
         protected const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
+
+        [ObservableProperty]
         private string _commandLine;
 
         public ConsolePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
         {
-            WeakReferenceMessenger.Default.Register<CommandlineOutputMessage>(this, ProcessMessage);
             _dispatcherQueue = dispatcherQueue;
             _cache = cache;
+            WeakReferenceMessenger.Default.Register<CommandlineOutputMessage>(this, ProcessMessage);
         }
 
         public string ComposedMessage => string.Join(Environment.NewLine, _cache.GetCachedMessages());
 
-        public string CommandLine
-        {
-            get => _commandLine;
-            set => SetProperty(ref _commandLine, value);
-        }
-
-        public ICommand ExecuteCustomCommand => new AsyncRelayCommand(InvokeCustomCommand);
-
+        [RelayCommand]
         private async Task InvokeCustomCommand()
         {
             if (string.IsNullOrWhiteSpace(CommandLine))

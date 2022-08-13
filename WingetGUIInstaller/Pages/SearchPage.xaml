@@ -40,7 +40,7 @@
                      Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="SearchButton"
                     Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Command="{x:Bind ViewModel.SearchCommand}"
+                    Command="{x:Bind ViewModel.SearchPackagesCommand}"
                     Content="Search">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery}" />
@@ -90,30 +90,25 @@
                      IsIndeterminate="{x:Bind ViewModel.DetailsLoading, Mode=OneWay}"
                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource negatedVisibilityConverter}, Mode=OneWay}" />
 
-
         <controls:PackageDetailsView Grid.Row="3" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                     MoreButtonCommand="{x:Bind ViewModel.GoToDetailsCommand}"
+                                     MoreButtonCommand="{x:Bind ViewModel.ViewPackageDetailsCommand}"
                                      PackageDetails="{x:Bind ViewModel.SelectedPackageDetails, Mode=OneWay}"
                                      Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
 
         <RelativePanel Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Name="SelectedText"
-                       Margin="5,10,5,10" VerticalAlignment="Stretch" FontSize="16" RelativePanel.AlignLeftWithPanel="True"
-                       Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
-            <TextBlock Margin="0,10,5,10" VerticalAlignment="Stretch" FontSize="16" RelativePanel.RightOf="SelectedText"
-                       Text="package(s) selected" />
+                       Margin="10" VerticalAlignment="Center" FontSize="16" RelativePanel.AlignLeftWithPanel="True">
+                <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
+                <Run Text="package(s) selected" />
+            </TextBlock>
             <Button Name="InstallSelected"
-                    Grid.Row="0" MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.InstallSelectedCommand}"
-                    Content="Install Selected" FontSize="16"
-                    IsEnabled="{x:Bind ViewModel.CanInstallSelected, Mode=OneWay}"
-                    RelativePanel.AlignRightWithPanel="True" />
+                    MinWidth="160" Margin="5"
+                    Command="{x:Bind ViewModel.InstallSelectedPackagesCommand}"
+                    Content="Install Selected" FontSize="16" RelativePanel.AlignRightWithPanel="True" />
             <Button Name="InstallAll"
-                    Grid.Row="0" MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.InstalAllCommand}"
-                    Content="Install All" FontSize="16"
-                    IsEnabled="{x:Bind ViewModel.CanInstallAll, Mode=OneWay}"
-                    RelativePanel.LeftOf="InstallSelected" />
+                    MinWidth="160" Margin="5"
+                    Command="{x:Bind ViewModel.InstallAllPackagesCommand}"
+                    Content="Install All" FontSize="16" RelativePanel.LeftOf="InstallSelected" />
         </RelativePanel>
     </Grid>
 </Page>

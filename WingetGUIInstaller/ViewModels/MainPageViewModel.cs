@@ -7,20 +7,25 @@ using GithubPackageUpdater.Services;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class MainPageViewModel : ObservableObject
+    public partial class MainPageViewModel : ObservableObject
     {
-        private bool _isConsoleEnabled;
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
 
+        [ObservableProperty]
+        private bool _isConsoleEnabled;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
+        [NotifyPropertyChangedFor(nameof(UpdateChangeLog))]
+        [NotifyPropertyChangedFor(nameof(UpdateVersion))]
         private PackageUpdateResponse _update;
 
         public MainPageViewModel(ApplicationDataStorageHelper configurationStore, DispatcherQueue dispatcherQueue,
@@ -37,13 +42,7 @@ namespace WingetGUIInstaller.ViewModels
 
             WeakReferenceMessenger.Default.Register<UpdateAvailableMessage>(this, (r, m) =>
             {
-                _update = m.Value;
-                _dispatcherQueue.TryEnqueue(() =>
-                {
-                    OnPropertyChanged(nameof(IsUpdateAvailable));
-                    OnPropertyChanged(nameof(UpdateChangeLog));
-                    OnPropertyChanged(nameof(UpdateVersion));
-                });
+                _dispatcherQueue.TryEnqueue(() => { Update = m.Value; });
             });
 
             IsConsoleEnabled = _configurationStore
@@ -58,36 +57,27 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public bool IsConsoleEnabled
+        public bool IsUpdateAvailable => !Update?.IsPackageUpToDate ?? false;
+
+        public Version UpdateVersion => Update?.AvailableUpdateVersion ?? default;
+
+        public string UpdateChangeLog => Update?.ChangeLog ?? string.Empty;
+
+        [RelayCommand]
+        private async Task InstallUpdateAsync()
         {
-            get => _isConsoleEnabled;
-            set => SetProperty(ref _isConsoleEnabled, value);
+            if (Update != default)
+            {
+                await _updaterSerivce.TriggerUpdate(Update.PackageUri);
+            }
         }
-
-        public bool IsUpdateAvailable => !_update?.IsPackageUpToDate ?? false;
-
-        public Version UpdateVersion => _update?.AvailableUpdateVersion ?? default;
-
-        public string UpdateChangeLog => _update?.ChangeLog ?? string.Empty;
-
-        public ICommand InstallUpdateCommand => new AsyncRelayCommand(InstallUpdateAsync);
 
         private async Task CheckForUpdatesAsync()
         {
-            _update = await _updaterSerivce.CheckForUpdates(Package.Current);
-            _dispatcherQueue.TryEnqueue(() =>
+            var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
+            if (checkResult != default)
             {
-                OnPropertyChanged(nameof(IsUpdateAvailable));
-                OnPropertyChanged(nameof(UpdateChangeLog));
-                OnPropertyChanged(nameof(UpdateVersion));
-            });
-        }
-
-        private async Task InstallUpdateAsync()
-        {
-            if (_update != default)
-            {
-                await _updaterSerivce.TriggerUpdate(_update.PackageUri);
+                _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
             }
         }
     }

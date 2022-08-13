@@ -17,7 +17,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class PackageSourceManagementViewModel : ObservableObject
+    public partial class PackageSourceManagementViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageSourceManager _packageSourceManager;
@@ -26,12 +26,26 @@ namespace WingetGUIInstaller.ViewModels
         private readonly List<string> _disabledPackageSources;
         private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
 
+        [ObservableProperty]
         private AdvancedCollectionView _packageSourcesView;
-        private WingetPackageSourceViewModel _selectedSource;
+
+        [ObservableProperty]
         private string _newPackageSourceName;
+
+        [ObservableProperty]
         private string _newPackageSourceUrl;
+
+        [ObservableProperty]
         private string _filterText;
+
+        [ObservableProperty]
         private bool _isLoading;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectedCount))]
+        [NotifyPropertyChangedFor(nameof(IsSomethingSelected))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveSelectedPackageSourcesCommand))]
+        private WingetPackageSourceViewModel _selectedSource;
 
         public PackageSourceManagementViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager, PackageSourceCache packageSourceCache, ApplicationDataStorageHelper configurationStore)
         {
@@ -48,59 +62,62 @@ namespace WingetGUIInstaller.ViewModels
             _ = LoadPackageSourcesAsync();
         }
 
-        public AdvancedCollectionView PackageSourcesView
-        {
-            get => _packageSourcesView;
-            set => SetProperty(ref _packageSourcesView, value);
-        }
-
-        public WingetPackageSourceViewModel SelectedSource
-        {
-            get => _selectedSource;
-            set => SetProperty(ref _selectedSource, value);
-        }
-
-        public string NewPackageSourceName
-        {
-            get => _newPackageSourceName;
-            set => SetProperty(ref _newPackageSourceName, value);
-        }
-
-        public string NewPackageSourceUrl
-        {
-            get => _newPackageSourceUrl;
-            set => SetProperty(ref _newPackageSourceUrl, value);
-        }
-
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public string FilterText
-        {
-            get => _filterText;
-            set
-            {
-                if (SetProperty(ref _filterText, value))
-                {
-                    ApplyPackageSourceFilter(value);
-                }
-            }
-        }
-
         public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
             _packageSources.Count(p => p.IsSelected) : SelectedSource != default ? 1 : 0;
 
-        public ICommand RefreshSourcesCommand => new AsyncRelayCommand(()
-            => LoadPackageSourcesAsync(true));
+        public bool IsSomethingSelected => SelectedCount > 0;
 
-        public ICommand AddPackageSourceCommand => new AsyncRelayCommand(()
-            => AddPackageSourceAsync(NewPackageSourceName, NewPackageSourceUrl));
+        [RelayCommand]
+        private async Task RefreshPackageSourceList()
+        {
+            await LoadPackageSourcesAsync(true);
+        }
 
-        public ICommand RemoveSelectedSourcesCommand => new AsyncRelayCommand(()
-            => RemovePackageSourcesAsync(GetSelectedPackageSourceNames()));
+        [RelayCommand]
+        private async Task AddPackageSourceAsync()
+        {
+            if (string.IsNullOrEmpty(NewPackageSourceName) || string.IsNullOrEmpty(NewPackageSourceUrl))
+            {
+                return;
+            }
+
+            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            await _packageSourceManager.AddPackageSource(NewPackageSourceName, NewPackageSourceUrl);
+            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
+            await LoadPackageSourcesAsync(true);
+
+        }
+
+        [RelayCommand(CanExecute = nameof(IsSomethingSelected))]
+        private async Task RemoveSelectedPackageSourcesAsync()
+        {
+            var sourceNames = GetSelectedPackageSourceNames();
+            if (sourceNames.Any())
+            {
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                foreach (var sourceName in sourceNames)
+                {
+                    await _packageSourceManager.RemovePackageSource(sourceName);
+                }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+
+                await LoadPackageSourcesAsync(true);
+            }
+        }
+
+        partial void OnFilterTextChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                PackageSourcesView.ClearFiltering();
+            }
+
+            PackageSourcesView.ApplyFiltering<WingetPackageSourceViewModel>(packageSource =>
+                packageSource.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+                || packageSource.Argument.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+            );
+        }
 
         private async Task LoadPackageSourcesAsync(bool forceReload = false)
         {
@@ -117,36 +134,6 @@ namespace WingetGUIInstaller.ViewModels
                     new WingetPackageSourceViewModel(entry, !_disabledPackageSources.Contains(entry.Name))));
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-        }
-
-        private async Task AddPackageSourceAsync(string name, string argument)
-        {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(argument))
-            {
-                return;
-            }
-
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            await _packageSourceManager.AddPackageSource(name, argument);
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-
-            await LoadPackageSourcesAsync(true);
-
-        }
-
-        private async Task RemovePackageSourcesAsync(IEnumerable<string> sourceNames)
-        {
-            if (sourceNames.Any())
-            {
-                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-                foreach (var sourceName in sourceNames)
-                {
-                    await _packageSourceManager.RemovePackageSource(sourceName);
-                }
-                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-
-                await LoadPackageSourcesAsync(true);
-            }
         }
 
         private void PackageSources_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -182,6 +169,8 @@ namespace WingetGUIInstaller.ViewModels
             {
                 case nameof(WingetPackageSourceViewModel.IsSelected):
                     OnPropertyChanged(nameof(SelectedCount));
+                    OnPropertyChanged(nameof(IsSomethingSelected));
+                    RemoveSelectedPackageSourcesCommand.NotifyCanExecuteChanged();
                     break;
                 case nameof(WingetPackageSourceViewModel.IsEnabled):
                     UpdateEnabledPackageList();
@@ -221,19 +210,6 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             SaveDisabledPackageSources(_disabledPackageSources);
-        }
-
-        private void ApplyPackageSourceFilter(string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                PackageSourcesView.ClearFiltering();
-            }
-
-            PackageSourcesView.ApplyFiltering<WingetPackageSourceViewModel>(packageSource =>
-                packageSource.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-                || packageSource.Argument.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-            );
         }
 
         private IEnumerable<string> GetSelectedPackageSourceNames()

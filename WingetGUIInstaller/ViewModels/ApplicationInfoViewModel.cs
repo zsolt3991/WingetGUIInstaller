@@ -9,9 +9,12 @@ using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class ApplicationInfoViewModel : ObservableObject
+    public partial class ApplicationInfoViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(WingetInstalled))]
         private Version _installedWingetVersion;
 
         public ApplicationInfoViewModel(DispatcherQueue dispatcherQueue)
@@ -41,16 +44,6 @@ namespace WingetGUIInstaller.ViewModels
         public Uri ApplicationReportUrl { get; }
 
         public bool WingetInstalled => InstalledWingetVersion != default;
-
-        public Version InstalledWingetVersion
-        {
-            get => _installedWingetVersion;
-            private set
-            {
-                SetProperty(ref _installedWingetVersion, value);
-                OnPropertyChanged(nameof(WingetInstalled));
-            }
-        }
 
         private async Task CheckWingetVersion()
         {

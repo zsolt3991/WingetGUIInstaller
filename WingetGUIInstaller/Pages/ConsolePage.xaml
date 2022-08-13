@@ -37,7 +37,7 @@
                      PlaceholderText="Enter command to execute"
                      Text="{x:Bind ViewModel.CommandLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Command="{x:Bind ViewModel.ExecuteCustomCommand}"
+                    Command="{x:Bind ViewModel.InvokeCustomCommandCommand}"
                     Content="Execute">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind CommandLine, Mode=TwoWay}" />

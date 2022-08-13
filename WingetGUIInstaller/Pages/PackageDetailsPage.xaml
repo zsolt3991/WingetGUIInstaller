@@ -62,9 +62,9 @@
 
                 <TextBlock Name="Version"
                            Margin="5" FontSize="16"
-                           Visibility="{x:Bind ViewModel.PackageDetails.PackageVersion, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
+                           Visibility="{x:Bind ViewModel.PackageDetails.Version, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <Run Text="Version:" />
-                    <Run Text="{x:Bind ViewModel.PackageDetails.PackageVersion, Mode=OneWay}" />
+                    <Run Text="{x:Bind ViewModel.PackageDetails.Version, Mode=OneWay}" />
                 </TextBlock>
 
                 <TextBlock Name="Author"
@@ -97,10 +97,10 @@
 
                 <TextBlock Name="Support"
                            Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
-                           Visibility="{x:Bind ViewModel.PackageDetails.PublisherSupportUrl, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
+                           Visibility="{x:Bind ViewModel.PackageDetails.PublisherSupportURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Support:" />
-                    <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PublisherSupportUrl, Mode=OneWay}">
-                        <Run Text="{x:Bind ViewModel.PackageDetails.PublisherSupportUrl, Mode=OneWay}" />
+                    <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PublisherSupportURL, Mode=OneWay}">
+                        <Run Text="{x:Bind ViewModel.PackageDetails.PublisherSupportURL, Mode=OneWay}" />
                     </Hyperlink>
                 </TextBlock>
 
@@ -139,18 +139,18 @@
                     <TextBlock Name="LicenseLink"
                                Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignLeftWith="LicenseName"
                                RelativePanel.Below="LicenseName"
-                               Visibility="{x:Bind ViewModel.PackageDetails.LicenseUrl, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
-                        <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.LicenseUrl, Mode=OneWay}">
-                            <Run Text="{x:Bind ViewModel.PackageDetails.LicenseUrl, Mode=OneWay}" />
+                               Visibility="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
+                        <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay}">
+                            <Run Text="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay}" />
                         </Hyperlink>
                     </TextBlock>
                 </RelativePanel>
 
                 <TextBlock Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
-                           Visibility="{x:Bind ViewModel.PackageDetails.PrivacyUrl, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
+                           Visibility="{x:Bind ViewModel.PackageDetails.PrivacyURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Privacy:" />
-                    <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PrivacyUrl, Mode=OneWay}">
-                        <Run Text="{x:Bind ViewModel.PackageDetails.PrivacyUrl, Mode=OneWay}" />
+                    <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PrivacyURL, Mode=OneWay}">
+                        <Run Text="{x:Bind ViewModel.PackageDetails.PrivacyURL, Mode=OneWay}" />
                     </Hyperlink>
                 </TextBlock>
 
@@ -174,19 +174,19 @@
                     Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
             <Button Name="Install"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.InstallCommand}"
+                    Command="{x:Bind ViewModel.InstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Install " FontSize="16"
                     Visibility="{x:Bind ViewModel.IsInstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Upgrade"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.UpdateCommand}"
+                    Command="{x:Bind ViewModel.UpgradePackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Upgrade" FontSize="16"
                     Visibility="{x:Bind ViewModel.IsUpdateSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Uninstall"
                     MinWidth="160" Margin="5"
-                    Command="{x:Bind ViewModel.UninstallCommand}"
+                    Command="{x:Bind ViewModel.UninstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
                     Content="Uninstall" FontSize="16"
                     Visibility="{x:Bind ViewModel.IsUninstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />

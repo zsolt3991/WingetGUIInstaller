@@ -36,8 +36,7 @@
                                                                 SecondaryText="Ignore packages present in the packages list that are not available anymore" />
                     <Button Margin="0,1" HorizontalAlignment="Stretch"
                             Command="{x:Bind ViewModel.ImportPackageListCommand}"
-                            Content="Import Package List"
-                            IsEnabled="{x:Bind ViewModel.CanImport, Mode=OneWay}" />
+                            Content="Import Package List" />
                 </StackPanel>
             </controls:HeaderedContentControl>
 
@@ -65,8 +64,7 @@
                     </customControls:CustomContentSettingsControl>
                     <Button Margin="0,1" HorizontalAlignment="Stretch"
                             Command="{x:Bind ViewModel.ExportPackageListCommand}"
-                            Content="Export Package List"
-                            IsEnabled="{x:Bind ViewModel.CanExport, Mode=OneWay}" />
+                            Content="Export Package List" />
                 </StackPanel>
             </controls:HeaderedContentControl>
         </Grid>

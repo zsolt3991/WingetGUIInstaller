@@ -8,10 +8,12 @@ using WingetGUIInstaller.Enums;
 namespace WingetGUIInstaller.ViewModels
 {
 
-    public class RecommendedItemsGroup : ObservableObject, IGrouping<RecommendationGroupType, RecommendedItemViewModel>
+    public partial class RecommendedItemsGroup : ObservableObject, IGrouping<RecommendationGroupType, RecommendedItemViewModel>
     {
         private readonly IEnumerable<RecommendedItemViewModel> _items;
         private readonly RecommendationGroupType _key;
+
+        [ObservableProperty]
         private bool _isSelected;
 
         public RecommendedItemsGroup(RecommendationGroupType key, IEnumerable<RecommendedItemViewModel> items)
@@ -28,27 +30,20 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanSelect => _items.Any(p => !p.IsInstalled);
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (SetProperty(ref _isSelected, value))
-                {
-                    foreach (var item in _items)
-                    {
-                        if (!item.IsInstalled)
-                        {
-                            item.IsSelected = value;
-                        }
-                    }
-                }
-            }
-        }
-
         public IEnumerator<RecommendedItemViewModel> GetEnumerator() => _items.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _items.GetEnumerator();
+
+        partial void OnIsSelectedChanged(bool value)
+        {
+            foreach (var item in _items)
+            {
+                if (!item.IsInstalled)
+                {
+                    item.IsSelected = value;
+                }
+            }
+        }
 
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

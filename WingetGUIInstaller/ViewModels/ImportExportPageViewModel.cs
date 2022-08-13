@@ -5,27 +5,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Windows.Storage;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public class ImportExportPageViewModel : ObservableObject
+    public partial class ImportExportPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageManager _packageManager;
         private readonly PackageSourceCache _packageSourceCache;
-        private StorageFile _importFile;
-        private StorageFile _exportFile;
+
+        [ObservableProperty]
         private bool _isLoading;
+
+        [ObservableProperty]
         private string _loadingText;
-        private IReadOnlyList<string> _packageSources;
+
+        [ObservableProperty]
         private string _selectedSourceName;
+
+        [ObservableProperty]
         private bool _exportVersions;
+
+        [ObservableProperty]
         private bool _importVersions;
+
+        [ObservableProperty]
         private bool _ignoreMissing;
+
+        [ObservableProperty]
+        private IReadOnlyList<string> _packageSources;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ImportFileText))]
+        [NotifyPropertyChangedFor(nameof(CanImport))]
+        [NotifyCanExecuteChangedFor(nameof(ImportPackageListCommand))]
+        private StorageFile _importFile;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ExportFileText))]
+        [NotifyPropertyChangedFor(nameof(CanExport))]
+        [NotifyCanExecuteChangedFor(nameof(ExportPackageListCommand))]
+        private StorageFile _exportFile;
 
         public ImportExportPageViewModel(DispatcherQueue dispatcherQueue, PackageManager packageManager,
             PackageSourceCache packageSourceCache)
@@ -41,60 +64,6 @@ namespace WingetGUIInstaller.ViewModels
             _ = LoadPackageSourceListAsync();
         }
 
-        public StorageFile ImportFile
-        {
-            get => _importFile;
-            set => SetProperty(ref _importFile, value);
-        }
-
-        public StorageFile ExportFile
-        {
-            get => _exportFile;
-            set => SetProperty(ref _exportFile, value);
-        }
-
-        public IReadOnlyList<string> PackageSources
-        {
-            get => _packageSources;
-            set => SetProperty(ref _packageSources, value);
-        }
-
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
-
-        public bool ExportVersions
-        {
-            get => _exportVersions;
-            set => SetProperty(ref _exportVersions, value);
-        }
-
-        public bool ImportVersions
-        {
-            get => _importVersions;
-            set => SetProperty(ref _importVersions, value);
-        }
-
-        public bool IgnoreMissing
-        {
-            get => _ignoreMissing;
-            set => SetProperty(ref _ignoreMissing, value);
-        }
-
-        public string LoadingText
-        {
-            get => _loadingText;
-            set => SetProperty(ref _loadingText, value);
-        }
-
-        public string SelectedSourceName
-        {
-            get => _selectedSourceName;
-            set => SetProperty(ref _selectedSourceName, value);
-        }
-
         public string ImportFileText => ImportFile != default ? ImportFile.Path : "No file selected";
 
         public bool CanImport => ImportFile != default;
@@ -103,14 +72,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public bool CanExport => ExportFile != default;
 
-        public ICommand BrowseImportFileCommand => new AsyncRelayCommand(BrowseImportFileAsync);
-
-        public ICommand ImportPackageListCommand => new AsyncRelayCommand(ImportPackageListAsync);
-
-        public ICommand BrowseExportFileCommand => new AsyncRelayCommand(BrowseExportFileAsync);
-
-        public ICommand ExportPackageListCommand => new AsyncRelayCommand(ExportPackageListAsync);
-
+        [RelayCommand(CanExecute = nameof(CanExport))]
         private async Task ExportPackageListAsync()
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -124,6 +86,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
 
+        [RelayCommand(CanExecute = nameof(CanImport))]
         private async Task ImportPackageListAsync()
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -136,6 +99,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
 
+        [RelayCommand]
         private async Task BrowseExportFileAsync()
         {
             var picker = new Windows.Storage.Pickers.FileSavePicker
@@ -147,10 +111,9 @@ namespace WingetGUIInstaller.ViewModels
             picker.FileTypeChoices.Add("JSON file", new List<string> { ".json" });
 
             ExportFile = await picker.InitializeWithAppWindow().PickSaveFileAsync();
-            OnPropertyChanged(nameof(ExportFileText));
-            OnPropertyChanged(nameof(CanExport));
         }
 
+        [RelayCommand]
         private async Task BrowseImportFileAsync()
         {
             var picker = new Windows.Storage.Pickers.FileOpenPicker
@@ -160,8 +123,6 @@ namespace WingetGUIInstaller.ViewModels
             picker.FileTypeFilter.Add(".json");
 
             ImportFile = await picker.InitializeWithAppWindow().PickSingleFileAsync();
-            OnPropertyChanged(nameof(ImportFileText));
-            OnPropertyChanged(nameof(CanImport));
         }
 
         private async Task LoadPackageSourceListAsync()
