@@ -4,7 +4,7 @@
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
       xmlns:customControls="using:WingetGUIInstaller.Controls"
-      xmlns:enums="using:WingetGUIInstaller.Enums" xmlns:utils="using:WingetGUIInstaller.Utils"
+      xmlns:enums="using:WingetGUIInstaller.Enums"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
@@ -18,8 +18,8 @@
                                      UpdateVersion="{x:Bind ViewModel.UpdateVersion, Mode=OneWay}" />
 
         <controls:NavigationView x:Name="NavView"
-                                 Background="#FF1d1d1d" IsBackButtonVisible="Collapsed" IsBackEnabled="False"
-                                 IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
+                                 IsBackButtonVisible="Collapsed" IsBackEnabled="False" IsSettingsVisible="False" OpenPaneLength="280"
+                                 SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
 

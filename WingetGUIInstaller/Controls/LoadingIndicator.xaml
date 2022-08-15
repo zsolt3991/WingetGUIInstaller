@@ -9,7 +9,7 @@
                      IsLoading="{x:Bind IsLoading, Mode=OneWay}">
         <Grid>
             <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                     Opacity="0.75" />
             <Border Width="120" Height="120"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Background="Black" CornerRadius="40"
@@ -18,7 +18,8 @@
                     <ProgressRing Width="50" Height="50"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   IsActive="{x:Bind IsLoading, Mode=OneWay}" />
-                    <TextBlock Margin="5" HorizontalAlignment="Center" Text="{x:Bind Message, Mode=OneWay}" />
+                    <TextBlock Margin="5" HorizontalAlignment="Center" Foreground="White"
+                               Text="{x:Bind Message, Mode=OneWay}" />
                 </StackPanel>
             </Border>
         </Grid>

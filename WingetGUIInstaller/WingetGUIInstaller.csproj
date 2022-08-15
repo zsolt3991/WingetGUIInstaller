@@ -54,6 +54,12 @@
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup Label="Controls">
     <Page Update="Controls\CustomContentSettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>

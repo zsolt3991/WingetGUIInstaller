@@ -29,7 +29,6 @@ namespace WingetGUIInstaller.Pages
             InitializeComponent();
             Loaded += MainPage_Loaded;
             Unloaded += MainPage_Unloaded;
-
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _navigationService.AddNavigationLevel(ContentFrame);
             _applicationSettings = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
