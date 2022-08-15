@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Services;
+using Microsoft.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace WingetGUIInstaller.ViewModels
         private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _automaticUpdatesEnabled;
         private NavigationItemKey? _selectedPage;
+        private DisplayTheme? _selectedTheme;
 
         public SettingsPageViewModel(ApplicationDataStorageHelper configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce)
@@ -113,8 +115,24 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public DisplayTheme SelectedTheme
+        {
+            get => _selectedTheme ??= (DisplayTheme)_configurationStore
+                .Read(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
+            set
+            {
+                if (SetProperty(ref _selectedTheme, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.SelectedTheme, (int)value);
+                    WeakReferenceMessenger.Default.Send(new ThemeChangedMessage((ElementTheme)value));
+                }
+            }
+        }
+
         public IReadOnlyList<NavigationItemKey> AvailablePages => Enum.GetValues<NavigationItemKey>().Cast<NavigationItemKey>()
             .Where(key => !_disallowedKeys.Contains(key)).ToList();
+
+        public IReadOnlyList<DisplayTheme> ApplicationThemes => Enum.GetValues<DisplayTheme>().Cast<DisplayTheme>().ToList();
 
         [RelayCommand]
         private async Task CheckForUpdatesAsync()

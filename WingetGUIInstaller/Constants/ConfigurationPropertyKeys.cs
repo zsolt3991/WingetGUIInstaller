@@ -1,4 +1,5 @@
-﻿using WingetGUIInstaller.Enums;
+﻿using Microsoft.UI.Xaml;
+using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.Constants
 {
@@ -11,6 +12,7 @@ namespace WingetGUIInstaller.Constants
         public const string IgnoreEmptyPackageSources = "ignoreEmptyPackageSources";
         public const string AutomaticUpdates = "AutomaticUpdates";
         public const string SelectedPage = "SelectedPage";
+        public const string SelectedTheme = "SelectedTheme";
 
         public const bool ConsoleEnabledDefaultValue = true;
         public const bool NotificationsEnabledDefaultValue = true;
@@ -19,5 +21,6 @@ namespace WingetGUIInstaller.Constants
         public const bool IgnoreEmptyPackageSourcesDefaultValue = true;
         public const bool AutomaticUpdatesDefaultValue = false;
         public const int SelectedPageDefaultValue = (int)NavigationItemKey.Recommendations;
+        public const int SelectedThemeDefaultValue = (int)ElementTheme.Default;
     }
 }
