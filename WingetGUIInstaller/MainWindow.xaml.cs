@@ -4,6 +4,7 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.Win32;
 using System;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
@@ -32,6 +33,8 @@ namespace WingetGUIInstaller
             _navigationService.Navigate(NavigationItemKey.Home, null);
             _themeListener.ThemeChanged += ThemeListener_ThemeChanged;
 
+            SystemEvents.UserPreferenceChanging += new
+                UserPreferenceChangingEventHandler(SystemEvents_UserPreferenceChanging);
             if (UserTheme == ElementTheme.Default)
             {
                 var currentPreference = _themeListener.CurrentTheme;
@@ -49,8 +52,14 @@ namespace WingetGUIInstaller
             Closed += (sender, args) =>
             {
                 RootFrame = null;
+                _themeListener.Dispose();
                 _navigationService.ClearNavigationStack();
             };
+        }
+
+        private void SystemEvents_UserPreferenceChanging(object sender, UserPreferenceChangingEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private ElementTheme UserTheme => (ElementTheme)_applicationDataStorageHelper

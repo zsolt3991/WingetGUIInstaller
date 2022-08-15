@@ -1,5 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
+using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,8 +9,12 @@ namespace WingetGUIInstaller.Utils
 {
     internal class ThemeListenerWithWindow : IDisposable
     {
-        private readonly CancellationTokenSource _cancellationSource;
-        private readonly Task _wathcerTask;
+        private readonly TimeSpan _eventInterval = TimeSpan.FromMilliseconds(500);
+        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly Thread _watchthread;
+        private readonly Window _window;
+
+        private DateTimeOffset _lastUpdatedTime;
         private ApplicationTheme _currentTheme;
 
         public delegate void ThemeChangedEventWithWindow(ThemeListenerWithWindow sender);
@@ -19,34 +25,50 @@ namespace WingetGUIInstaller.Utils
 
         public ThemeListenerWithWindow(Window window)
         {
+            _window = window ?? throw new ArgumentNullException(nameof(window));
             _currentTheme = WindowInteropUtils.GetUserThemePreference();
-            _cancellationSource = new CancellationTokenSource();
-            _wathcerTask = StartWatching();
+            _lastUpdatedTime = DateTimeOffset.MinValue;
+            _cancellationTokenSource = new CancellationTokenSource();
+            _watchthread = new Thread(Watch);
+            _watchthread.Start();
         }
 
-        private async Task StartWatching()
+        private void Watch()
         {
+            SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
             while (true)
             {
-                if (_cancellationSource.IsCancellationRequested)
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    break;
+                }
+                Thread.Sleep(100);
+            }
+            SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+        }
+
+        private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.General)
+            {
+                if (_lastUpdatedTime.Add(_eventInterval) >= DateTimeOffset.UtcNow)
                 {
                     return;
                 }
-
-                await Task.Delay(2500);
+                _lastUpdatedTime = DateTimeOffset.UtcNow;
                 var newTheme = WindowInteropUtils.GetUserThemePreference();
                 if (newTheme != _currentTheme)
                 {
                     _currentTheme = newTheme;
-                    ThemeChanged(this);
+                    _window.DispatcherQueue.TryEnqueue(() => ThemeChanged(this));
                 }
             }
         }
 
         public void Dispose()
         {
-            _cancellationSource.Cancel();
-            _wathcerTask.Wait();
+            _cancellationTokenSource.Cancel();
+            _watchthread.Join();
         }
     }
 }
