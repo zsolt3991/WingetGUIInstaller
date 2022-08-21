@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using WingetGUIInstaller.Enums;
@@ -33,11 +32,6 @@ namespace WingetGUIInstaller.Pages
             }
 
             base.OnNavigatedTo(e);
-        }
-
-        private void GoBack_Click(object sender, RoutedEventArgs e)
-        {
-            _navigationService.GoBack();
         }
     }
 }

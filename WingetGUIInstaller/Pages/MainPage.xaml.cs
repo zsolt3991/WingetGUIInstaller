@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -54,7 +55,6 @@ namespace WingetGUIInstaller.Pages
             }));
         }
 
-
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
@@ -98,8 +98,13 @@ namespace WingetGUIInstaller.Pages
             if (args.SelectedItemContainer != null &&
                 Enum.TryParse<NavigationItemKey>(args.SelectedItemContainer.Tag.ToString(), out var navItemTag))
             {
-                _navigationService.Navigate(navItemTag, args.RecommendedNavigationTransitionInfo, null);
+                _navigationService.Navigate(navItemTag, args.RecommendedNavigationTransitionInfo, null, NavigationStackMode.Clear);
             }
+        }
+
+        private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            _navigationService.GoBack();
         }
     }
 }
