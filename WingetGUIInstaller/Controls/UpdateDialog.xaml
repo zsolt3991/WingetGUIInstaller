@@ -6,7 +6,7 @@
                Style="{StaticResource DefaultContentDialogStyle}">
 
     <ContentDialog.Title>
-        <TextBlock Margin="5" FontSize="20">
+        <TextBlock Margin="5" Style="{ThemeResource SubtitleTextBlockStyle}">
             <Run Text="New version available:" />
             <Run Text="{x:Bind UpdateVersion, Mode=OneWay}" />
         </TextBlock>
