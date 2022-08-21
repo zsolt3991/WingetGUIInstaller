@@ -63,7 +63,7 @@ namespace WingetGUIInstaller
         }
 
         private ElementTheme UserTheme => (ElementTheme)_applicationDataStorageHelper
-            .Read(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedPageDefaultValue);
+            .Read(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
 
         private void OnThemeChangeRequestedByUser(object recipient, ThemeChangedMessage message)
         {
