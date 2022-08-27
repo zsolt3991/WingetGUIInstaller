@@ -1,18 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
-using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using Microsoft.Win32;
-using System;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
-using WinRT.Interop;
 
 namespace WingetGUIInstaller
 {
@@ -21,14 +17,17 @@ namespace WingetGUIInstaller
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
         private readonly ApplicationDataStorageHelper _applicationDataStorageHelper;
         private readonly ThemeListenerWithWindow _themeListener;
+        private readonly AppWindow _appWindow;
 
         public MainWindow()
         {
             InitializeComponent();
-            SetTitleBar();
             _themeListener = new ThemeListenerWithWindow(this);
+            _appWindow = WindowInteropUtils.GetAppWindowForWindow(this);
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _applicationDataStorageHelper = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
+            _appWindow.Title = Package.Current.DisplayName;
+            _appWindow.SetIcon("icon.ico");
             _navigationService.AddNavigationLevel(RootFrame);
             _navigationService.Navigate(NavigationItemKey.Home, null);
             _themeListener.ThemeChanged += ThemeListener_ThemeChanged;
@@ -36,13 +35,13 @@ namespace WingetGUIInstaller
             if (UserTheme == ElementTheme.Default)
             {
                 var currentPreference = _themeListener.CurrentTheme;
-                RootFrame.RequestedTheme = ToElementTheme(currentPreference);
+                RootFrame.RequestedTheme = currentPreference.ToElementTheme();
                 WindowInteropUtils.SetWin32ApplicationTheme(currentPreference, this);
             }
             else
             {
                 RootFrame.RequestedTheme = UserTheme;
-                WindowInteropUtils.SetWin32ApplicationTheme(ToApplicationTheme(UserTheme), this);
+                WindowInteropUtils.SetWin32ApplicationTheme(UserTheme.ToApplicationTheme(), this);
             }
 
             WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, OnThemeChangeRequestedByUser);
@@ -66,59 +65,25 @@ namespace WingetGUIInstaller
                 if (newTheme == ElementTheme.Default)
                 {
                     var currentPreference = WindowInteropUtils.GetUserThemePreference();
-                    RootFrame.RequestedTheme = ToElementTheme(currentPreference);
+                    RootFrame.RequestedTheme = currentPreference.ToElementTheme();
                     WindowInteropUtils.SetWin32ApplicationTheme(currentPreference, this);
                 }
                 else
                 {
                     RootFrame.RequestedTheme = newTheme;
-                    WindowInteropUtils.SetWin32ApplicationTheme(ToApplicationTheme(newTheme), this);
+                    WindowInteropUtils.SetWin32ApplicationTheme(newTheme.ToApplicationTheme(), this);
                 }
             }
         }
 
         private void ThemeListener_ThemeChanged(ThemeListenerWithWindow sender)
         {
-            ElementTheme newTheme = ToElementTheme(sender.CurrentTheme);
+            ElementTheme newTheme = sender.CurrentTheme.ToElementTheme();
             if (UserTheme == ElementTheme.Default && newTheme != RootFrame.ActualTheme)
             {
                 RootFrame.RequestedTheme = newTheme;
-                WindowInteropUtils.SetWin32ApplicationTheme(ToApplicationTheme(newTheme), this);
+                WindowInteropUtils.SetWin32ApplicationTheme(newTheme.ToApplicationTheme(), this);
             }
-        }
-
-        private static ElementTheme ToElementTheme(ApplicationTheme applictionTheme)
-        {
-            return applictionTheme switch
-            {
-                ApplicationTheme.Dark => ElementTheme.Dark,
-                ApplicationTheme.Light => ElementTheme.Light,
-                _ => ElementTheme.Default
-            };
-        }
-
-        private ApplicationTheme ToApplicationTheme(ElementTheme elementTheme)
-        {
-            return elementTheme switch
-            {
-                ElementTheme.Dark => ApplicationTheme.Dark,
-                ElementTheme.Light => ApplicationTheme.Light,
-                _ => ApplicationTheme.Light
-            };
-        }
-
-        private AppWindow GetAppWindowForCurrentWindow()
-        {
-            IntPtr hWnd = WindowNative.GetWindowHandle(this);
-            WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            return AppWindow.GetFromWindowId(wndId);
-        }
-
-        private void SetTitleBar()
-        {
-            var m_AppWindow = GetAppWindowForCurrentWindow();
-            m_AppWindow.Title = Package.Current.DisplayName;
-            m_AppWindow.SetIcon("icon.ico");
         }
     }
 }

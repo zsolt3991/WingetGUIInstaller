@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.Win32;
 using System;
 using System.Runtime.InteropServices;
@@ -25,6 +27,13 @@ namespace WingetGUIInstaller.Utils
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        public static AppWindow GetAppWindowForWindow(Window window)
+        {
+            IntPtr hWnd = WindowNative.GetWindowHandle(window);
+            WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            return AppWindow.GetFromWindowId(wndId);
+        }
 
         public static void ShowWindow(Window window)
         {
