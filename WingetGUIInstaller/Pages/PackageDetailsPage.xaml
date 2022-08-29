@@ -26,33 +26,29 @@
                                     IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                     Message="{x:Bind ViewModel.LoadingText, Mode=OneWay}" />
 
-        <RelativePanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Button Name="GoBack"
-                    Margin="5" Click="GoBack_Click" CornerRadius="4" FontSize="20"
-                    RelativePanel.AlignLeftWithPanel="True"
-                    Style="{ThemeResource NavigationBackButtonNormalStyle}"
-                    ToolTipService.ToolTip="Back" />
-
-            <TextBlock Name="PageTitle"
-                       Margin="5" HorizontalAlignment="Left" FontSize="24" RelativePanel.RightOf="GoBack"
-                       Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
-                <Run Text="{x:Bind ViewModel.PackageDetails.PackageName, Mode=OneWay}" />
-                <Run Text="[" />
-                <Run Text="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}" />
-                <Run Text="]" />
-            </TextBlock>
-        </RelativePanel>
+        <TextBlock Name="PageTitle"
+                   Grid.Row="0" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                   Style="{ThemeResource TitleTextBlockStyle}"
+                   Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
+            <Run Text="{x:Bind ViewModel.PackageDetails.PackageName, Mode=OneWay}" />
+            <Run Text="[" />
+            <Run Text="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}" />
+            <Run Text="]" />
+        </TextBlock>
 
         <ScrollViewer Grid.Row="1" Margin="50,0,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       Visibility="{x:Bind ViewModel.PackageDetails, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <TextBlock Name="Description"
-                           Margin="5" FontSize="16"
+                           Margin="5"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
                            Text="{x:Bind ViewModel.PackageDetails.Description, Mode=OneWay}"
                            TextWrapping="WrapWholeWords"
                            Visibility="{x:Bind ViewModel.PackageDetails.Description, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}" />
 
-                <TextBlock Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
+                <TextBlock Margin="5,2" MaxLines="1"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
+                           TextTrimming="WordEllipsis"
                            Visibility="{x:Bind ViewModel.PackageDetails.PackageURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Homepage:" />
                     <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PackageURL, Mode=OneWay}">
@@ -61,42 +57,48 @@
                 </TextBlock>
 
                 <TextBlock Name="Version"
-                           Margin="5" FontSize="16"
+                           Margin="5,2"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
                            Visibility="{x:Bind ViewModel.PackageDetails.Version, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <Run Text="Version:" />
                     <Run Text="{x:Bind ViewModel.PackageDetails.Version, Mode=OneWay}" />
                 </TextBlock>
 
                 <TextBlock Name="Author"
-                           Margin="5" FontSize="16"
+                           Margin="5,2"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
                            Visibility="{x:Bind ViewModel.PackageDetails.PackageAuthor, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <Run Text="Author:" />
                     <Run Text="{x:Bind ViewModel.PackageDetails.PackageAuthor, Mode=OneWay}" />
                 </TextBlock>
 
                 <RelativePanel Name="PublisherPanel"
-                               Margin="5" HorizontalAlignment="Stretch"
+                               Margin="5,2" HorizontalAlignment="Stretch"
                                Visibility="{x:Bind ViewModel.PackageDetails.Publisher, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <TextBlock Name="Publisher"
-                               FontSize="16" MaxLines="1" RelativePanel.AlignLeftWithPanel="True"
-                               RelativePanel.AlignTopWithPanel="True" Text="Publisher:" />
+                               MaxLines="1" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
+                               Text="Publisher:" />
                     <TextBlock Name="PublisherName"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignTopWithPanel="True"
-                               RelativePanel.RightOf="Publisher"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignTopWithPanel="True" RelativePanel.RightOf="Publisher"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Text="{x:Bind ViewModel.PackageDetails.Publisher, Mode=OneWay}"
                                TextTrimming="WordEllipsis" />
                     <TextBlock Name="PublisherLink"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignLeftWith="PublisherName"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignLeftWith="PublisherName"
                                RelativePanel.Below="PublisherName"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Visibility="{x:Bind ViewModel.PackageDetails.PublisherURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                         <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PublisherURL, Mode=OneWay}">
-                            <Run Text="{x:Bind ViewModel.PackageDetails.PublisherURL.AbsoluteUri, Mode=OneWay}" />
+                            <Run Text="{x:Bind ViewModel.PackageDetails.PublisherURL, Mode=OneWay}" />
                         </Hyperlink>
                     </TextBlock>
                 </RelativePanel>
 
                 <TextBlock Name="Support"
-                           Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
+                           Margin="5,2" MaxLines="1"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
+                           TextTrimming="WordEllipsis"
                            Visibility="{x:Bind ViewModel.PackageDetails.PublisherSupportURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Support:" />
                     <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PublisherSupportURL, Mode=OneWay}">
@@ -105,19 +107,21 @@
                 </TextBlock>
 
                 <RelativePanel Name="CopyrightPanel"
-                               Margin="5" HorizontalAlignment="Stretch"
+                               Margin="5,2" HorizontalAlignment="Stretch"
                                Visibility="{x:Bind ViewModel.PackageDetails.Copyright, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <TextBlock Name="Copyright"
-                               FontSize="16" MaxLines="1" RelativePanel.AlignLeftWithPanel="True"
-                               RelativePanel.AlignTopWithPanel="True" Text="Copyright:" />
+                               MaxLines="1" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
+                               Text="Copyright:" />
                     <TextBlock Name="CopyrightName"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignTopWithPanel="True"
-                               RelativePanel.RightOf="Copyright"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignTopWithPanel="True" RelativePanel.RightOf="Copyright"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Text="{x:Bind ViewModel.PackageDetails.Copyright, Mode=OneWay}"
                                TextTrimming="WordEllipsis" />
                     <TextBlock Name="CopyrightLink"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignLeftWith="CopyrightName"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignLeftWith="CopyrightName"
                                RelativePanel.Below="CopyrightName"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Visibility="{x:Bind ViewModel.PackageDetails.CopyrightURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                         <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.CopyrightURL, Mode=OneWay}">
                             <Run Text="{x:Bind ViewModel.PackageDetails.CopyrightURL, Mode=OneWay}" />
@@ -126,19 +130,21 @@
                 </RelativePanel>
 
                 <RelativePanel Name="LicensePanel"
-                               Margin="5" HorizontalAlignment="Stretch"
+                               Margin="5,2" HorizontalAlignment="Stretch"
                                Visibility="{x:Bind ViewModel.PackageDetails.License, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}">
                     <TextBlock Name="License"
-                               FontSize="16" MaxLines="1" RelativePanel.AlignLeftWithPanel="True"
-                               RelativePanel.AlignTopWithPanel="True" Text="License:" />
+                               MaxLines="1" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
+                               Text="License:" />
                     <TextBlock Name="LicenseName"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignTopWithPanel="True"
-                               RelativePanel.RightOf="License"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignTopWithPanel="True" RelativePanel.RightOf="License"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Text="{x:Bind ViewModel.PackageDetails.License, Mode=OneWay}"
                                TextTrimming="WordEllipsis" />
                     <TextBlock Name="LicenseLink"
-                               Margin="5,0" FontSize="16" MaxLines="1" RelativePanel.AlignLeftWith="LicenseName"
+                               Margin="5,0" MaxLines="1" RelativePanel.AlignLeftWith="LicenseName"
                                RelativePanel.Below="LicenseName"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
                                Visibility="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                         <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay}">
                             <Run Text="{x:Bind ViewModel.PackageDetails.LicenseURL, Mode=OneWay}" />
@@ -146,7 +152,9 @@
                     </TextBlock>
                 </RelativePanel>
 
-                <TextBlock Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
+                <TextBlock Margin="5,2" MaxLines="1"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
+                           TextTrimming="WordEllipsis"
                            Visibility="{x:Bind ViewModel.PackageDetails.PrivacyURL, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Privacy:" />
                     <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.PrivacyURL, Mode=OneWay}">
@@ -155,7 +163,9 @@
                 </TextBlock>
 
                 <TextBlock Name="ReleaseNotesLink"
-                           Margin="5" FontSize="16" MaxLines="1" TextTrimming="WordEllipsis"
+                           Margin="5,2" MaxLines="1"
+                           Style="{ThemeResource BodyLargeTextBlockStyle}"
+                           TextTrimming="WordEllipsis"
                            Visibility="{x:Bind ViewModel.PackageDetails.ReleaseNotesUrl, Mode=OneWay, Converter={StaticResource linkVisibilityConverter}}">
                     <Run Text="Release Notes Url:" />
                     <Hyperlink NavigateUri="{x:Bind ViewModel.PackageDetails.ReleaseNotesUrl, Mode=OneWay}">
@@ -164,7 +174,7 @@
                 </TextBlock>
 
                 <controls:MarkdownTextBlock Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent"
-                                            FontSize="14" IsTextSelectionEnabled="False"
+                                            IsTextSelectionEnabled="False"
                                             Text="{x:Bind ViewModel.PackageDetails.ReleaseNotes, Mode=OneWay}"
                                             Visibility="{x:Bind ViewModel.PackageDetails.ReleaseNotes, Mode=OneWay, Converter={StaticResource stringVisibilityConverter}}" />
             </StackPanel>
@@ -176,19 +186,22 @@
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
-                    Content="Install " FontSize="16"
+                    Content="Install "
+                    Style="{ThemeResource ButtonLargeTextStyle}"
                     Visibility="{x:Bind ViewModel.IsInstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Upgrade"
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.UpgradePackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
-                    Content="Upgrade" FontSize="16"
+                    Content="Upgrade"
+                    Style="{ThemeResource ButtonLargeTextStyle}"
                     Visibility="{x:Bind ViewModel.IsUpdateSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
             <Button Name="Uninstall"
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.UninstallPackageCommand}"
                     CommandParameter="{x:Bind ViewModel.PackageDetails.PackageId, Mode=OneWay}"
-                    Content="Uninstall" FontSize="16"
+                    Content="Uninstall"
+                    Style="{ThemeResource ButtonLargeTextStyle}"
                     Visibility="{x:Bind ViewModel.IsUninstallSupported, Mode=OneWay, Converter={StaticResource boolVisibilityConverter}}" />
         </StackPanel>
     </Grid>

@@ -19,6 +19,7 @@
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   IsActive="{x:Bind IsLoading, Mode=OneWay}" />
                     <TextBlock Margin="5" HorizontalAlignment="Center" Foreground="White"
+                               Style="{ThemeResource BodyTextBlockStyle}"
                                Text="{x:Bind Message, Mode=OneWay}" />
                 </StackPanel>
             </Border>

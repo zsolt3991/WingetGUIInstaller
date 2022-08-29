@@ -18,8 +18,9 @@
                                      UpdateVersion="{x:Bind ViewModel.UpdateVersion, Mode=OneWay}" />
 
         <controls:NavigationView x:Name="NavView"
-                                 IsBackButtonVisible="Collapsed" IsBackEnabled="False" IsSettingsVisible="False" OpenPaneLength="280"
-                                 SelectionChanged="NavView_SelectionChnage">
+                                 BackRequested="NavView_BackRequested" IsBackButtonVisible="Visible"
+                                 IsBackEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
+                                 IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
 

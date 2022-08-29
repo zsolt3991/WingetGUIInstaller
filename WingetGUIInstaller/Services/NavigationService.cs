@@ -7,11 +7,19 @@ using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.Services
 {
+    public enum NavigationStackMode
+    {
+        Add,
+        Skip,
+        Clear,
+    }
+
     public interface INavigationService<TNavigationKey> where TNavigationKey : Enum
     {
         public void GoBack();
-        public void Navigate(TNavigationKey key, object args);
-        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo, object args);
+        public void Navigate(TNavigationKey key, object args, NavigationStackMode navigationStackMode = NavigationStackMode.Add);
+        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo,
+            object args, NavigationStackMode navigationStackMode = NavigationStackMode.Add);
     }
 
     public interface IMultiLevelNavigationService<TNavigationKey> : INavigationService<TNavigationKey> where TNavigationKey : Enum
@@ -84,19 +92,58 @@ namespace WingetGUIInstaller.Services
 
         public void GoBack()
         {
-            CurrentFrame?.GoBack();
+            if (CurrentFrame == default)
+            {
+                throw new ArgumentNullException(nameof(CurrentFrame));
+            }
+            CurrentFrame.GoBack();
         }
 
-        public void Navigate(TNavigationKey key, object args)
+        public void Navigate(TNavigationKey key, object args, NavigationStackMode navigationStackMode)
         {
+            if (CurrentFrame == default)
+            {
+                throw new ArgumentNullException(nameof(CurrentFrame));
+            }
+
             var pageType = _pageLocator.GetPageTypeForKey(key);
-            CurrentFrame?.Navigate(pageType, args);
+            CurrentFrame.Navigate(pageType, args);
+
+            if (navigationStackMode == NavigationStackMode.Skip)
+            {
+                RemoveLastNavigationStackItem(CurrentFrame);
+            }
+
+            if (navigationStackMode == NavigationStackMode.Clear)
+            {
+                ClearNavigationStack(CurrentFrame);
+            }
         }
 
-        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo, object args)
+        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo, object args, NavigationStackMode navigationStackMode)
         {
+            if (CurrentFrame == default)
+            {
+                throw new ArgumentNullException(nameof(CurrentFrame));
+            }
+
             var pageType = _pageLocator.GetPageTypeForKey(key);
-            CurrentFrame?.Navigate(pageType, args, transitionInfo);
+            CurrentFrame.Navigate(pageType, args, transitionInfo);
+
+            if (navigationStackMode == NavigationStackMode.Skip)
+            {
+                RemoveLastNavigationStackItem(CurrentFrame);
+            }
+
+            if (navigationStackMode == NavigationStackMode.Clear)
+            {
+                ClearNavigationStack(CurrentFrame);
+            }
+        }
+
+        public void ClearNavigationStack()
+        {
+            _frameStack.Clear();
         }
 
         private Frame PeekFrameStack()
@@ -108,9 +155,20 @@ namespace WingetGUIInstaller.Services
             throw new Exception("Failed to Peek last stack frame");
         }
 
-        public void ClearNavigationStack()
+        private static void RemoveLastNavigationStackItem(Frame frame)
         {
-            _frameStack.Clear();
+            if (frame.BackStackDepth > 0)
+            {
+                frame.BackStack.RemoveAt(frame.BackStack.Count - 1);
+            }
+        }
+
+        private static void ClearNavigationStack(Frame frame)
+        {
+            if (frame.BackStackDepth > 0)
+            {
+                frame.BackStack.Clear();
+            }
         }
     }
 }

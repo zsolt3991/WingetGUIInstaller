@@ -22,7 +22,9 @@
         </Grid.RowDefinitions>
 
         <TextBlock Name="PageTitle"
-                   Grid.Row="0" Margin="5" FontSize="24" Text="Search for Packages" />
+                   Grid.Row="0" Margin="5"
+                   Style="{ThemeResource TitleTextBlockStyle}"
+                   Text="Search for Packages" />
 
         <controls:LoadingIndicator Name="LoadingWidget"
                                    Grid.Row="0" Grid.RowSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -41,7 +43,8 @@
             <Button Name="SearchButton"
                     Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.SearchPackagesCommand}"
-                    Content="Search">
+                    Content="Search"
+                    Style="{ThemeResource DefaultButtonStyle}">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery}" />
                 </Button.KeyboardAccelerators>
@@ -50,8 +53,8 @@
 
         <toolkit:DataGrid Name="PackagesGrid"
                           Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False"
-                          CanUserReorderColumns="False" CanUserResizeColumns="False" GridLinesVisibility="None"
-                          IsReadOnly="True"
+                          BorderBrush="DarkGray" BorderThickness="1" CanUserReorderColumns="False"
+                          CanUserResizeColumns="False" GridLinesVisibility="None" IsReadOnly="True"
                           ItemsSource="{x:Bind ViewModel.PackagesView, Mode=OneWay}"
                           SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
                           Sorting="DataGrid_Sorting">
@@ -97,18 +100,21 @@
 
         <RelativePanel Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Name="SelectedText"
-                       Margin="10" VerticalAlignment="Center" FontSize="16" RelativePanel.AlignLeftWithPanel="True">
+                       Margin="10" VerticalAlignment="Center" RelativePanel.AlignLeftWithPanel="True"
+                       Style="{ThemeResource BodyLargeTextBlockStyle}">
                 <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
                 <Run Text="package(s) selected" />
             </TextBlock>
             <Button Name="InstallSelected"
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallSelectedPackagesCommand}"
-                    Content="Install Selected" FontSize="16" RelativePanel.AlignRightWithPanel="True" />
+                    Content="Install Selected" RelativePanel.AlignRightWithPanel="True"
+                    Style="{ThemeResource ButtonLargeTextStyle}" />
             <Button Name="InstallAll"
                     MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallAllPackagesCommand}"
-                    Content="Install All" FontSize="16" RelativePanel.LeftOf="InstallSelected" />
+                    Content="Install All" RelativePanel.LeftOf="InstallSelected"
+                    Style="{ThemeResource ButtonLargeTextStyle}" />
         </RelativePanel>
     </Grid>
 </Page>

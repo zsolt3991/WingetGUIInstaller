@@ -15,11 +15,13 @@
             </Grid.RowDefinitions>
 
             <TextBlock Name="PageTitle"
-                       Grid.Row="0" Margin="5" FontSize="24" Text="Import/Export Package List" />
+                       Grid.Row="0" Margin="5"
+                       Style="{ThemeResource TitleTextBlockStyle}"
+                       Text="Import/Export Package List" />
 
             <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <controls:HeaderedContentControl.Header>
-                    <TextBlock FontSize="20" Text="Import Package List" />
+                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Import Package List" />
                 </controls:HeaderedContentControl.Header>
                 <StackPanel Margin="0,10" Orientation="Vertical">
                     <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -42,7 +44,7 @@
 
             <controls:HeaderedContentControl Grid.Row="2" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <controls:HeaderedContentControl.Header>
-                    <TextBlock FontSize="20" Text="Export Package List" />
+                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Export Package List" />
                 </controls:HeaderedContentControl.Header>
                 <StackPanel Margin="0,10" Orientation="Vertical">
                     <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
