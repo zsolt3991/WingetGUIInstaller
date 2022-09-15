@@ -3,8 +3,8 @@ using Octokit;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using MsixPackage = Windows.ApplicationModel.Package;
 
 namespace GithubPackageUpdater.Services
 {
@@ -26,7 +26,7 @@ namespace GithubPackageUpdater.Services
             }
         }
 
-        public async Task<PackageUpdateResponse> CheckForUpdates(Package installedPackage)
+        public async Task<PackageUpdateResponse> CheckForUpdates(MsixPackage installedPackage)
         {
             var packageName = installedPackage.Id.Name;
             var packageVersion = new Version(installedPackage.Id.Version.Major, installedPackage.Id.Version.Minor,
