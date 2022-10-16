@@ -11,7 +11,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class ImportExportPageViewModel : ObservableObject
+    public sealed partial class ImportExportPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageManager _packageManager;
@@ -132,7 +132,7 @@ namespace WingetGUIInstaller.ViewModels
                 .Append("All sources")
                 .OrderBy(source => source)
                 .ToList();
-            SelectedSourceName = PackageSources.FirstOrDefault();
+            SelectedSourceName = PackageSources[0];
         }
     }
 }

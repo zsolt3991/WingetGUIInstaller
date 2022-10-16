@@ -3,7 +3,7 @@ using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.Services
 {
-    public class PackageSourceManager
+    public sealed class PackageSourceManager
     {
         private readonly ConsoleOutputCache _consoleBuffer;
 

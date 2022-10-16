@@ -7,7 +7,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.Services
 {
-    public class PageLocatorService<TNavigationKey> where TNavigationKey : Enum
+    public sealed class PageLocatorService<TNavigationKey> where TNavigationKey : Enum
     {
         private IReadOnlyDictionary<TNavigationKey, Type> _pageMap;
 

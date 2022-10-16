@@ -10,7 +10,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    internal partial class PackageDetailsPageViewModel : ObservableObject
+    internal sealed partial class PackageDetailsPageViewModel : ObservableObject
     {
         private readonly PackageManager _packageManager;
         private readonly PackageCache _packageCache;

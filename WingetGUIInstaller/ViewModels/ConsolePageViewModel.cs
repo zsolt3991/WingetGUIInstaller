@@ -11,9 +11,9 @@ using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class ConsolePageViewModel : ObservableObject
+    public sealed partial class ConsolePageViewModel : ObservableObject
     {
-        protected const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
+        private const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
 

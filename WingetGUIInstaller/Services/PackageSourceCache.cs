@@ -7,10 +7,10 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.Services
 {
-    public class PackageSourceCache
+    public sealed class PackageSourceCache
     {
         // Define a Treshold after which data is automatically fetched again
-        protected static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
         private readonly ConsoleOutputCache _consoleBuffer;
         private List<WingetPackageSource> _availablePackageSources;
         private DateTimeOffset _lastAvailablePackageSourcesRefresh;

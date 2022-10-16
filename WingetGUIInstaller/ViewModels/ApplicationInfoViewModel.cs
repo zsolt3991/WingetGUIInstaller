@@ -9,7 +9,7 @@ using WingetHelper.Commands;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class ApplicationInfoViewModel : ObservableObject
+    public sealed partial class ApplicationInfoViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
 

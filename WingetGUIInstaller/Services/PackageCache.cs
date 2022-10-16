@@ -10,11 +10,11 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.Services
 {
-    public class PackageCache
+    public sealed class PackageCache
     {
-        protected static readonly int DetailsCacheSize = 5;
+        private const int DetailsCacheSize = 5;
         // Define a Treshold after which data is automatically fetched again
-        protected static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;

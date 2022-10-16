@@ -8,7 +8,7 @@ using WingetGUIInstaller.Enums;
 namespace WingetGUIInstaller.ViewModels
 {
 
-    public partial class RecommendedItemsGroup : ObservableObject, IGrouping<RecommendationGroupType, RecommendedItemViewModel>
+    public sealed partial class RecommendedItemsGroup : ObservableObject, IGrouping<RecommendationGroupType, RecommendedItemViewModel>
     {
         private readonly IEnumerable<RecommendedItemViewModel> _items;
         private readonly RecommendationGroupType _key;

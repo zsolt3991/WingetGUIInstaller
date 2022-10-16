@@ -4,7 +4,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class PackageDetailsViewModel : ObservableObject
+    public sealed partial class PackageDetailsViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _packageName;

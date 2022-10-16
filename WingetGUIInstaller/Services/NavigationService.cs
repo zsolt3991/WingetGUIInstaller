@@ -30,7 +30,7 @@ namespace WingetGUIInstaller.Services
     }
 
 
-    internal class NavigationService<TNavigationKey> : IMultiLevelNavigationService<TNavigationKey> where TNavigationKey : Enum
+    internal sealed class NavigationService<TNavigationKey> : IMultiLevelNavigationService<TNavigationKey> where TNavigationKey : Enum
     {
         private readonly PageLocatorService<TNavigationKey> _pageLocator;
         private readonly ConcurrentStack<Frame> _frameStack;
