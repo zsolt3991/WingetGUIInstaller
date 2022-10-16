@@ -2,7 +2,7 @@
 
 namespace WingetHelper.Models
 {
-    public class WingetPackageDetails
+    public sealed class WingetPackageDetails
     {
         public string Id { get; set; }
 

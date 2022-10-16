@@ -4,7 +4,7 @@ using WingetHelper.Utils;
 
 namespace WingetHelper.Commands
 {
-    public class PackageSourceCommands
+    public static class PackageSourceCommands
     {
         public static WingetCommand<object> AddPackageSource(string name, string argument, string sourceType)
         {

@@ -2,20 +2,20 @@
 
 namespace WingetHelper.Models
 {
-    internal class WingetPackageListExportData
+    internal sealed class WingetPackageListExportData
     {
         public DateTime CreationDate { get; set; }
         public PackageGroupExportData[] Sources { get; set; }
         public string WinGetVersion { get; set; }
     }
 
-    public class PackageGroupExportData
+    internal sealed class PackageGroupExportData
     {
         public PackageExportData[] Packages { get; set; }
         public PackageSourceExportData SourceDetails { get; set; }
     }
 
-    public class PackageSourceExportData
+    internal sealed class PackageSourceExportData
     {
         public string Argument { get; set; }
         public string Identifier { get; set; }
@@ -23,7 +23,7 @@ namespace WingetHelper.Models
         public string Type { get; set; }
     }
 
-    public class PackageExportData
+    internal sealed class PackageExportData
     {
         public string PackageIdentifier { get; set; }
         public string Version { get; set; }

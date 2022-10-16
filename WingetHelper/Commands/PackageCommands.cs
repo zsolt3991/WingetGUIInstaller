@@ -4,7 +4,7 @@ using WingetHelper.Utils;
 
 namespace WingetHelper.Commands
 {
-    public class PackageCommands
+    public static class PackageCommands
     {
         public static WingetCommand<IEnumerable<WingetPackageEntry>> GetInstalledPackages()
         {

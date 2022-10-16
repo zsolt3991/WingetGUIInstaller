@@ -6,7 +6,7 @@ using WingetHelper.Models;
 
 namespace WingetHelper.Utils
 {
-    internal class ExpressionDataDecoder
+    internal static class ExpressionDataDecoder
     {
         private const string FoundResultRegex = @"^Found\s*?(?<packageName>.*)\s*?\[(?<packageId>.*)\]$";
 
