@@ -3,7 +3,7 @@ using GithubPackageUpdater.Models;
 
 namespace WingetGUIInstaller.Messages
 {
-    internal class UpdateAvailableMessage : ValueChangedMessage<PackageUpdateResponse>
+    internal sealed class UpdateAvailableMessage : ValueChangedMessage<PackageUpdateResponse>
     {
         public UpdateAvailableMessage(PackageUpdateResponse value) : base(value)
         {

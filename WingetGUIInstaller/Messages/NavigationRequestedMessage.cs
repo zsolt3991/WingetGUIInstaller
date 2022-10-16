@@ -3,7 +3,7 @@ using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.Messages
 {
-    internal class NavigationRequestedMessage : ValueChangedMessage<NavigationItemKey>
+    internal sealed class NavigationRequestedMessage : ValueChangedMessage<NavigationItemKey>
     {
         public NavigationRequestedMessage(NavigationItemKey value) : base(value)
         {

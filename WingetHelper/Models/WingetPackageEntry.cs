@@ -1,6 +1,6 @@
 ﻿namespace WingetHelper.Models
 {
-    public class WingetPackageEntry
+    public sealed class WingetPackageEntry
     {
         public string Name { get; set; }
         public string Id { get; set; }

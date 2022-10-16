@@ -20,26 +20,26 @@ namespace WingetGUIInstaller.Controls
 
         public ICommand ButtonCommand
         {
-            get { return (ICommand)GetValue(ButtonCommandProperty); }
-            set { SetValue(ButtonCommandProperty, value); }
+            get => (ICommand)GetValue(ButtonCommandProperty);
+            set => SetValue(ButtonCommandProperty, value);
         }
 
         public string PrimaryText
         {
-            get { return (string)GetValue(PrimaryTextProperty); }
-            set { SetValue(PrimaryTextProperty, value); }
+            get => (string)GetValue(PrimaryTextProperty);
+            set => SetValue(PrimaryTextProperty, value);
         }
 
         public string SecondaryText
         {
-            get { return (string)GetValue(SecondaryTextProperty); }
-            set { SetValue(SecondaryTextProperty, value); }
+            get => (string)GetValue(SecondaryTextProperty);
+            set => SetValue(SecondaryTextProperty, value);
         }
 
         public string ButtonText
         {
-            get { return (string)GetValue(ButtonTextProperty); }
-            set { SetValue(ButtonTextProperty, value); }
+            get => (string)GetValue(ButtonTextProperty);
+            set => SetValue(ButtonTextProperty, value);
         }
 
         public StandardButtonSettingsControl()

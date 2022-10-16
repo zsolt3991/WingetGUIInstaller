@@ -17,7 +17,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class UpgradePageViewModel : ObservableObject
+    public sealed partial class UpgradePageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;

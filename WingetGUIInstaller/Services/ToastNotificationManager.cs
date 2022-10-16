@@ -4,11 +4,10 @@ using CommunityToolkit.WinUI.Notifications;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
-using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.Services
 {
-    public class ToastNotificationManager
+    public sealed class ToastNotificationManager
     {
         private readonly ApplicationDataStorageHelper _configurationStore;
 
@@ -17,7 +16,7 @@ namespace WingetGUIInstaller.Services
             _configurationStore = configurationStore;
         }
 
-        protected bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
+        private bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
             ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
 
         public void ShowGenericNotification(string titleText, string contentText)

@@ -17,7 +17,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class PackageSourceManagementViewModel : ObservableObject
+    public sealed partial class PackageSourceManagementViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageSourceManager _packageSourceManager;

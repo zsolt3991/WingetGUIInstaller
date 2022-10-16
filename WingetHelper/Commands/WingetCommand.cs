@@ -10,7 +10,7 @@ using WingetHelper.Models;
 
 namespace WingetHelper.Commands
 {
-    public class WingetCommand<TResult>
+    public sealed class WingetCommand<TResult>
     {
         public const string ExecutableName = "winget";
         public const string ShellName = "cmd.exe";

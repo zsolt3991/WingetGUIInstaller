@@ -16,20 +16,20 @@ namespace WingetGUIInstaller.Controls
 
         public string PrimaryText
         {
-            get { return (string)GetValue(PrimaryTextProperty); }
-            set { SetValue(PrimaryTextProperty, value); }
+            get => (string)GetValue(PrimaryTextProperty);
+            set => SetValue(PrimaryTextProperty, value);
         }
 
         public string SecondaryText
         {
-            get { return (string)GetValue(SecondaryTextProperty); }
-            set { SetValue(SecondaryTextProperty, value); }
+            get => (string)GetValue(SecondaryTextProperty);
+            set => SetValue(SecondaryTextProperty, value);
         }
 
         public FrameworkElement CustomContent
         {
-            get { return (FrameworkElement)GetValue(CustomContentProperty); }
-            set { SetValue(CustomContentProperty, value); }
+            get => (FrameworkElement)GetValue(CustomContentProperty);
+            set => SetValue(CustomContentProperty, value);
         }
 
         public CustomContentSettingsControl()

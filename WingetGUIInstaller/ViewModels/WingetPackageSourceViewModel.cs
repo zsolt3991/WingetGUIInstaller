@@ -3,7 +3,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class WingetPackageSourceViewModel : ObservableObject
+    public sealed partial class WingetPackageSourceViewModel : ObservableObject
     {
         [ObservableProperty]
         private bool _isSelected;

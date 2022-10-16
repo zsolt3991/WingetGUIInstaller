@@ -6,9 +6,9 @@ using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.Services
 {
-    public class ConsoleOutputCache
+    public sealed class ConsoleOutputCache
     {
-        protected const int MaxCapacity = 255;
+        private const int MaxCapacity = 255;
         private readonly ConcurrentQueue<string> _buffer;
 
         public ConsoleOutputCache()

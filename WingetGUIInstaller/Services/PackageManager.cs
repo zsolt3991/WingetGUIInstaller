@@ -6,7 +6,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.Services
 {
-    public class PackageManager
+    public sealed class PackageManager
     {
         private readonly ConsoleOutputCache _consoleBuffer;
 

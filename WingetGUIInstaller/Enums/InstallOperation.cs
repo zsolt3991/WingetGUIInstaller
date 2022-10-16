@@ -1,4 +1,4 @@
-﻿namespace WingetGUIInstaller.Models
+﻿namespace WingetGUIInstaller.Enums
 {
     public enum InstallOperation
     {

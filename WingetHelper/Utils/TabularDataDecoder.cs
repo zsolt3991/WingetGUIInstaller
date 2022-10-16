@@ -9,7 +9,7 @@ using WingetHelper.Models;
 
 namespace WingetHelper.Utils
 {
-    internal class TabularDataDecoder
+    internal static class TabularDataDecoder
     {
         internal static IEnumerable<TResultType> ParseResultsTable<TResultType>(IEnumerable<string> commandResult)
         {

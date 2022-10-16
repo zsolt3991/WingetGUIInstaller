@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace WingetHelper.Utils
 {
-    internal class ObjectDataDecoder
+    internal static class ObjectDataDecoder
     {
         private const string LineSplitRegex = @"^\s*(?<key>[a-zA-z|\d].+?)(\:{1}){1}\s*(?<value>.*?)$";
         private const int IndentSize = 2;

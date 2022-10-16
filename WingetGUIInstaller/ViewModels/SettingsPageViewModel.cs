@@ -15,7 +15,7 @@ using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class SettingsPageViewModel : ObservableObject
+    public sealed partial class SettingsPageViewModel : ObservableObject
     {
         private readonly NavigationItemKey[] _disallowedKeys = new NavigationItemKey[] {
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };

@@ -12,7 +12,7 @@ namespace WingetGUIInstaller.Controls
         private Visibility _moreButtonVisibility = Visibility.Collapsed;
 
         public static readonly DependencyProperty PackageDetailsProperty = DependencyProperty
-              .Register("PackageDetails", typeof(PackageDetailsViewModel), typeof(PackageDetailsView), new PropertyMetadata(null));
+            .Register("PackageDetails", typeof(PackageDetailsViewModel), typeof(PackageDetailsView), new PropertyMetadata(null));
 
         public static readonly DependencyProperty MoreButtonCommandProperty = DependencyProperty
            .Register("MoreButtonCommand", typeof(ICommand), typeof(PackageDetailsView), new PropertyMetadata(null, MoreButtonPropertyChanged));

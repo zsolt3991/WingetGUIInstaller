@@ -16,7 +16,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class SearchPageViewModel : ObservableObject
+    public sealed partial class SearchPageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;

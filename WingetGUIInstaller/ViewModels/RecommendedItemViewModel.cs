@@ -4,7 +4,7 @@ using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class RecommendedItemViewModel : ObservableObject
+    public sealed partial class RecommendedItemViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _name;

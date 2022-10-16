@@ -13,7 +13,7 @@ using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public partial class MainPageViewModel : ObservableObject
+    public sealed partial class MainPageViewModel : ObservableObject
     {
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
