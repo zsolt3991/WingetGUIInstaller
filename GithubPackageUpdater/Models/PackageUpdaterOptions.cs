@@ -8,7 +8,7 @@ namespace GithubPackageUpdater.Models
         public string AccountName { get; private set; }
         public string AccessToken { get; private set; }
 
-        internal PackageUpdaterOptions()
+        public PackageUpdaterOptions()
         { }
 
         public PackageUpdaterOptions(string accountName, string repositoryName, string accessToken = default)
