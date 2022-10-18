@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
 
 namespace GithubPackageUpdater.Models
 {
@@ -13,26 +13,26 @@ namespace GithubPackageUpdater.Models
 
         public PackageUpdaterOptions(string accountName, string repositoryName, string accessToken = default)
         {
-            AccountName = accountName;
-            RepositoryName = repositoryName;
+            AccountName = accountName ?? throw new ArgumentNullException(nameof(accountName));
+            RepositoryName = repositoryName ?? throw new ArgumentNullException(nameof(repositoryName));
             AccessToken = accessToken;
         }
 
         public PackageUpdaterOptions ConfigureAccountName(string accountName)
         {
-            AccountName = accountName;
+            AccountName = accountName ?? throw new ArgumentNullException(nameof(accountName));
             return this;
         }
 
         public PackageUpdaterOptions ConfigureRepository(string repositoryName)
         {
-            RepositoryName = repositoryName;
+            RepositoryName = repositoryName ?? throw new ArgumentNullException(nameof(repositoryName));
             return this;
         }
 
         public PackageUpdaterOptions ConfigureAuthorization(string accessToken)
         {
-            AccessToken = accessToken;
+            AccessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
             return this;
         }
     }
