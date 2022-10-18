@@ -33,6 +33,11 @@ namespace GithubPackageUpdater.Services
 
         public async Task<PackageUpdateResponse> CheckForUpdates(MsixPackage installedPackage)
         {
+            if (installedPackage == default)
+            {
+                throw new ArgumentNullException(nameof(installedPackage));
+            }
+
             var packageName = installedPackage.Id.Name;
             var packageVersion = new Version(installedPackage.Id.Version.Major, installedPackage.Id.Version.Minor,
                 installedPackage.Id.Version.Build, installedPackage.Id.Version.Revision);
@@ -107,6 +112,11 @@ namespace GithubPackageUpdater.Services
 
         public async Task TriggerUpdate(Uri updateUrl)
         {
+            if (updateUrl == default)
+            {
+                throw new ArgumentNullException(nameof(updateUrl));
+            }
+
             _logger.LogInformation("Installing package from: {url}", updateUrl);
             await _packageManager.UpdatePackageAsync(updateUrl, null, DeploymentOptions.ForceApplicationShutdown);
         }
