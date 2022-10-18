@@ -8,16 +8,16 @@ namespace GithubPackageUpdater.Configuration
     public static class ServiceProviderExtensions
     {
         public static IServiceCollection AddGithubUpdater(
-               this IServiceCollection services, Action<PackageUpdaterOptions> configuration)
+            this IServiceCollection services, Action<PackageUpdaterOptions> configureOptions)
         {
-            if(configuration ==default)
+            if (configureOptions == default)
             {
-                throw new ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(configureOptions));
             }
 
-            var options = new PackageUpdaterOptions();
-            configuration.Invoke(options);
-            services.AddSingleton(provider => ActivatorUtilities.CreateInstance<GithubPackageUpdaterSerivce>(provider, options));
+            services.AddLogging();
+            services.AddOptions<PackageUpdaterOptions>().Configure(configureOptions);
+            services.AddSingleton<GithubPackageUpdaterSerivce>();
             return services;
         }
     }
