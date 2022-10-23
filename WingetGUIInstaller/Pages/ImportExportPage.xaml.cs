@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using System.Collections.Generic;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 

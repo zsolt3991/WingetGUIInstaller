@@ -20,7 +20,7 @@ namespace WingetGUIInstaller
         private readonly ToastNotificationManager _notificationManager;
         private readonly DispatcherQueue _dispatcherQueue;
         private static Window _window;
-        
+
         public static Window Window => _window;
 
         /// <summary>
@@ -77,6 +77,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ImportExportPageViewModel>()
                 .AddSingleton<PackageSourceManagementViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
+                .AddSingleton<ExcludedPackagesViewModel>()
                 .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))

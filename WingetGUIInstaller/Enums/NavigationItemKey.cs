@@ -13,5 +13,6 @@
         Search,
         Settings,
         Upgrades,
+        ExcludedPackages
     }
 }
