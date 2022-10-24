@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections.Generic;
+using System;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
@@ -11,10 +11,15 @@ namespace WingetGUIInstaller.Pages
     {
         public ExcludedPackagesPage()
         {
-            InitializeComponent(); 
+            InitializeComponent();
             DataContext = ViewModel = Ioc.Default.GetRequiredService<ExcludedPackagesViewModel>();
         }
 
         public ExcludedPackagesViewModel ViewModel { get; }
+
+        private async void AddExclusion_ClickAsync(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            await PackageSelectorDialog.ShowAsync();
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace WingetGUIInstaller.Constants
         public const string SelectedPage = "SelectedPage";
         public const string SelectedTheme = "SelectedTheme";
         public const string ExcludedPackagesEnabled = "ExcludedPackagesEnabled";
+        public const string ExcludedPackagesFileName = "excludedPackages.json";
 
         public const bool ConsoleEnabledDefaultValue = true;
         public const bool NotificationsEnabledDefaultValue = true;
