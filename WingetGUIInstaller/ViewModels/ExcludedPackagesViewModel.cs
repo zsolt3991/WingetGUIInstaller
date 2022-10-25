@@ -4,12 +4,9 @@ using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Storage;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -21,10 +18,10 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly PackageCache _packageCache;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly ObservableCollection<WingetPackageViewModel> _exclusions;
         private readonly ObservableCollection<WingetPackageViewModel> _excludables;
         private bool? _excludedPackagesEnabled;
-        private List<string> _excludedPackageIds;
 
         [ObservableProperty]
         private bool _isLoading;
@@ -45,11 +42,12 @@ namespace WingetGUIInstaller.ViewModels
         private AdvancedCollectionView _excludablePackagesCollection;
 
         public ExcludedPackagesViewModel(ApplicationDataStorageHelper configurationStore,
-            PackageCache packageCache, DispatcherQueue dispatcherQueue)
+            PackageCache packageCache, DispatcherQueue dispatcherQueue, ExclusionsManager exclusionsManager)
         {
             _configurationStore = configurationStore;
             _packageCache = packageCache;
             _dispatcherQueue = dispatcherQueue;
+            _exclusionsManager = exclusionsManager;
             _loadingText = "Loading";
             _exclusions = new ObservableCollection<WingetPackageViewModel>();
             _excludables = new ObservableCollection<WingetPackageViewModel>();
@@ -74,60 +72,36 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task AddExcludedPackage(WingetPackageViewModel package)
         {
-            if (!_excludedPackageIds.Contains(package.Id))
+            if (await _exclusionsManager.AddExclusionAsync(package.Id))
             {
-                _excludedPackageIds.Add(package.Id);
-                await SaveExclusionListAsync();
-                await UpdatePackageListsAsync();
+                await RebuildListsAsync();
             }
         }
 
         [RelayCommand]
         private async Task RemoveExcludedPackage(WingetPackageViewModel package)
         {
-            if (_excludedPackageIds.Contains(package.Id))
+            if (await _exclusionsManager.RemoveExclusionAsync(package.Id))
             {
-                _excludedPackageIds.Remove(package.Id);
-                await SaveExclusionListAsync();
-                await UpdatePackageListsAsync();
+                await RebuildListsAsync();
             }
-        }
-
-        private async Task LoadExclusionListAsync()
-        {
-            if (!await StorageFileHelper.FileExistsAsync(ApplicationData.Current.LocalFolder,
-                ConfigurationPropertyKeys.ExcludedPackagesFileName))
-            {
-                _excludedPackageIds = new List<string>();
-                return;
-            }
-            var excludedPackagesFileContent = await StorageFileHelper
-                .ReadTextFromLocalFileAsync(ConfigurationPropertyKeys.ExcludedPackagesFileName);
-            _excludedPackageIds = JsonSerializer.Deserialize<List<string>>(excludedPackagesFileContent);
-        }
-
-        private async Task SaveExclusionListAsync()
-        {
-            var excludedPackagesFileContent = JsonSerializer.Serialize(_excludedPackageIds);
-            await StorageFileHelper.WriteTextToLocalFileAsync(excludedPackagesFileContent,
-                ConfigurationPropertyKeys.ExcludedPackagesFileName, CreationCollisionOption.ReplaceExisting);
         }
 
         private async Task LoadExcludedPackagesAsync()
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            await LoadExclusionListAsync();
-            await UpdatePackageListsAsync();
+            await RebuildListsAsync();
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
 
-        private async Task UpdatePackageListsAsync(bool forceRefresh = false)
+        private async Task RebuildListsAsync(bool forceRefresh = false)
         {
             var packages = await _packageCache.GetInstalledPackages(forceRefresh);
+            var excludedIds = await _exclusionsManager.GetExclusions();
 
             _exclusions.Clear();
             foreach (var exclusion in packages
-                .Where(package => _excludedPackageIds.Contains(package.Id))
+                .Where(package => excludedIds.Contains(package.Id))
                 .OrderBy(package => package.Name)
                 .Select(package => new WingetPackageViewModel(package)))
             {
@@ -136,7 +110,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _excludables.Clear();
             foreach (var excludable in packages
-               .Where(package => !_excludedPackageIds.Contains(package.Id))
+               .Where(package => !excludedIds.Contains(package.Id))
                .OrderBy(package => package.Name)
                .Select(package => new WingetPackageViewModel(package)))
             {

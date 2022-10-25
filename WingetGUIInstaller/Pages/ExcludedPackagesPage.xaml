@@ -65,7 +65,8 @@
                        PrimaryButtonCommand="{x:Bind ViewModel.AddExcludedPackageCommand}"
                        PrimaryButtonCommandParameter="{x:Bind PackageList.SelectedItem, Mode=OneWay}"
                        PrimaryButtonText="Select">
-            <Grid MinWidth="480" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid Width="480" Height="480"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50" />
                     <RowDefinition />

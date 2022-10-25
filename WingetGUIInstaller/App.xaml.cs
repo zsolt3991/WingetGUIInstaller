@@ -62,6 +62,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ToastNotificationManager>()
                 .AddSingleton<PackageSourceCache>()
                 .AddSingleton<PackageSourceManager>()
+                .AddSingleton<ExclusionsManager>()
                 .AddSingleton<PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
