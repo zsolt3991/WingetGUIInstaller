@@ -65,14 +65,25 @@
                        PrimaryButtonCommand="{x:Bind ViewModel.AddExcludedPackageCommand}"
                        PrimaryButtonCommandParameter="{x:Bind PackageList.SelectedItem, Mode=OneWay}"
                        PrimaryButtonText="Select">
-            <ListView Name="PackageList"
-                      MinWidth="480" Margin="0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      ItemTemplate="{StaticResource ExcludableListItemTemplate}"
-                      ItemsSource="{x:Bind ViewModel.ExcludablePackageList, Mode=OneWay}"
-                      RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True"
-                      RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="ManageLabel"
-                      ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.VerticalScrollMode="Enabled"
-                      SelectionMode="Single" />
+            <Grid MinWidth="480" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBox Name="FilterExcludableText"
+                         Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                         PlaceholderText="Filter Packages to exclude" RelativePanel.LeftOf="RefreshContent"
+                         Style="{ThemeResource DefaultTextBoxStyle}"
+                         Text="{x:Bind ViewModel.FilterExcludablePackagesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ListView Name="PackageList"
+                          Grid.Row="1" Margin="0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          ItemTemplate="{StaticResource ExcludableListItemTemplate}"
+                          ItemsSource="{x:Bind ViewModel.ExcludablePackagesCollection, Mode=OneWay}"
+                          RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="ManageLabel"
+                          ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.VerticalScrollMode="Enabled"
+                          SelectionMode="Single" />
+            </Grid>
         </ContentDialog>
 
         <StackPanel Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical"
@@ -100,22 +111,32 @@
                     </Button>
                 </RelativePanel>
             </controls:HeaderedContentControl.Header>
-
-            <ListView Margin="0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      ItemTemplate="{StaticResource ExclusionListItemTemplate}"
-                      ItemsSource="{x:Bind ViewModel.ExclusionList, Mode=OneWay}"
-                      RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True"
-                      RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="ManageLabel"
-                      ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.VerticalScrollMode="Enabled"
-                      SelectionMode="None">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-            </ListView>
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBox Name="FilterExcludedText"
+                         Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                         PlaceholderText="Filter Excluded Packages" RelativePanel.LeftOf="RefreshContent"
+                         Style="{ThemeResource DefaultTextBoxStyle}"
+                         Text="{x:Bind ViewModel.FilterExcludedPackagesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ListView Grid.Row="1" Margin="0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          ItemTemplate="{StaticResource ExclusionListItemTemplate}"
+                          ItemsSource="{x:Bind ViewModel.ExcludedPackagesCollection, Mode=OneWay}"
+                          RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="ManageLabel"
+                          ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.VerticalScrollMode="Enabled"
+                          SelectionMode="None">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+            </Grid>
         </controls:HeaderedContentControl>
     </Grid>
 </Page>

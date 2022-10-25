@@ -1,16 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Helpers;
+using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -19,20 +21,28 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly PackageCache _packageCache;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ObservableCollection<WingetPackageViewModel> _exclusions;
+        private readonly ObservableCollection<WingetPackageViewModel> _excludables;
         private bool? _excludedPackagesEnabled;
         private List<string> _excludedPackageIds;
-
-        [ObservableProperty]
-        private List<WingetPackageViewModel> _exclusionList;
-
-        [ObservableProperty]
-        private List<WingetPackageViewModel> _excludablePackageList;
 
         [ObservableProperty]
         private bool _isLoading;
 
         [ObservableProperty]
         private string _loadingText;
+
+        [ObservableProperty]
+        private string _filterExcludedPackagesText;
+
+        [ObservableProperty]
+        private string _filterExcludablePackagesText;
+
+        [ObservableProperty]
+        private AdvancedCollectionView _excludedPackagesCollection;
+
+        [ObservableProperty]
+        private AdvancedCollectionView _excludablePackagesCollection;
 
         public ExcludedPackagesViewModel(ApplicationDataStorageHelper configurationStore,
             PackageCache packageCache, DispatcherQueue dispatcherQueue)
@@ -41,6 +51,10 @@ namespace WingetGUIInstaller.ViewModels
             _packageCache = packageCache;
             _dispatcherQueue = dispatcherQueue;
             _loadingText = "Loading";
+            _exclusions = new ObservableCollection<WingetPackageViewModel>();
+            _excludables = new ObservableCollection<WingetPackageViewModel>();
+            _excludablePackagesCollection = new AdvancedCollectionView(_excludables, true);
+            _excludedPackagesCollection = new AdvancedCollectionView(_exclusions, true);
             _ = LoadExcludedPackagesAsync();
         }
 
@@ -111,15 +125,49 @@ namespace WingetGUIInstaller.ViewModels
         {
             var packages = await _packageCache.GetInstalledPackages(forceRefresh);
 
-            ExclusionList = packages
+            _exclusions.Clear();
+            foreach (var exclusion in packages
                 .Where(package => _excludedPackageIds.Contains(package.Id))
-                .Select(package => new WingetPackageViewModel(package))
-                .ToList();
+                .OrderBy(package => package.Name)
+                .Select(package => new WingetPackageViewModel(package)))
+            {
+                _exclusions.Add(exclusion);
+            }
 
-            ExcludablePackageList = packages
-                .Where(package => !_excludedPackageIds.Contains(package.Id))
-                .Select(package => new WingetPackageViewModel(package))
-                .ToList();
+            _excludables.Clear();
+            foreach (var excludable in packages
+               .Where(package => !_excludedPackageIds.Contains(package.Id))
+               .OrderBy(package => package.Name)
+               .Select(package => new WingetPackageViewModel(package)))
+            {
+                _excludables.Add(excludable);
+            }
+        }
+
+        partial void OnFilterExcludedPackagesTextChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ExcludedPackagesCollection.ClearFiltering();
+            }
+
+            ExcludedPackagesCollection.ApplyFiltering<WingetPackageViewModel>(package =>
+                package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+            );
+        }
+
+        partial void OnFilterExcludablePackagesTextChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ExcludablePackagesCollection.ClearFiltering();
+            }
+
+            ExcludablePackagesCollection.ApplyFiltering<WingetPackageViewModel>(package =>
+                package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+            );
         }
     }
 }
