@@ -177,7 +177,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            var returnedPackages = await _packageCache.GetInstalledPackages(forceUpdate, hideExcluded: true);
+            var returnedPackages = await _packageCache.GetInstalledPackages(forceUpdate, hideExcluded: false);
 
             _dispatcherQueue.TryEnqueue(() =>
             {

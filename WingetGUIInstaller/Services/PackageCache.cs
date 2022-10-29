@@ -76,12 +76,6 @@ namespace WingetGUIInstaller.Services
                 filteredPackages = filteredPackages.Where(p => !_exclusionsManager.IsExcluded(p.Id));
             }
 
-            if (showNotification)
-            {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)
-                    && !_exclusionsManager.IsExcluded(p.Id)));
-            }
-
             return filteredPackages.ToList();
         }
 
