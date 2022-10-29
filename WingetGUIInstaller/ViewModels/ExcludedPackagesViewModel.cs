@@ -96,8 +96,8 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task RebuildListsAsync(bool forceRefresh = false)
         {
-            var packages = await _packageCache.GetInstalledPackages(forceRefresh);
-            var excludedIds = await _exclusionsManager.GetExclusions();
+            var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh, hideExcluded: false);
+            var excludedIds = await _exclusionsManager.GetExclusionsAsync();
 
             _exclusions.Clear();
             foreach (var exclusion in packages

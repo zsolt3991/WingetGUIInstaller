@@ -19,6 +19,7 @@ namespace WingetGUIInstaller.Services
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly ToastNotificationManager _notificationManager;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
@@ -26,11 +27,12 @@ namespace WingetGUIInstaller.Services
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
         public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore,
-            ToastNotificationManager notificationManager)
+            ToastNotificationManager notificationManager, ExclusionsManager exclusionsManager)
         {
             _consoleBuffer = consoleOutputCache;
             _configurationStore = configurationStore;
             _notificationManager = notificationManager;
+            _exclusionsManager = exclusionsManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
@@ -44,7 +46,7 @@ namespace WingetGUIInstaller.Services
             .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue)?
             .Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
 
-        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
+        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false, bool hideExcluded = true)
         {
             bool showNotification = false;
             if (_installedPackages == default || forceReload ||
@@ -69,15 +71,21 @@ namespace WingetGUIInstaller.Services
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
+            if (hideExcluded)
+            {
+                filteredPackages = filteredPackages.Where(p => !_exclusionsManager.IsExcluded(p.Id));
+            }
+
             if (showNotification)
             {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)));
+                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)
+                    && !_exclusionsManager.IsExcluded(p.Id)));
             }
 
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload)
+        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false, bool hideExcluded = true)
         {
             bool showNotification = false;
             if (_upgradablePackages == default || forceReload ||
@@ -102,6 +110,11 @@ namespace WingetGUIInstaller.Services
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
+            if (hideExcluded)
+            {
+                filteredPackages = filteredPackages.Where(p => !_exclusionsManager.IsExcluded(p.Id));
+            }
+
             if (showNotification)
             {
                 _notificationManager.ShowUpdateStatus(filteredPackages.Count());
@@ -110,9 +123,9 @@ namespace WingetGUIInstaller.Services
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool refreshInstalled)
+        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false, bool hideExcluded = true)
         {
-            if (_installedPackages == default || refreshInstalled ||
+            if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
@@ -139,15 +152,20 @@ namespace WingetGUIInstaller.Services
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
+            if (hideExcluded)
+            {
+                searchResults = searchResults.Where(p => !_exclusionsManager.IsExcluded(p.Id));
+            }
+
             return searchResults.ToList();
         }
 
-        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool refreshDetails = false)
+        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool forceReload = false)
         {
             var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
             if (cachedPackage != default)
             {
-                if (refreshDetails || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
+                if (forceReload || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
                 {
                     return await LoadPackageDetailsAsync(packageId);
                 }

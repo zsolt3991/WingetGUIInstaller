@@ -130,7 +130,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
+            var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload, hideExcluded: true);
 
             _dispatcherQueue.TryEnqueue(() =>
             {

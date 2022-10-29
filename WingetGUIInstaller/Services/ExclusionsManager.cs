@@ -21,20 +21,25 @@ namespace WingetGUIInstaller.Services
         public bool ExcludedPackagesEnabled => _configurationStore
             .Read(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
 
-        public async Task<List<string>> GetExclusions()
+        public async Task<List<string>> GetExclusionsAsync()
         {
             if (_excludedPackageIds == default)
             {
-                _excludedPackageIds = await LoadExclusionListAsync();
+                _excludedPackageIds = await LoadExclusionListAsync().ConfigureAwait(false);
             }
             return _excludedPackageIds;
+        }
+
+        public List<string> GetExclusions()
+        {
+            return GetExclusionsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<bool> AddExclusionAsync(string exclusionId)
         {
             if (_excludedPackageIds == default)
             {
-                _excludedPackageIds = await LoadExclusionListAsync();
+                _excludedPackageIds = await LoadExclusionListAsync().ConfigureAwait(false);
             }
             if (!_excludedPackageIds.Contains(exclusionId))
             {
@@ -45,11 +50,16 @@ namespace WingetGUIInstaller.Services
             return false;
         }
 
+        public bool AddExclusion(string exclusionId)
+        {
+            return AddExclusionAsync(exclusionId).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public async Task<bool> RemoveExclusionAsync(string exclusionId)
         {
             if (_excludedPackageIds == default)
             {
-                _excludedPackageIds = await LoadExclusionListAsync();
+                _excludedPackageIds = await LoadExclusionListAsync().ConfigureAwait(false);
             }
             if (_excludedPackageIds.Contains(exclusionId))
             {
@@ -60,15 +70,38 @@ namespace WingetGUIInstaller.Services
             return false;
         }
 
+        public bool RemoveExclusion(string exclusionId)
+        {
+            return RemoveExclusionAsync(exclusionId).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public async Task<bool> IsExcludedAsync(string exclusionId)
+        {
+            if (_excludedPackageIds == default)
+            {
+                _excludedPackageIds = await LoadExclusionListAsync().ConfigureAwait(false);
+            }
+            if (_excludedPackageIds.Contains(exclusionId))
+            {
+                return ExcludedPackagesEnabled;
+            }
+            return false;
+        }
+
+        public bool IsExcluded(string exclusionId)
+        {
+            return IsExcludedAsync(exclusionId).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         private static async Task<List<string>> LoadExclusionListAsync()
         {
             if (!await StorageFileHelper.FileExistsAsync(ApplicationData.Current.LocalFolder,
-                ConfigurationPropertyKeys.ExcludedPackagesFileName))
+                ConfigurationPropertyKeys.ExcludedPackagesFileName).ConfigureAwait(false))
             {
                 return new List<string>();
             }
             var excludedPackagesFileContent = await StorageFileHelper
-                .ReadTextFromLocalFileAsync(ConfigurationPropertyKeys.ExcludedPackagesFileName);
+                .ReadTextFromLocalFileAsync(ConfigurationPropertyKeys.ExcludedPackagesFileName).ConfigureAwait(false);
             return JsonSerializer.Deserialize<List<string>>(excludedPackagesFileContent);
         }
 
@@ -76,7 +109,7 @@ namespace WingetGUIInstaller.Services
         {
             var excludedPackagesFileContent = JsonSerializer.Serialize(exclusionList);
             await StorageFileHelper.WriteTextToLocalFileAsync(excludedPackagesFileContent,
-                ConfigurationPropertyKeys.ExcludedPackagesFileName, CreationCollisionOption.ReplaceExisting);
+                ConfigurationPropertyKeys.ExcludedPackagesFileName, CreationCollisionOption.ReplaceExisting).ConfigureAwait(false);
         }
     }
 }
