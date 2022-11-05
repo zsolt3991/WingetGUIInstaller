@@ -18,21 +18,16 @@ namespace WingetGUIInstaller.Services
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ApplicationDataStorageHelper _configurationStore;
-        private readonly ToastNotificationManager _notificationManager;
-        private readonly ExclusionsManager _exclusionsManager;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore,
-            ToastNotificationManager notificationManager, ExclusionsManager exclusionsManager)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore)
         {
             _consoleBuffer = consoleOutputCache;
             _configurationStore = configurationStore;
-            _notificationManager = notificationManager;
-            _exclusionsManager = exclusionsManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
@@ -98,7 +93,7 @@ namespace WingetGUIInstaller.Services
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false, bool hideExcluded = true)
+        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false)
         {
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
@@ -125,11 +120,6 @@ namespace WingetGUIInstaller.Services
             {
                 searchResults = searchResults
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
-            }
-
-            if (hideExcluded)
-            {
-                searchResults = searchResults.Where(p => !_exclusionsManager.IsExcluded(p.Id));
             }
 
             return searchResults.ToList();
