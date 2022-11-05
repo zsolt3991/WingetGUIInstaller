@@ -139,8 +139,8 @@ namespace WingetGUIInstaller.ViewModels
                 }
                 FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
                 IsLoading = false;
+                _notificationManager.ShowUpdateStatus(_packagesView.Count);
             });
-
         }
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
