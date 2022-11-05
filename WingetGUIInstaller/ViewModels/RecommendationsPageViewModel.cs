@@ -76,7 +76,7 @@ namespace WingetGUIInstaller.ViewModels
 
             if (_recommendedItemList != default && _recommendedItemList.Count > 0)
             {
-                var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh, hideExcluded: false);
+                var installedPackages = await _packageCache.GetInstalledPackages(forceRefresh);
                 var recommedationsList = _recommendedItemList
                     .Select(r =>
                     {

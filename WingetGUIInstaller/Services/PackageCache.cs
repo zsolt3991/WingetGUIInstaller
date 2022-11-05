@@ -46,14 +46,12 @@ namespace WingetGUIInstaller.Services
             .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue)?
             .Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
 
-        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false, bool hideExcluded = true)
+        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
         {
-            bool showNotification = false;
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
-                showNotification = true;
             }
 
             IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages ?? new List<WingetPackageEntry>();
@@ -71,22 +69,15 @@ namespace WingetGUIInstaller.Services
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            if (hideExcluded)
-            {
-                filteredPackages = filteredPackages.Where(p => !_exclusionsManager.IsExcluded(p.Id));
-            }
-
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false, bool hideExcluded = true)
+        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false)
         {
-            bool showNotification = false;
             if (_upgradablePackages == default || forceReload ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
                 await LoadUpgradablePackages();
-                showNotification = true;
             }
 
             IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages ?? new List<WingetPackageEntry>();
@@ -102,16 +93,6 @@ namespace WingetGUIInstaller.Services
             {
                 filteredPackages = filteredPackages
                     .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
-            }
-
-            if (hideExcluded)
-            {
-                filteredPackages = filteredPackages.Where(p => !_exclusionsManager.IsExcluded(p.Id));
-            }
-
-            if (showNotification)
-            {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Count());
             }
 
             return filteredPackages.ToList();

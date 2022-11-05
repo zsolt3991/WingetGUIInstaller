@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
@@ -8,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
@@ -65,6 +67,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (SetProperty(ref _excludedPackagesEnabled, value))
                 {
                     _configurationStore.Save(ConfigurationPropertyKeys.ExcludedPackagesEnabled, value);
+                    WeakReferenceMessenger.Default.Send(new ExclusionStatusChangedMessage(value));
                 }
             }
         }
@@ -74,6 +77,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             if (await _exclusionsManager.AddExclusionAsync(package.Id))
             {
+                WeakReferenceMessenger.Default.Send(new ExclusionListUpdatedMessage(true));
                 await RebuildListsAsync();
             }
         }
@@ -83,6 +87,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             if (await _exclusionsManager.RemoveExclusionAsync(package.Id))
             {
+                WeakReferenceMessenger.Default.Send(new ExclusionListUpdatedMessage(false));
                 await RebuildListsAsync();
             }
         }
@@ -96,7 +101,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task RebuildListsAsync(bool forceRefresh = false)
         {
-            var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh, hideExcluded: false);
+            var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh);
             var excludedIds = await _exclusionsManager.GetExclusionsAsync();
 
             _exclusions.Clear();

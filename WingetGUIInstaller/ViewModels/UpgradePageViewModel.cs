@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -17,12 +19,14 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class UpgradePageViewModel : ObservableObject
+    public sealed partial class UpgradePageViewModel : ObservableObject, IRecipient<ExclusionListUpdatedMessage>,
+        IRecipient<ExclusionStatusChangedMessage>
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
 
@@ -55,16 +59,19 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageViewModel _selectedPackage;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager,
-            ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService)
+            ExclusionsManager exclusionsManager, ToastNotificationManager notificationManager,
+            INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
+            _exclusionsManager = exclusionsManager;
             _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
+            WeakReferenceMessenger.Default.RegisterAll(this);
             _ = ListUpgradableItemsAsync();
         }
 
@@ -110,17 +117,8 @@ namespace WingetGUIInstaller.ViewModels
 
         partial void OnFilterTextChanged(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                PackagesView.ClearFiltering();
-            }
-
-            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
-                package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
-                || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
-            );
+            FilterPackageList(value, _exclusionsManager.ExcludedPackagesEnabled);
         }
-
 
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
@@ -130,7 +128,7 @@ namespace WingetGUIInstaller.ViewModels
                 LoadingText = "Loading";
             });
 
-            var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload, hideExcluded: true);
+            var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
 
             _dispatcherQueue.TryEnqueue(() =>
             {
@@ -139,6 +137,7 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     _packages.Add(new WingetPackageViewModel(entry));
                 }
+                FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
                 IsLoading = false;
             });
 
@@ -281,6 +280,37 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             return new List<string>();
+        }
+
+        private void FilterPackageList(string filterText, bool hideExcluded)
+        {
+            if (string.IsNullOrWhiteSpace(filterText) && hideExcluded == false)
+            {
+                PackagesView.ClearFiltering();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(filterText))
+            {
+                PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
+                    !_exclusionsManager.IsExcluded(package.Id));
+                return;
+            }
+
+            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
+                (package.Name.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
+                && !_exclusionsManager.IsExcluded(package.Id));
+        }
+
+        void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)
+        {
+            FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
+        }
+
+        void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
+        {
+            FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
         }
     }
 }
