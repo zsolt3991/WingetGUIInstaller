@@ -29,7 +29,8 @@ namespace WingetGUIInstaller.Services
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
-        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
+        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
@@ -37,25 +38,19 @@ namespace WingetGUIInstaller.Services
                 await LoadInstalledPackageList();
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages ?? new List<WingetPackageEntry>();
-
-            // Filter packages with no source
-            if (_exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+            if (_installedPackages == default || !_installedPackages.Any())
             {
-                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                return new List<WingetPackageEntry>();
             }
 
-            // Filter Ignored Sources
-            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
-            {
-                filteredPackages = filteredPackages
-                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
-            }
-
+            var filteredPackages = ApplyExclusions(_installedPackages, ignoreSourceExclusion, ignorePackageExclusion);
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false)
+
+
+        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
             if (_upgradablePackages == default || forceReload ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
@@ -63,25 +58,17 @@ namespace WingetGUIInstaller.Services
                 await LoadUpgradablePackages();
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages ?? new List<WingetPackageEntry>();
-
-            // Filter packages with no source
-            if (_exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+            if (_upgradablePackages == default || !_upgradablePackages.Any())
             {
-                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                return new List<WingetPackageEntry>();
             }
 
-            // Filter Ignored Sources
-            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
-            {
-                filteredPackages = filteredPackages
-                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
-            }
-
+            var filteredPackages = ApplyExclusions(_upgradablePackages, ignoreSourceExclusion, ignorePackageExclusion);
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false)
+        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
@@ -103,13 +90,7 @@ namespace WingetGUIInstaller.Services
             searchResults = searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
 
-            // Filter Ignored Sources
-            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
-            {
-                searchResults = searchResults
-                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
-            }
-
+            searchResults = ApplyExclusions(searchResults, ignoreSourceExclusion, ignorePackageExclusion);
             return searchResults.ToList();
         }
 
@@ -197,6 +178,32 @@ namespace WingetGUIInstaller.Services
 
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+        }
+
+        private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,
+            bool ignoreSourceExclusion, bool ignorePackageExclusion)
+        {
+            // Filter packages with no source
+            if (!ignoreSourceExclusion && _exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+            {
+                packages = packages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+            }
+
+            // Filter Ignored Sources
+            if (!ignoreSourceExclusion && _exclusionsManager.ExcludedPackageSourcesEnabled)
+            {
+                packages = packages
+                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
+            }
+
+            // Filter Ignored Packages
+            if (!ignorePackageExclusion && _exclusionsManager.ExcludedPackagesEnabled)
+            {
+                packages = packages
+                    .Where(p => !_exclusionsManager.IsPackageExcluded(p.Id));
+            }
+
+            return packages;
         }
 
         private class QueueElement
