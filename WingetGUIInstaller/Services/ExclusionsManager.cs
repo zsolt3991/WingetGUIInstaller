@@ -19,6 +19,9 @@ namespace WingetGUIInstaller.Services
         public bool ExcludedPackagesEnabled => _configurationStore
             .Read(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
 
+        public bool IgnoreEmptyPackageSourcesEnabled => _configurationStore
+           .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+
         public bool ExcludedPackageSourcesEnabled => _configurationStore
             .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
 

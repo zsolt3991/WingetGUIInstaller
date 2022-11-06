@@ -1,10 +1,8 @@
-﻿using CommunityToolkit.WinUI.Helpers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WingetGUIInstaller.Constants;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -17,29 +15,19 @@ namespace WingetGUIInstaller.Services
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
 
         private readonly ConsoleOutputCache _consoleBuffer;
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager)
         {
             _consoleBuffer = consoleOutputCache;
-            _configurationStore = configurationStore;
+            _exclusionsManager = exclusionsManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
-
-        private bool IsFilteringActive => _configurationStore
-            .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
-
-        private bool IgnoreEmptyPackageSource => _configurationStore
-           .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
-
-        private List<string> GetDisabledPackageSources() => _configurationStore
-            .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue)?
-            .Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
 
         public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
         {
@@ -52,16 +40,16 @@ namespace WingetGUIInstaller.Services
             IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages ?? new List<WingetPackageEntry>();
 
             // Filter packages with no source
-            if (IgnoreEmptyPackageSource)
+            if (_exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
             {
                 filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
             // Filter Ignored Sources
-            if (IsFilteringActive)
+            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
             {
                 filteredPackages = filteredPackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
+                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
             }
 
             return filteredPackages.ToList();
@@ -78,16 +66,16 @@ namespace WingetGUIInstaller.Services
             IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages ?? new List<WingetPackageEntry>();
 
             // Filter packages with no source
-            if (IgnoreEmptyPackageSource)
+            if (_exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
             {
                 filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
             }
 
             // Filter Ignored Sources
-            if (IsFilteringActive)
+            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
             {
                 filteredPackages = filteredPackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
+                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
             }
 
             return filteredPackages.ToList();
@@ -115,11 +103,11 @@ namespace WingetGUIInstaller.Services
             searchResults = searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
 
-            // Filter Ignored Sources. No need to check for empty sources here.
-            if (IsFilteringActive)
+            // Filter Ignored Sources
+            if (_exclusionsManager.ExcludedPackageSourcesEnabled)
             {
                 searchResults = searchResults
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
+                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
             }
 
             return searchResults.ToList();
