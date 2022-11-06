@@ -19,14 +19,14 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class UpgradePageViewModel : ObservableObject, IRecipient<ExclusionListUpdatedMessage>,
+    public sealed partial class UpgradePageViewModel : ObservableObject,
+        IRecipient<ExclusionListUpdatedMessage>,
         IRecipient<ExclusionStatusChangedMessage>
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
-        private readonly ExclusionsManager _exclusionsManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
 
@@ -59,13 +59,11 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageViewModel _selectedPackage;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager,
-            ExclusionsManager exclusionsManager, ToastNotificationManager notificationManager,
-            INavigationService<NavigationItemKey> navigationService)
+            ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
-            _exclusionsManager = exclusionsManager;
             _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packages = new ObservableCollection<WingetPackageViewModel>();
@@ -117,8 +115,17 @@ namespace WingetGUIInstaller.ViewModels
 
         partial void OnFilterTextChanged(string value)
         {
-            FilterPackageList(value, _exclusionsManager.ExcludedPackagesEnabled);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                PackagesView.ClearFiltering();
+            }
+
+            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
+                package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+                || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+            );
         }
+
 
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
@@ -137,9 +144,11 @@ namespace WingetGUIInstaller.ViewModels
                 {
                     _packages.Add(new WingetPackageViewModel(entry));
                 }
-                FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
                 IsLoading = false;
-                _notificationManager.ShowUpdateStatus(_packagesView.Count);
+                if (forceReload)
+                {
+                    _notificationManager.ShowUpdateStatus(_packages.Count);
+                }
             });
         }
 
@@ -282,35 +291,14 @@ namespace WingetGUIInstaller.ViewModels
             return new List<string>();
         }
 
-        private void FilterPackageList(string filterText, bool hideExcluded)
+        void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
         {
-            if (string.IsNullOrWhiteSpace(filterText) && hideExcluded == false)
-            {
-                PackagesView.ClearFiltering();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(filterText))
-            {
-                PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
-                    !_exclusionsManager.IsPackageExcluded(package.Id));
-                return;
-            }
-
-            PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
-                (package.Name.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)
-                || package.Id.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
-                && !_exclusionsManager.IsPackageExcluded(package.Id));
+            _ = ListUpgradableItemsAsync(false);
         }
 
         void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)
         {
-            FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
-        }
-
-        void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
-        {
-            FilterPackageList(_filterText, _exclusionsManager.ExcludedPackagesEnabled);
+            _ = ListUpgradableItemsAsync(false);
         }
     }
 }

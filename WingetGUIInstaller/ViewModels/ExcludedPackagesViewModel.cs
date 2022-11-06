@@ -101,11 +101,12 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task RebuildListsAsync(bool forceRefresh = false)
         {
-            var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh);
+            var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh,
+                ignorePackageExclusion: true);
 
             _exclusions.Clear();
             foreach (var exclusion in packages
-                .Where(package => _exclusionsManager.IsPackageExcluded(package.Id))
+                .Where(package => _exclusionsManager.IsPackageExcluded(package.Id, true))
                 .OrderBy(package => package.Name)
                 .Select(package => new WingetPackageViewModel(package)))
             {
@@ -114,7 +115,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _excludables.Clear();
             foreach (var excludable in packages
-               .Where(package => !_exclusionsManager.IsPackageExcluded(package.Id))
+               .Where(package => !_exclusionsManager.IsPackageExcluded(package.Id, true))
                .OrderBy(package => package.Name)
                .Select(package => new WingetPackageViewModel(package)))
             {

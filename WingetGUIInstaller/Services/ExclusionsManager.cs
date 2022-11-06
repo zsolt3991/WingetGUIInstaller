@@ -55,7 +55,7 @@ namespace WingetGUIInstaller.Services
             return false;
         }
 
-        public bool IsPackageExcluded(string exclusionId)
+        public bool IsPackageExcluded(string exclusionId, bool overrideFeatureEnabled = false)
         {
             if (_excludedPackageIds == default)
             {
@@ -63,7 +63,7 @@ namespace WingetGUIInstaller.Services
             }
             if (_excludedPackageIds.Contains(exclusionId))
             {
-                return ExcludedPackagesEnabled;
+                return overrideFeatureEnabled || ExcludedPackagesEnabled;
             }
             return false;
         }

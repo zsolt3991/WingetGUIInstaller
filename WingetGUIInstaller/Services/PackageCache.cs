@@ -163,10 +163,10 @@ namespace WingetGUIInstaller.Services
                 .ExecuteAsync();
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
 
-            // Filter out the upgradable items as well to save one request so that all changes are accounted for
-            _upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
+            //// Filter out the upgradable items as well to save one request so that all changes are accounted for
+            //_upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
-            _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+            //_lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
         }
 
         private async Task LoadUpgradablePackages()
