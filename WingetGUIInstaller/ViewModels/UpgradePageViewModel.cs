@@ -293,14 +293,14 @@ namespace WingetGUIInstaller.ViewModels
             if (string.IsNullOrEmpty(filterText))
             {
                 PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
-                    !_exclusionsManager.IsExcluded(package.Id));
+                    !_exclusionsManager.IsPackageExcluded(package.Id));
                 return;
             }
 
             PackagesView.ApplyFiltering<WingetPackageViewModel>(package =>
                 (package.Name.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)
                 || package.Id.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
-                && !_exclusionsManager.IsExcluded(package.Id));
+                && !_exclusionsManager.IsPackageExcluded(package.Id));
         }
 
         void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)

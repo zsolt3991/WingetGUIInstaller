@@ -75,7 +75,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task AddExcludedPackage(WingetPackageViewModel package)
         {
-            if (await _exclusionsManager.AddExclusionAsync(package.Id))
+            if (_exclusionsManager.AddPackageExclusion(package.Id))
             {
                 WeakReferenceMessenger.Default.Send(new ExclusionListUpdatedMessage(true));
                 await RebuildListsAsync();
@@ -85,7 +85,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task RemoveExcludedPackage(WingetPackageViewModel package)
         {
-            if (await _exclusionsManager.RemoveExclusionAsync(package.Id))
+            if (_exclusionsManager.RemovePackageExclusion(package.Id))
             {
                 WeakReferenceMessenger.Default.Send(new ExclusionListUpdatedMessage(false));
                 await RebuildListsAsync();
@@ -102,11 +102,10 @@ namespace WingetGUIInstaller.ViewModels
         private async Task RebuildListsAsync(bool forceRefresh = false)
         {
             var packages = await _packageCache.GetInstalledPackages(forceReload: forceRefresh);
-            var excludedIds = await _exclusionsManager.GetExclusionsAsync();
 
             _exclusions.Clear();
             foreach (var exclusion in packages
-                .Where(package => excludedIds.Contains(package.Id))
+                .Where(package => _exclusionsManager.IsPackageExcluded(package.Id))
                 .OrderBy(package => package.Name)
                 .Select(package => new WingetPackageViewModel(package)))
             {
@@ -115,7 +114,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _excludables.Clear();
             foreach (var excludable in packages
-               .Where(package => !excludedIds.Contains(package.Id))
+               .Where(package => !_exclusionsManager.IsPackageExcluded(package.Id))
                .OrderBy(package => package.Name)
                .Select(package => new WingetPackageViewModel(package)))
             {

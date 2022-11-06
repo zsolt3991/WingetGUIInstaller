@@ -14,7 +14,7 @@ namespace WingetGUIInstaller.Constants
         public const string SelectedPage = "SelectedPage";
         public const string SelectedTheme = "SelectedTheme";
         public const string ExcludedPackagesEnabled = "ExcludedPackagesEnabled";
-        public const string ExcludedPackagesFileName = "excludedPackages.json";
+        public const string ExcludedPackageIds = "ExcludedPackageIds";
 
         public const bool ConsoleEnabledDefaultValue = true;
         public const bool NotificationsEnabledDefaultValue = true;
@@ -25,5 +25,6 @@ namespace WingetGUIInstaller.Constants
         public const int SelectedPageDefaultValue = (int)NavigationItemKey.Recommendations;
         public const int SelectedThemeDefaultValue = (int)ElementTheme.Default;
         public const bool ExcludedPackagesEnabledDefaultValue = false;
+        public const string ExcludedPackageIdsDefaultValue = "";
     }
 }
