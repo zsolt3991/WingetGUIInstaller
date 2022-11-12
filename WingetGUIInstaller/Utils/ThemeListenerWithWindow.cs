@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WingetGUIInstaller.Utils
 {
-    internal class ThemeListenerWithWindow : IDisposable
+    internal sealed class ThemeListenerWithWindow : IDisposable
     {
         private readonly TimeSpan _eventInterval = TimeSpan.FromMilliseconds(500);
         private readonly CancellationTokenSource _cancellationTokenSource;

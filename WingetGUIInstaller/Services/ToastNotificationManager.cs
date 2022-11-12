@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
-using CommunityToolkit.WinUI.Notifications;
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
+using System;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -14,6 +16,15 @@ namespace WingetGUIInstaller.Services
         public ToastNotificationManager(ApplicationDataStorageHelper configurationStore)
         {
             _configurationStore = configurationStore;
+
+            var notificationManager = AppNotificationManager.Default;
+            notificationManager.NotificationInvoked += OnNotificationInvoked;
+            notificationManager.Register();
+        }
+
+        ~ToastNotificationManager()
+        {
+            AppNotificationManager.Default.Unregister();
         }
 
         private bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
@@ -24,10 +35,11 @@ namespace WingetGUIInstaller.Services
             if (!NotificationsEnabled)
                 return;
 
-            new ToastContentBuilder()
+            var notificationBuilder = new AppNotificationBuilder()
                 .AddText(titleText)
-                .AddText(contentText)
-                .Show();
+                .AddText(contentText);
+
+            AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
         public void ShowPackageOperationStatus(string packageName, InstallOperation installOperation, bool installComplete)
@@ -35,12 +47,13 @@ namespace WingetGUIInstaller.Services
             if (!NotificationsEnabled)
                 return;
 
-            new ToastContentBuilder()
-                .AddText(packageName)
+            var notificationBuilder = new AppNotificationBuilder()
+              .AddText(packageName)
                 .AddText(installComplete ?
                     string.Format("Package {0} successful", installOperation.ToString()) :
-                    string.Format("Package {0} failed", installOperation.ToString()))
-                .Show();
+                    string.Format("Package {0} failed", installOperation.ToString()));
+
+            AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
         public void ShowBatchPackageOperationStatus(InstallOperation installOperation, int attemptedCount, int completedCount)
@@ -48,16 +61,16 @@ namespace WingetGUIInstaller.Services
             if (!NotificationsEnabled)
                 return;
 
-            var toastContent = new ToastContentBuilder()
+            var notificationBuilder = new AppNotificationBuilder()
                 .AddText(string.Format("Package {0} complete", installOperation.ToString()))
                 .AddText(string.Format("Succesful: {0} packages", completedCount));
 
             if (attemptedCount != completedCount)
             {
-                toastContent.AddText(string.Format("Failed: {0} packages", attemptedCount - completedCount));
+                notificationBuilder.AddText(string.Format("Failed: {0} packages", attemptedCount - completedCount));
             }
 
-            toastContent.Show();
+            AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
         public void ShowUpdateStatus(int updateCount)
@@ -65,26 +78,35 @@ namespace WingetGUIInstaller.Services
             if (!NotificationsEnabled)
                 return;
 
-            var toastContent = new ToastContentBuilder();
+            var notificationBuilder = new AppNotificationBuilder();
             if (updateCount > 0)
             {
-                toastContent
-                    .AddArgument("redirect", NavigationItemKey.Upgrades)
+                notificationBuilder
+                    .AddArgument("redirect", NavigationItemKey.Upgrades.ToString())
                     .AddText(string.Format("Found {0} packages that can be upgraded", updateCount));
             }
             else
             {
-                toastContent.AddText("All packages are up to date");
+                notificationBuilder.AddText("All packages are up to date");
             }
 
-            toastContent.Show();
+            AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
-        internal void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
+        internal void HandleToastActivation(AppNotificationActivatedEventArgs notificationArgs)
         {
-            var arguments = ToastArguments.Parse(e.Argument);
-            var redirectLocation = arguments.GetEnum<NavigationItemKey>("redirect");
-            WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
+            if (notificationArgs.Arguments.TryGetValue("redirect", out var redirectLocationString))
+            {
+                if (Enum.TryParse<NavigationItemKey>(redirectLocationString, false, out var redirectLocation))
+                {
+                    WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
+                }
+            }
+        }
+
+        private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+        {
+            HandleToastActivation(args);
         }
     }
 }
