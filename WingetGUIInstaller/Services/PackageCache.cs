@@ -228,7 +228,7 @@ namespace WingetGUIInstaller.Services
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
         }
 
-        private class QueueElement
+        private sealed class QueueElement
         {
             public string PackageId { get; init; }
             public DateTimeOffset LastUpdated { get; set; }
