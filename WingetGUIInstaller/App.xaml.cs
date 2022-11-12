@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.Helpers;
-using CommunityToolkit.WinUI.Notifications;
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.AppNotifications;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -43,10 +44,17 @@ namespace WingetGUIInstaller
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            ToastNotificationManagerCompat.OnActivated += HandleToastActivation;
-            if (!ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
+            var currentInstance = AppInstance.GetCurrent();
+            if (currentInstance.IsCurrent)
             {
                 LaunchAndBringToForegroundIfNeeded();
+                AppActivationArguments activationArgs = currentInstance.GetActivatedEventArgs();
+                ExtendedActivationKind extendedKind = activationArgs.Kind;
+                if (extendedKind == ExtendedActivationKind.AppNotification)
+                {
+                    var notificationActivatedEventArgs = (AppNotificationActivatedEventArgs)activationArgs.Data;
+                    _notificationManager.HandleToastActivation(notificationActivatedEventArgs);
+                }
             }
         }
 
@@ -83,15 +91,6 @@ namespace WingetGUIInstaller
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))
                 .BuildServiceProvider());
-        }
-
-        private void HandleToastActivation(ToastNotificationActivatedEventArgsCompat e)
-        {
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                LaunchAndBringToForegroundIfNeeded();
-                _notificationManager.HandleToastActivation(e);
-            });
         }
 
         private void LaunchAndBringToForegroundIfNeeded()

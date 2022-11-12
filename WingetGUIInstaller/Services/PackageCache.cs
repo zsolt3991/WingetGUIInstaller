@@ -206,7 +206,7 @@ namespace WingetGUIInstaller.Services
             return packages;
         }
 
-        private class QueueElement
+        private sealed class QueueElement
         {
             public string PackageId { get; init; }
             public DateTimeOffset LastUpdated { get; set; }

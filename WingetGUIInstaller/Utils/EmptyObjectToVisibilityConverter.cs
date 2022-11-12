@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml;
 
 namespace WingetGUIInstaller.Utils
 {
-    internal class EmptyObjectToVisibilityConverter : EmptyObjectToObjectConverter
+    internal sealed class EmptyObjectToVisibilityConverter : EmptyObjectToObjectConverter
     {
         public EmptyObjectToVisibilityConverter()
         {
