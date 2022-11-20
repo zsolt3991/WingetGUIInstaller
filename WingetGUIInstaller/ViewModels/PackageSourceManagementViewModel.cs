@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
@@ -178,14 +180,20 @@ namespace WingetGUIInstaller.ViewModels
 
         private void UpdateEnabledPackageList()
         {
+            var listChanged = false;
             foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled))
             {
-                _exclusionsManager.AddPackageSourceExclusion(packageSource.Name);
+                listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource.Name);
             }
 
             foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
             {
-                _exclusionsManager.RemovePackageExclusion(packageSource.Name);
+                listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource.Name);
+            }
+
+            if (listChanged)
+            {
+                WeakReferenceMessenger.Default.Send(new FilterSourcesListUpdatedMessage(true));
             }
         }
 

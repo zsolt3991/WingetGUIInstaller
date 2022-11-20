@@ -21,7 +21,10 @@ namespace WingetGUIInstaller.ViewModels
 {
     public sealed partial class UpgradePageViewModel : ObservableObject,
         IRecipient<ExclusionListUpdatedMessage>,
-        IRecipient<ExclusionStatusChangedMessage>
+        IRecipient<ExclusionStatusChangedMessage>,
+        IRecipient<FilterSourcesListUpdatedMessage>,
+        IRecipient<FilterSourcesStatusChangedMessage>,
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -297,6 +300,21 @@ namespace WingetGUIInstaller.ViewModels
         }
 
         void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<IgnoreEmptySourcesStatusChangedMessage>.Receive(IgnoreEmptySourcesStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<FilterSourcesStatusChangedMessage>.Receive(FilterSourcesStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
         {
             _ = ListUpgradableItemsAsync(false);
         }

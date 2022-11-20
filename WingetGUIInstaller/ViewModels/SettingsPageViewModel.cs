@@ -72,6 +72,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (SetProperty(ref _packageSourceFilteringEnabled, value))
                 {
                     _configurationStore.Save(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
+                    WeakReferenceMessenger.Default.Send(new FilterSourcesStatusChangedMessage(value));
                 }
             }
         }
@@ -85,6 +86,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (SetProperty(ref _ignoreEmptyPackageSourceEnabled, value))
                 {
                     _configurationStore.Save(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, value);
+                    WeakReferenceMessenger.Default.Send(new IgnoreEmptySourcesStatusChangedMessage(value));
                 }
             }
         }

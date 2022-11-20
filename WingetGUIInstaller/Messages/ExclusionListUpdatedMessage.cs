@@ -2,7 +2,7 @@
 
 namespace WingetGUIInstaller.Messages
 {
-    internal class ExclusionListUpdatedMessage : ValueChangedMessage<bool>
+    internal sealed class ExclusionListUpdatedMessage : ValueChangedMessage<bool>
     {
         public ExclusionListUpdatedMessage(bool exclusionAdded) : base(exclusionAdded)
         {

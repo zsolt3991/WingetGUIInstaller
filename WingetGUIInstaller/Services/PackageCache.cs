@@ -47,8 +47,6 @@ namespace WingetGUIInstaller.Services
             return filteredPackages.ToList();
         }
 
-
-
         public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false,
             bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
