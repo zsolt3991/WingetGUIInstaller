@@ -58,6 +58,9 @@
     <None Update="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="Pages\ExcludedPackagesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup Label="Controls">

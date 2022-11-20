@@ -70,6 +70,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ToastNotificationManager>()
                 .AddSingleton<PackageSourceCache>()
                 .AddSingleton<PackageSourceManager>()
+                .AddSingleton<ExclusionsManager>()
                 .AddSingleton<PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
@@ -85,6 +86,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<ImportExportPageViewModel>()
                 .AddSingleton<PackageSourceManagementViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
+                .AddSingleton<ExcludedPackagesViewModel>()
                 .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))

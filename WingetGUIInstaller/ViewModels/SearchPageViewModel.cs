@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -10,13 +11,17 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class SearchPageViewModel : ObservableObject
+    public sealed partial class SearchPageViewModel : ObservableObject,
+        IRecipient<FilterSourcesListUpdatedMessage>,
+        IRecipient<FilterSourcesStatusChangedMessage>,
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -67,6 +72,7 @@ namespace WingetGUIInstaller.ViewModels
             _notificationManager = notificationManager;
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
         public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
@@ -271,6 +277,21 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             return new List<string>();
+        }
+
+        void IRecipient<IgnoreEmptySourcesStatusChangedMessage>.Receive(IgnoreEmptySourcesStatusChangedMessage message)
+        {
+            _ = SearchPackagesAsync();
+        }
+
+        void IRecipient<FilterSourcesStatusChangedMessage>.Receive(FilterSourcesStatusChangedMessage message)
+        {
+            _ = SearchPackagesAsync();
+        }
+
+        void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
+        {
+            _ = SearchPackagesAsync();
         }
     }
 }

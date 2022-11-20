@@ -1,10 +1,8 @@
-﻿using CommunityToolkit.WinUI.Helpers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WingetGUIInstaller.Constants;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 
@@ -17,102 +15,60 @@ namespace WingetGUIInstaller.Services
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
 
         private readonly ConsoleOutputCache _consoleBuffer;
-        private readonly ApplicationDataStorageHelper _configurationStore;
-        private readonly ToastNotificationManager _notificationManager;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ApplicationDataStorageHelper configurationStore,
-            ToastNotificationManager notificationManager)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager)
         {
             _consoleBuffer = consoleOutputCache;
-            _configurationStore = configurationStore;
-            _notificationManager = notificationManager;
+            _exclusionsManager = exclusionsManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
         }
 
-        private bool IsFilteringActive => _configurationStore
-            .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
-
-        private bool IgnoreEmptyPackageSource => _configurationStore
-           .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
-
-        private List<string> GetDisabledPackageSources() => _configurationStore
-            .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue)?
-            .Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
-
-        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false)
+        public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            bool showNotification = false;
             if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
-                showNotification = true;
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _installedPackages ?? new List<WingetPackageEntry>();
-
-            // Filter packages with no source
-            if (IgnoreEmptyPackageSource)
+            if (_installedPackages == default || !_installedPackages.Any())
             {
-                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                return new List<WingetPackageEntry>();
             }
 
-            // Filter Ignored Sources
-            if (IsFilteringActive)
-            {
-                filteredPackages = filteredPackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
-            }
-
-            if (showNotification)
-            {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Count(p => !string.IsNullOrEmpty(p.Available)));
-            }
-
+            var filteredPackages = ApplyExclusions(_installedPackages, ignoreSourceExclusion, ignorePackageExclusion);
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload)
+        public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            bool showNotification = false;
             if (_upgradablePackages == default || forceReload ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
                 await LoadUpgradablePackages();
-                showNotification = true;
             }
 
-            IEnumerable<WingetPackageEntry> filteredPackages = _upgradablePackages ?? new List<WingetPackageEntry>();
-
-            // Filter packages with no source
-            if (IgnoreEmptyPackageSource)
+            if (_upgradablePackages == default || !_upgradablePackages.Any())
             {
-                filteredPackages = filteredPackages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                return new List<WingetPackageEntry>();
             }
 
-            // Filter Ignored Sources
-            if (IsFilteringActive)
-            {
-                filteredPackages = filteredPackages
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
-            }
-
-            if (showNotification)
-            {
-                _notificationManager.ShowUpdateStatus(filteredPackages.Count());
-            }
-
+            var filteredPackages = ApplyExclusions(_upgradablePackages, ignoreSourceExclusion, ignorePackageExclusion);
             return filteredPackages.ToList();
         }
 
-        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool refreshInstalled)
+        public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false,
+            bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            if (_installedPackages == default || refreshInstalled ||
+            if (_installedPackages == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
@@ -132,22 +88,16 @@ namespace WingetGUIInstaller.Services
             searchResults = searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
 
-            // Filter Ignored Sources. No need to check for empty sources here.
-            if (IsFilteringActive)
-            {
-                searchResults = searchResults
-                    .Where(p => !GetDisabledPackageSources().Any(s => string.Equals(s, p.Source, StringComparison.InvariantCultureIgnoreCase)));
-            }
-
+            searchResults = ApplyExclusions(searchResults, ignoreSourceExclusion, ignorePackageExclusion);
             return searchResults.ToList();
         }
 
-        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool refreshDetails = false)
+        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool forceReload = false)
         {
             var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
             if (cachedPackage != default)
             {
-                if (refreshDetails || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
+                if (forceReload || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
                 {
                     return await LoadPackageDetailsAsync(packageId);
                 }
@@ -211,10 +161,10 @@ namespace WingetGUIInstaller.Services
                 .ExecuteAsync();
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
 
-            // Filter out the upgradable items as well to save one request so that all changes are accounted for
-            _upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
+            //// Filter out the upgradable items as well to save one request so that all changes are accounted for
+            //_upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
-            _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+            //_lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
         }
 
         private async Task LoadUpgradablePackages()
@@ -226,6 +176,32 @@ namespace WingetGUIInstaller.Services
 
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+        }
+
+        private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,
+            bool ignoreSourceExclusion, bool ignorePackageExclusion)
+        {
+            // Filter packages with no source
+            if (!ignoreSourceExclusion && _exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+            {
+                packages = packages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+            }
+
+            // Filter Ignored Sources
+            if (!ignoreSourceExclusion && _exclusionsManager.ExcludedPackageSourcesEnabled)
+            {
+                packages = packages
+                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
+            }
+
+            // Filter Ignored Packages
+            if (!ignorePackageExclusion && _exclusionsManager.ExcludedPackagesEnabled)
+            {
+                packages = packages
+                    .Where(p => !_exclusionsManager.IsPackageExcluded(p.Id));
+            }
+
+            return packages;
         }
 
         private sealed class QueueElement

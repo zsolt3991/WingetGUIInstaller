@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -17,7 +19,12 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class UpgradePageViewModel : ObservableObject
+    public sealed partial class UpgradePageViewModel : ObservableObject,
+        IRecipient<ExclusionListUpdatedMessage>,
+        IRecipient<ExclusionStatusChangedMessage>,
+        IRecipient<FilterSourcesListUpdatedMessage>,
+        IRecipient<FilterSourcesStatusChangedMessage>,
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -65,6 +72,7 @@ namespace WingetGUIInstaller.ViewModels
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
+            WeakReferenceMessenger.Default.RegisterAll(this);
             _ = ListUpgradableItemsAsync();
         }
 
@@ -140,8 +148,11 @@ namespace WingetGUIInstaller.ViewModels
                     _packages.Add(new WingetPackageViewModel(entry));
                 }
                 IsLoading = false;
+                if (forceReload)
+                {
+                    _notificationManager.ShowUpdateStatus(_packages.Count);
+                }
             });
-
         }
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
@@ -281,6 +292,31 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             return new List<string>();
+        }
+
+        void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<IgnoreEmptySourcesStatusChangedMessage>.Receive(IgnoreEmptySourcesStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<FilterSourcesStatusChangedMessage>.Receive(FilterSourcesStatusChangedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
+        {
+            _ = ListUpgradableItemsAsync(false);
         }
     }
 }

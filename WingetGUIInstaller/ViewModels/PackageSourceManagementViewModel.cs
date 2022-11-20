@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.Helpers;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -10,8 +10,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
@@ -22,8 +21,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageSourceManager _packageSourceManager;
         private readonly PackageSourceCache _packageSourceCache;
-        private readonly ApplicationDataStorageHelper _configurationStore;
-        private readonly List<string> _disabledPackageSources;
+        private readonly ExclusionsManager _exclusionsManager;
         private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
 
         [ObservableProperty]
@@ -47,13 +45,13 @@ namespace WingetGUIInstaller.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveSelectedPackageSourcesCommand))]
         private WingetPackageSourceViewModel _selectedSource;
 
-        public PackageSourceManagementViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager, PackageSourceCache packageSourceCache, ApplicationDataStorageHelper configurationStore)
+        public PackageSourceManagementViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
+            PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageSourceManager = packageSourceManager;
             _packageSourceCache = packageSourceCache;
-            _configurationStore = configurationStore;
-            _disabledPackageSources = LoadDisabledPackageSources();
+            _exclusionsManager = exclusionsManager;
 
             _packageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             _packageSources.CollectionChanged += PackageSources_CollectionChanged;
@@ -131,7 +129,7 @@ namespace WingetGUIInstaller.ViewModels
             foreach (var entry in wingetSources)
             {
                 _dispatcherQueue.TryEnqueue(() => _packageSources.Add(
-                    new WingetPackageSourceViewModel(entry, !_disabledPackageSources.Contains(entry.Name))));
+                    new WingetPackageSourceViewModel(entry, !_exclusionsManager.IsPackageSourceExcluded(entry.Name, true))));
             }
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
@@ -180,36 +178,23 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        private List<string> LoadDisabledPackageSources()
-        {
-            var serializedValue = _configurationStore
-                .Read(ConfigurationPropertyKeys.DisabledPackageSources, ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue);
-            return serializedValue?.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
-        }
-
-        private void SaveDisabledPackageSources(List<string> packageSources)
-        {
-            var serializedValue = string.Join(';', packageSources);
-            _configurationStore.Save(ConfigurationPropertyKeys.DisabledPackageSources, serializedValue);
-        }
-
         private void UpdateEnabledPackageList()
         {
+            var listChanged = false;
             foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled))
             {
-                if (_disabledPackageSources.Contains(packageSource.Name))
-                    continue;
-                _disabledPackageSources.Add(packageSource.Name);
+                listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource.Name);
             }
 
             foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
             {
-                if (!_disabledPackageSources.Contains(packageSource.Name))
-                    continue;
-                _disabledPackageSources.Remove(packageSource.Name);
+                listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource.Name);
             }
 
-            SaveDisabledPackageSources(_disabledPackageSources);
+            if (listChanged)
+            {
+                WeakReferenceMessenger.Default.Send(new FilterSourcesListUpdatedMessage(true));
+            }
         }
 
         private IEnumerable<string> GetSelectedPackageSourceNames()
