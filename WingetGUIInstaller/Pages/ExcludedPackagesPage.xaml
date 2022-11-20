@@ -92,7 +92,7 @@
             <customControls:ToggleButtonSettingsControl Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                         IsOn="{x:Bind ViewModel.ExcludedPackagesEnabled, Mode=TwoWay}"
                                                         PrimaryText="Enable Excluded Packages"
-                                                        SecondaryText="Enables Packages on the list to be excluded from updates through this application" />
+                                                        SecondaryText="Enables Packages on the list to be excluded from operations through this application" />
         </StackPanel>
 
         <controls:HeaderedContentControl Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
