@@ -3,9 +3,9 @@
 namespace WingetGUIInstaller.Utils
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class PageKeyAttribute : Attribute
+    public class NavigationKeyAttribute : Attribute
     {
-        public PageKeyAttribute(object navigationItemKey)
+        public NavigationKeyAttribute(object navigationItemKey)
         {
             NavigationItemKey = navigationItemKey;
         }

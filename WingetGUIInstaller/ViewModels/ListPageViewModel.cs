@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
@@ -24,7 +26,8 @@ namespace WingetGUIInstaller.ViewModels
         IRecipient<ExclusionStatusChangedMessage>,
         IRecipient<FilterSourcesListUpdatedMessage>,
         IRecipient<FilterSourcesStatusChangedMessage>,
-        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>,
+        INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
@@ -76,7 +79,6 @@ namespace WingetGUIInstaller.ViewModels
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
             WeakReferenceMessenger.Default.RegisterAll(this);
-            _ = LoadInstalledPackages();
         }
 
         public int SelectedCount => _packages.Any(p => p.IsSelected) ?
@@ -87,6 +89,14 @@ namespace WingetGUIInstaller.ViewModels
         public bool IsSelectionUpgradable => _packages.Any(p => p.IsSelected) ?
             _packages.Where(p => p.IsSelected).Any(p => !string.IsNullOrEmpty(p.Available)) :
             SelectedPackage != default && !string.IsNullOrEmpty(SelectedPackage.Available);
+
+        public void OnNavigatedTo(object parameter)
+        {
+            _ = LoadInstalledPackages(false);
+        }
+
+        public void OnNavigatedFrom(NavigationMode navigationMode)
+        { }
 
         [RelayCommand]
         private async Task RefreshPackageList()

@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.Console)]
+    [NavigationKey(Enums.NavigationItemKey.Console)]
     public sealed partial class ConsolePage : Page
     {
         public ConsolePage()

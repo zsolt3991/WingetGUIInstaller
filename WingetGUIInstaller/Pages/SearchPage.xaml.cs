@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.Search)]
+    [NavigationKey(Enums.NavigationItemKey.Search)]
     public sealed partial class SearchPage : Page
     {
         public SearchPageViewModel ViewModel { get; }

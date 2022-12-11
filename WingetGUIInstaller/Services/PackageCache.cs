@@ -21,18 +21,28 @@ namespace WingetGUIInstaller.Services
         private List<WingetPackageEntry> _upgradablePackages;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
+        private bool _installedCacheValidity;
+        private bool _updateCacheValidity;
 
         public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager)
         {
             _consoleBuffer = consoleOutputCache;
             _exclusionsManager = exclusionsManager;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
+            _installedCacheValidity = false;
+            _updateCacheValidity = false;
+        }
+
+        public void InvalidateCache()
+        {
+            _installedCacheValidity = false;
+            _updateCacheValidity = false;
         }
 
         public async Task<List<WingetPackageEntry>> GetInstalledPackages(bool forceReload = false,
             bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            if (_installedPackages == default || forceReload ||
+            if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
@@ -50,7 +60,7 @@ namespace WingetGUIInstaller.Services
         public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false,
             bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            if (_upgradablePackages == default || forceReload ||
+            if (_upgradablePackages == default || forceReload || !_updateCacheValidity ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
                 await LoadUpgradablePackages();
@@ -68,7 +78,7 @@ namespace WingetGUIInstaller.Services
         public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false,
             bool ignoreSourceExclusion = false, bool ignorePackageExclusion = false)
         {
-            if (_installedPackages == default || forceReload ||
+            if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
                 await LoadInstalledPackageList();
@@ -159,12 +169,10 @@ namespace WingetGUIInstaller.Services
             var commandResult = await PackageCommands.GetInstalledPackages()
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage)
                 .ExecuteAsync();
-            _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
 
-            //// Filter out the upgradable items as well to save one request so that all changes are accounted for
-            //_upgradablePackages = _installedPackages.FindAll(p => !string.IsNullOrWhiteSpace(p.Available));
+            _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
-            //_lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+            _installedCacheValidity = true;
         }
 
         private async Task LoadUpgradablePackages()
@@ -176,6 +184,7 @@ namespace WingetGUIInstaller.Services
 
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
+            _updateCacheValidity = true;
         }
 
         private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,

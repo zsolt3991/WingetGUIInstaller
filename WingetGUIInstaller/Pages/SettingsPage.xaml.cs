@@ -7,7 +7,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.Settings)]
+    [NavigationKey(Enums.NavigationItemKey.Settings)]
     public sealed partial class SettingsPage : Page
     {
         public SettingsPageViewModel ViewModel { get; }

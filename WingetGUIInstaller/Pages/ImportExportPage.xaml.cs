@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.ImportExport)]
+    [NavigationKey(Enums.NavigationItemKey.ImportExport)]
     public sealed partial class ImportExportPage : Page
     {
         public ImportExportPage()

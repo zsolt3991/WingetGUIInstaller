@@ -5,9 +5,9 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
-using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller

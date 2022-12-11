@@ -8,15 +8,15 @@ using System;
 using System.Linq;
 using Windows.System;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
-using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(NavigationItemKey.Home)]
+    [NavigationKey(NavigationItemKey.Home)]
     public sealed partial class MainPage : Page
     {
         private readonly ApplicationDataStorageHelper _applicationSettings;
