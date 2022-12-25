@@ -34,7 +34,8 @@ namespace WingetGUIInstaller.Services
             }
             if (_currentFrame == default || _currentFrame.GetHashCode() != frame.GetHashCode())
             {
-                if (_frameStack.TryPeek(out var lastFrame) && lastFrame.GetHashCode() != _currentFrame.GetHashCode())
+                if (_currentFrame != default && _frameStack.TryPeek(out var lastFrame) &&
+                    lastFrame.GetHashCode() != _currentFrame.GetHashCode())
                 {
                     _currentFrame.Navigated -= ActiveFrameNavigated;
                     _frameStack.Push(_currentFrame);
@@ -91,7 +92,18 @@ namespace WingetGUIInstaller.Services
             {
                 throw new ArgumentNullException(nameof(_currentFrame));
             }
+            DispatchNavigatedFrom(_currentFrame, NavigationMode.Back);
             _currentFrame.GoBack();
+        }
+
+        public void GoForward()
+        {
+            if (_currentFrame == default)
+            {
+                throw new ArgumentNullException(nameof(_currentFrame));
+            }
+            DispatchNavigatedFrom(_currentFrame, NavigationMode.Forward);
+            _currentFrame.GoForward();
         }
 
         public void Navigate(TNavigationKey key, object args, NavigationStackMode navigationStackMode)
@@ -123,7 +135,7 @@ namespace WingetGUIInstaller.Services
                 throw new ArgumentException(nameof(_currentFrame));
             }
 
-            DispatchNavigatedFrom(_currentFrame);
+            DispatchNavigatedFrom(_currentFrame, NavigationMode.New);
             var pageType = _pageLocator.GetPageTypeForKey(key);
             _currentFrame.Navigate(pageType, args, transitionInfo);
 
@@ -143,7 +155,7 @@ namespace WingetGUIInstaller.Services
             _frameStack.Clear();
         }
 
-        private static void DispatchNavigatedFrom(Frame frame)
+        private static void DispatchNavigatedFrom(Frame frame, NavigationMode navigationMode = NavigationMode.New)
         {
             if (frame.Content is not Page targetPage)
             {
@@ -153,7 +165,7 @@ namespace WingetGUIInstaller.Services
             {
                 return;
             }
-            navigationAware.OnNavigatedFrom();
+            navigationAware.OnNavigatedFrom(navigationMode);
         }
 
         private static void DispatchNavigatedTo(Frame frame, object parameter)
