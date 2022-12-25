@@ -19,8 +19,11 @@ namespace WingetGUIInstaller.Services
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
+        private List<WingetPackageEntry> _searchResults;
         private DateTimeOffset _lastInstalledPackageRefresh;
         private DateTimeOffset _lastUpgrablePackageRefresh;
+        private DateTimeOffset _lastSearchTime;
+        private string _lastSerarchQuery;
         private bool _installedCacheValidity;
         private bool _updateCacheValidity;
 
@@ -84,18 +87,20 @@ namespace WingetGUIInstaller.Services
                 await LoadInstalledPackageList();
             }
 
-            var searchResults = await PackageCommands.SearchPackages(searchQuery)
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            if (_searchResults == default || forceReload || _lastSerarchQuery != searchQuery ||
+                DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastSearchTime)
+            {
+                await PerformSearchAsync(searchQuery);
+            }
 
-            if (searchResults == default || !searchResults.Any())
+            if (_searchResults == default || !_searchResults.Any())
             {
                 // Return empty result set
                 return new List<WingetPackageEntry>();
             }
 
             // Ignore Packages already installed
-            searchResults = searchResults
+            var searchResults = _searchResults
                 .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
 
             searchResults = ApplyExclusions(searchResults, ignoreSourceExclusion, ignorePackageExclusion);
@@ -185,6 +190,18 @@ namespace WingetGUIInstaller.Services
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
             _updateCacheValidity = true;
+        }
+
+        private async Task PerformSearchAsync(string searchQuery)
+        {
+            // Get all search results for the query
+            var commandResult = await PackageCommands.SearchPackages(searchQuery)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
+                .ExecuteAsync();
+
+            _searchResults = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
+            _lastSearchTime = DateTimeOffset.UtcNow;
+            _lastSerarchQuery = searchQuery;
         }
 
         private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,

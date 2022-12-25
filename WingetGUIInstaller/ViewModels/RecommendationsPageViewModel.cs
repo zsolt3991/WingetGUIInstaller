@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
@@ -18,7 +20,7 @@ using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class RecommendationsPageViewModel : ObservableObject
+    public sealed partial class RecommendationsPageViewModel : ObservableObject, INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
@@ -200,6 +202,15 @@ namespace WingetGUIInstaller.ViewModels
                 default:
                     break;
             }
+        }
+
+        public void OnNavigatedTo(object parameter)
+        {
+            _ = LoadRecommendedItemsAsync();
+        }
+
+        public void OnNavigatedFrom(NavigationMode navigationMode)
+        {
         }
     }
 }
