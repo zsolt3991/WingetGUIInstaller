@@ -9,10 +9,12 @@ namespace WingetGUIInstaller.Services
     public sealed class PackageManager
     {
         private readonly ConsoleOutputCache _consoleBuffer;
+        private readonly PackageCache _packageCache;
 
-        public PackageManager(ConsoleOutputCache consoleBuffer)
+        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache)
         {
             _consoleBuffer = consoleBuffer;
+            _packageCache = packageCache;
         }
 
         public async Task<bool> InstallPacakge(string packageId, Action<WingetProcessState> progressListener = default)
@@ -25,7 +27,12 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            return await command.ExecuteAsync();
+            var result = await command.ExecuteAsync();
+            if(result)
+            {
+                _packageCache.InvalidateCache();
+            }
+            return result;
         }
 
         public async Task<bool> UpgradePackage(string packageId, Action<WingetProcessState> progressListener = default)
@@ -38,7 +45,12 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            return await command.ExecuteAsync();
+            var result = await command.ExecuteAsync(); 
+            if (result)
+            {
+                _packageCache.InvalidateCache();
+            }
+            return result;
         }
 
         public async Task<bool> RemovePackage(string packageId, Action<WingetProcessState> progressListener = default)
@@ -51,7 +63,12 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            return await command.ExecuteAsync();
+            var result = await command.ExecuteAsync();
+            if (result)
+            {
+                _packageCache.InvalidateCache();
+            }
+            return result;
         }
 
         public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)

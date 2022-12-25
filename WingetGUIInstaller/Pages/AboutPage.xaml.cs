@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.About)]
+    [NavigationKey(Enums.NavigationItemKey.About)]
     public sealed partial class AboutPage : Page
     {
         public ApplicationInfoViewModel ViewModel { get; }

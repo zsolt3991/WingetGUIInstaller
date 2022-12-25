@@ -6,7 +6,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.ExcludedPackages)]
+    [NavigationKey(Enums.NavigationItemKey.ExcludedPackages)]
     public sealed partial class ExcludedPackagesPage : Page
     {
         public ExcludedPackagesPage()

@@ -7,7 +7,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(Enums.NavigationItemKey.PackageSources)]
+    [NavigationKey(Enums.NavigationItemKey.PackageSources)]
     public sealed partial class PackageSourceManagementPage : Page
     {
         public PackageSourceManagementPage()

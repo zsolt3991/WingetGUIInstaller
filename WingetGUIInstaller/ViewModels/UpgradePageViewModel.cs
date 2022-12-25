@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
@@ -24,7 +26,8 @@ namespace WingetGUIInstaller.ViewModels
         IRecipient<ExclusionStatusChangedMessage>,
         IRecipient<FilterSourcesListUpdatedMessage>,
         IRecipient<FilterSourcesStatusChangedMessage>,
-        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>,
+        INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -73,7 +76,6 @@ namespace WingetGUIInstaller.ViewModels
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
             WeakReferenceMessenger.Default.RegisterAll(this);
-            _ = ListUpgradableItemsAsync();
         }
 
         public int SelectedCount => _packages.Any(p => p.IsSelected) ?
@@ -82,6 +84,14 @@ namespace WingetGUIInstaller.ViewModels
         public bool CanUpgradeAll => _packages.Any();
 
         public bool CanUpgradeSelected => SelectedCount > 0;
+
+        public void OnNavigatedTo(object parameter)
+        {
+            _ = ListUpgradableItemsAsync(false);
+        }
+
+        public void OnNavigatedFrom(NavigationMode navigationMode)
+        { }
 
         [RelayCommand(CanExecute = nameof(CanUpgradeSelected))]
         private async Task UpgradeSelectedPackages()

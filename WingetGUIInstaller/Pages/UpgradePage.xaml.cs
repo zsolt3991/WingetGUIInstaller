@@ -7,7 +7,7 @@ using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(NavigationItemKey.Upgrades)]
+    [NavigationKey(NavigationItemKey.Upgrades)]
     public sealed partial class UpgradePage : Page
     {
         public UpgradePageViewModel ViewModel { get; }

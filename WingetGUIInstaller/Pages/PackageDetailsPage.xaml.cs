@@ -1,15 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Models;
-using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
 namespace WingetGUIInstaller.Pages
 {
-    [PageKey(NavigationItemKey.PackageDetails)]
+    [NavigationKey(NavigationItemKey.PackageDetails)]
     public sealed partial class PackageDetailsPage : Page
     {
         private readonly INavigationService<NavigationItemKey> _navigationService;

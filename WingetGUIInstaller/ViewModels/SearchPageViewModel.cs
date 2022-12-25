@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
@@ -21,7 +23,8 @@ namespace WingetGUIInstaller.ViewModels
     public sealed partial class SearchPageViewModel : ObservableObject,
         IRecipient<FilterSourcesListUpdatedMessage>,
         IRecipient<FilterSourcesStatusChangedMessage>,
-        IRecipient<IgnoreEmptySourcesStatusChangedMessage>
+        IRecipient<IgnoreEmptySourcesStatusChangedMessage>,
+        INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _notificationManager;
@@ -292,6 +295,15 @@ namespace WingetGUIInstaller.ViewModels
         void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
         {
             _ = SearchPackagesAsync();
+        }
+
+        public void OnNavigatedTo(object parameter)
+        {
+            _ = SearchPackagesAsync();
+        }
+
+        public void OnNavigatedFrom(NavigationMode navigationMode)
+        {
         }
     }
 }

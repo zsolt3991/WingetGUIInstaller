@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.Services
 {
-    public sealed class PageLocatorService<TNavigationKey> where TNavigationKey : Enum
+    public sealed class PageLocatorService<TNavigationKey> : IPageLocatorService<TNavigationKey> where TNavigationKey : Enum
     {
         private IReadOnlyDictionary<TNavigationKey, Type> _pageMap;
 
@@ -25,7 +26,7 @@ namespace WingetGUIInstaller.Services
             // Get instances of types decorated with a Key Attribute
             foreach (var type in currentAssembly.DefinedTypes.Where(type => type.BaseType == pageType))
             {
-                var keyAttribute = type.GetCustomAttribute<PageKeyAttribute>();
+                var keyAttribute = type.GetCustomAttribute<NavigationKeyAttribute>();
                 if (keyAttribute != default)
                 {
                     var pageKey = keyAttribute.NavigationItemKey;

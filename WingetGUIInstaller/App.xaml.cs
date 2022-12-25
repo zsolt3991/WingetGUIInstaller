@@ -6,6 +6,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -71,7 +72,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<PackageSourceCache>()
                 .AddSingleton<PackageSourceManager>()
                 .AddSingleton<ExclusionsManager>()
-                .AddSingleton<PageLocatorService<NavigationItemKey>>()
+                .AddSingleton<IPageLocatorService<NavigationItemKey>, PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
                 .AddSingleton<INavigationService<NavigationItemKey>>(provider => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
