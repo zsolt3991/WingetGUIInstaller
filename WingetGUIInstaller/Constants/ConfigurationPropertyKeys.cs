@@ -5,7 +5,7 @@ namespace WingetGUIInstaller.Constants
 {
     public static class ConfigurationPropertyKeys
     {
-        public const string ConsoleEnabled = "consoleEnabled";
+        public const string AdvancedFunctionalityEnabled = "advancedFunctionalityEnabled";
         public const string NotificationsEnabled = "notificationsEnabled";
         public const string PackageSourceFilteringEnabled = "packageSourceFilteringEnabled";
         public const string DisabledPackageSources = "disabledPackageSources";
@@ -16,7 +16,7 @@ namespace WingetGUIInstaller.Constants
         public const string ExcludedPackagesEnabled = "ExcludedPackagesEnabled";
         public const string ExcludedPackageIds = "ExcludedPackageIds";
 
-        public const bool ConsoleEnabledDefaultValue = true;
+        public const bool AdvancedFunctionalityEnabledDefaultValue = false;
         public const bool NotificationsEnabledDefaultValue = true;
         public const bool PackageSourceFilteringEnabledDefaultValue = false;
         public const string DisabledPackageSourcesDefaultValue = "";

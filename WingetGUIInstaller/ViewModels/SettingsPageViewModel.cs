@@ -21,10 +21,8 @@ namespace WingetGUIInstaller.ViewModels
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
-        private bool? _consoleTabEnabled;
+        private bool? _advancedFunctionalityEnabled;
         private bool? _notificationsEnabled;
-        private bool? _packageSourceFilteringEnabled;
-        private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _automaticUpdatesEnabled;
         private NavigationItemKey? _selectedPage;
         private DisplayTheme? _selectedTheme;
@@ -36,16 +34,16 @@ namespace WingetGUIInstaller.ViewModels
             _updaterSerivce = updaterSerivce;
         }
 
-        public bool ConsoleTabEnabled
+        public bool AdvancedFunctionalityEnabled
         {
-            get => _consoleTabEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.ConsoleEnabled, ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
+            get => _advancedFunctionalityEnabled ??= _configurationStore
+                .Read(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
             set
             {
-                if (SetProperty(ref _consoleTabEnabled, value))
+                if (SetProperty(ref _advancedFunctionalityEnabled, value))
                 {
-                    _configurationStore.Save(ConfigurationPropertyKeys.ConsoleEnabled, value);
-                    WeakReferenceMessenger.Default.Send(new ConsoleEnabledChangeMessage(_consoleTabEnabled.Value));
+                    _configurationStore.Save(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, value);
+                    WeakReferenceMessenger.Default.Send(new ConsoleEnabledChangeMessage(_advancedFunctionalityEnabled.Value));
                 }
             }
         }
@@ -61,35 +59,7 @@ namespace WingetGUIInstaller.ViewModels
                     _configurationStore.Save(ConfigurationPropertyKeys.NotificationsEnabled, value);
                 }
             }
-        }
-
-        public bool PackageSourceFilteringEnabled
-        {
-            get => _packageSourceFilteringEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
-            set
-            {
-                if (SetProperty(ref _packageSourceFilteringEnabled, value))
-                {
-                    _configurationStore.Save(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
-                    WeakReferenceMessenger.Default.Send(new FilterSourcesStatusChangedMessage(value));
-                }
-            }
-        }
-
-        public bool IgnoreEmptyPackageSourceEnabled
-        {
-            get => _ignoreEmptyPackageSourceEnabled ??= _configurationStore
-               .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
-            set
-            {
-                if (SetProperty(ref _ignoreEmptyPackageSourceEnabled, value))
-                {
-                    _configurationStore.Save(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, value);
-                    WeakReferenceMessenger.Default.Send(new IgnoreEmptySourcesStatusChangedMessage(value));
-                }
-            }
-        }
+        }       
 
         public bool AutomaticUpdatesEnabled
         {

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -22,7 +24,10 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageSourceManager _packageSourceManager;
         private readonly PackageSourceCache _packageSourceCache;
         private readonly ExclusionsManager _exclusionsManager;
+        private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
+        private bool? _ignoreEmptyPackageSourceEnabled;
+        private bool? _packageSourceFilteringEnabled;
 
         [ObservableProperty]
         private AdvancedCollectionView _packageSourcesView;
@@ -46,18 +51,46 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageSourceViewModel _selectedSource;
 
         public PackageSourceManagementViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
-            PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager)
+            PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager, ApplicationDataStorageHelper configurationStore)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageSourceManager = packageSourceManager;
             _packageSourceCache = packageSourceCache;
             _exclusionsManager = exclusionsManager;
-
+            _configurationStore = configurationStore;
             _packageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             _packageSources.CollectionChanged += PackageSources_CollectionChanged;
             PackageSourcesView = new AdvancedCollectionView(_packageSources, true);
 
             _ = LoadPackageSourcesAsync();
+        }
+
+        public bool PackageSourceFilteringEnabled
+        {
+            get => _packageSourceFilteringEnabled ??= _configurationStore
+                .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
+            set
+            {
+                if (SetProperty(ref _packageSourceFilteringEnabled, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, value);
+                    WeakReferenceMessenger.Default.Send(new FilterSourcesStatusChangedMessage(value));
+                }
+            }
+        }
+
+        public bool IgnoreEmptyPackageSourceEnabled
+        {
+            get => _ignoreEmptyPackageSourceEnabled ??= _configurationStore
+               .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+            set
+            {
+                if (SetProperty(ref _ignoreEmptyPackageSourceEnabled, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, value);
+                    WeakReferenceMessenger.Default.Send(new IgnoreEmptySourcesStatusChangedMessage(value));
+                }
+            }
         }
 
         public int SelectedCount => _packageSources.Any(p => p.IsSelected) ?
