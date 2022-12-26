@@ -18,7 +18,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class PackageSourceManagementViewModel : ObservableObject
+    public sealed partial class PackageSourcePageViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageSourceManager _packageSourceManager;
@@ -50,7 +50,7 @@ namespace WingetGUIInstaller.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveSelectedPackageSourcesCommand))]
         private WingetPackageSourceViewModel _selectedSource;
 
-        public PackageSourceManagementViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
+        public PackageSourcePageViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
             PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager, ApplicationDataStorageHelper configurationStore)
         {
             _dispatcherQueue = dispatcherQueue;

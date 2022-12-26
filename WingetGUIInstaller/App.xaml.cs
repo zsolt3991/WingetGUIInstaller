@@ -85,7 +85,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<SettingsPageViewModel>()
                 .AddSingleton<ConsolePageViewModel>()
                 .AddSingleton<ImportExportPageViewModel>()
-                .AddSingleton<PackageSourceManagementViewModel>()
+                .AddSingleton<PackageSourcePageViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
                 .AddSingleton<ExcludedPackagesViewModel>()
                 .AddGithubUpdater(options => options

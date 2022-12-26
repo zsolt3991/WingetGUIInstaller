@@ -106,7 +106,7 @@
     <Page Update="Pages\PackageDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Pages\PackageSourceManagementPage.xaml">
+    <Page Update="Pages\PackageSourcePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Pages\RecommendationsPage.xaml">

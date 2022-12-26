@@ -13,10 +13,10 @@ namespace WingetGUIInstaller.Pages
         public PackageSourceManagementPage()
         {
             InitializeComponent();
-            DataContext = ViewModel = Ioc.Default.GetRequiredService<PackageSourceManagementViewModel>();
+            DataContext = ViewModel = Ioc.Default.GetRequiredService<PackageSourcePageViewModel>();
         }
 
-        public PackageSourceManagementViewModel ViewModel { get; }
+        public PackageSourcePageViewModel ViewModel { get; }
 
         private async void AddSource_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
