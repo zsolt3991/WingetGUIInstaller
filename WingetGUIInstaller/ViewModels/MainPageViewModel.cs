@@ -20,7 +20,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
 
         [ObservableProperty]
-        private bool _isConsoleEnabled;
+        private bool _isAdvancedModeEnabled;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
@@ -37,7 +37,7 @@ namespace WingetGUIInstaller.ViewModels
 
             WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>
             {
-                _dispatcherQueue.TryEnqueue(() => IsConsoleEnabled = m.Value);
+                _dispatcherQueue.TryEnqueue(() => IsAdvancedModeEnabled = m.Value);
             });
 
             WeakReferenceMessenger.Default.Register<UpdateAvailableMessage>(this, (r, m) =>
@@ -45,8 +45,8 @@ namespace WingetGUIInstaller.ViewModels
                 _dispatcherQueue.TryEnqueue(() => { Update = m.Value; });
             });
 
-            IsConsoleEnabled = _configurationStore
-                .Read(ConfigurationPropertyKeys.ConsoleEnabled, ConfigurationPropertyKeys.ConsoleEnabledDefaultValue);
+            IsAdvancedModeEnabled = _configurationStore
+                .Read(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
 
             var checkForUpdate = _configurationStore
                 .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);

@@ -23,23 +23,13 @@
                 </Expander.Header>
                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Enable Package Source Filtering"
-                                                                SecondaryText="Enables Results filtering on Package Sources. Package Sources can be Enabled/Disabled under Package Source Management" />
-
-                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Ignore Packages without explicit Package Source"
-                                                                SecondaryText="Packages that do not have a package source will be hidden from results." />
-
-                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                                 IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}"
                                                                 PrimaryText="Enable Notifications" SecondaryText="Enable Windows notifications from the app" />
 
                     <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.ConsoleTabEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Show Console output"
-                                                                SecondaryText="Enables the ability to view raw command ouput for actions" />
+                                                                IsOn="{x:Bind ViewModel.AdvancedFunctionalityEnabled, Mode=TwoWay}"
+                                                                PrimaryText="Advanced Mode"
+                                                                SecondaryText="Enables advanced functionality such as package source management, exclusions, custom commands. Use at your own risk!" />
                     <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" PrimaryText="Default Page"
                                                                  SecondaryText="Change the page that is shown when the application starts up">
                         <customControls:CustomContentSettingsControl.CustomContent>
