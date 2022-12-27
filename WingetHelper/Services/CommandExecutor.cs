@@ -29,7 +29,7 @@ namespace WingetHelper.Services
             if (processStartInfo.UseShellExecute)
             {
                 var outputFile = Path.Combine(AppContext.BaseDirectory, commandId.ToString());
-                var redirectArgs = new List<string> { ">", outputFile };
+                var redirectArgs = new List<string> { ProcessConstants.PipeToFile, outputFile };
                 redirectArgs.ForEach(arg => processStartInfo.ArgumentList.Add(arg));
             }
 
@@ -130,11 +130,12 @@ namespace WingetHelper.Services
                 UseShellExecute = commandMetadata.AsAdministrator ? true : false,
                 RedirectStandardOutput = commandMetadata.AsAdministrator ? false : true,
                 StandardOutputEncoding = commandMetadata.AsAdministrator ? default : Encoding.Default,
-                Verb = commandMetadata.AsAdministrator ? "runas" : string.Empty
+                Verb = commandMetadata.AsAdministrator ? ProcessConstants.RunAsUserCommand : string.Empty
             };
 
-            var processArgs = new List<string> { "/C", ProcessConstants.ExecutableName }.Concat(commandMetadata.Arguments);
-            foreach (var arg in processArgs)
+            processStartInfo.ArgumentList.Add(ProcessConstants.CommandPrefixArgument);
+            processStartInfo.ArgumentList.Add(ProcessConstants.ExecutableName);
+            foreach (var arg in commandMetadata.Arguments)
             {
                 processStartInfo.ArgumentList.Add(arg);
             }

@@ -18,7 +18,7 @@
                 command.AddExtraArguments("--accept-source-agreements");
             }
 
-            if (packageSourceFilter != default)
+            if (!string.IsNullOrEmpty(packageSourceFilter))
             {
                 command.AddExtraArguments("-s", packageSourceFilter);
             }
@@ -30,7 +30,7 @@
             bool ignoreVersions = false, bool acceptPackageAgreements = false, bool acceptSourceAgreements = false)
         {
             var command = new WingetCommandMetadata<object>("import", "-i", filePath)
-                 .ConfigureResultDecoder(commandResult => null);
+                .ConfigureResultDecoder(commandResult => null);
 
             if (ignoreUnavailable)
             {

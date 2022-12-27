@@ -20,28 +20,35 @@ namespace WingetHelper.Commands
 
         public WingetCommandMetadata<TResult> ConfigureProgressListener(Action<WingetProcessState> progressListener)
         {
-            ProgressMonitor = progressListener;
+            ProgressMonitor = progressListener ?? throw new ArgumentNullException(nameof(progressListener));
             return this;
         }
 
         public WingetCommandMetadata<TResult> ConfigureOutputListener(Action<string> outputListener)
         {
-            OutputListener = outputListener;
+            OutputListener = outputListener ?? throw new ArgumentNullException(nameof(outputListener));
             return this;
         }
 
         public WingetCommandMetadata<TResult> ConfigureResultDecoder(Func<IEnumerable<string>, TResult> resultDecoder)
         {
-            ResultDecoder = resultDecoder;
+            ResultDecoder = resultDecoder ?? throw new ArgumentNullException(nameof(resultDecoder));
             return this;
         }
 
         public WingetCommandMetadata<TResult> AddExtraArguments(params string[] arguments)
         {
-            if (arguments.Any())
+            if (arguments == default)
             {
-                Arguments.AddRange(arguments);
+                throw new ArgumentNullException(nameof(arguments));
             }
+
+            if (!arguments.Any())
+            {
+                throw new ArgumentException("Arguments list empty", nameof(arguments));
+            }
+
+            Arguments.AddRange(arguments);
             return this;
         }
 

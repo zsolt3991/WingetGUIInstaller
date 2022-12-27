@@ -78,8 +78,8 @@ namespace WingetHelper.Decoders
                 }
                 else
                 {
-                    dataFields.Add(stringInfo.SubstringByTextElements(consumedLength, column.Length).Trim());
-                    consumedLength += column.Length;
+                    dataFields.Add(stringInfo.SubstringByTextElements(consumedLength, column.MaxLength).Trim());
+                    consumedLength += column.MaxLength;
                 }
             }
             return dataFields;
@@ -109,11 +109,7 @@ namespace WingetHelper.Decoders
                 if ((!char.IsWhiteSpace(textElement, 0) && !columnDetected))
                 {
                     var text = headerStringInfo.SubstringByTextElements(currentStart, currentLength);
-                    columns.Add(new ColumnSpec
-                    {
-                        Length = currentLength,
-                        Name = text.Trim(),
-                    });
+                    columns.Add(new ColumnSpec(text.Trim(), currentLength));
                     currentStart = iterator.ElementIndex;
                     currentLength = 0;
                     columnDetected = true;
@@ -122,12 +118,7 @@ namespace WingetHelper.Decoders
             }
 
             // Add the remaining data as the last column
-            columns.Add(new ColumnSpec
-            {
-                Length = currentLength,
-                Name = headerStringInfo.SubstringByTextElements(currentStart).Trim(),
-                IsLastColumn = true
-            });
+            columns.Add(new ColumnSpec(headerStringInfo.SubstringByTextElements(currentStart).Trim(), currentLength, true));
             return columns;
         }
     }
