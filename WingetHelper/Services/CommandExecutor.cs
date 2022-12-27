@@ -14,7 +14,7 @@ namespace WingetHelper.Services
 {
     internal sealed class CommandExecutor : ICommandExecutor
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public CommandExecutor(ILogger<CommandExecutor> logger)
         {
@@ -46,12 +46,14 @@ namespace WingetHelper.Services
                 {
                     if (processStartInfo.RedirectStandardOutput)
                     {
+                        _logger.LogDebug("[{commandId}] Decoding command output from stdout", commandId);
                         return await HandleOutputAsync(p.StandardOutput, commandMetadata).ConfigureAwait(false);
                     }
                     else
                     {
                         if (!p.HasExited)
                         {
+                            _logger.LogDebug("[{commandId}] Waiting for command execution to complete", commandId);
                             p.WaitForExit(5_000);
                         }
                     }
@@ -64,16 +66,22 @@ namespace WingetHelper.Services
                     {
                         using (var fileReader = File.OpenText(outputFile))
                         {
+                            _logger.LogDebug("[{commandId}] Decoding command output from file: {file}", commandId, outputFile);
                             return await HandleOutputAsync(fileReader, commandMetadata).ConfigureAwait(false);
                         }
                     }
+                    else
+                    {
+                        _logger.LogWarning("[{commandId}] Output file: {file} is missing", commandId, outputFile);
+                    }
                 }
 
+                _logger.LogWarning("[{commandId}] No response for command", commandId);
                 return default;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "[{commandId}] Error executing command.", commandId);
+                _logger.LogError(exception, "[{commandId}] Error executing command", commandId);
                 return default;
             }
         }
