@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using WingetHelper.Models;
 
-namespace WingetHelper.Utils
+namespace WingetHelper.Decoders
 {
     internal static class TabularDataDecoder
     {

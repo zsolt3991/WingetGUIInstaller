@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using WingetHelper.Models;
 
-namespace WingetHelper.Utils
+namespace WingetHelper.Decoders
 {
     internal static class ExpressionDataDecoder
     {

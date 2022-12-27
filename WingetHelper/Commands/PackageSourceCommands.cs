@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using WingetHelper.Models;
-using WingetHelper.Utils;
+using WingetHelper.Decoders;
 
 namespace WingetHelper.Commands
 {
     public static class PackageSourceCommands
     {
-        public static WingetCommand<object> AddPackageSource(string name, string argument, string sourceType)
+        public static WingetCommandMetadata<object> AddPackageSource(string name, string argument, string sourceType)
         {
-            var command = new WingetCommand<object>("source", "add", "-n", name, "-a", argument)
+            var command = new WingetCommandMetadata<object>("source", "add", "-n", name, "-a", argument)
                 .ConfigureResultDecoder(commandResult => commandResult)
-                .UseShellExecute()
-                .AsAdministrator();
+                .RunAsAdministrator();
 
             if (!string.IsNullOrEmpty(sourceType))
             {
@@ -20,17 +19,16 @@ namespace WingetHelper.Commands
             return command;
         }
 
-        public static WingetCommand<object> RemovePackageSource(string name)
+        public static WingetCommandMetadata<object> RemovePackageSource(string name)
         {
-            return new WingetCommand<object>("source", "remove", "-n", name)
+            return new WingetCommandMetadata<object>("source", "remove", "-n", name)
                 .ConfigureResultDecoder(commandResult => commandResult)
-                .UseShellExecute()
-                .AsAdministrator();
+                .RunAsAdministrator();
         }
 
-        public static WingetCommand<IEnumerable<WingetPackageSource>> GetPackageSources()
+        public static WingetCommandMetadata<IEnumerable<WingetPackageSource>> GetPackageSources()
         {
-            return new WingetCommand<IEnumerable<WingetPackageSource>>("source", "list")
+            return new WingetCommandMetadata<IEnumerable<WingetPackageSource>>("source", "list")
                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageSource>(commandResult));
         }
     }

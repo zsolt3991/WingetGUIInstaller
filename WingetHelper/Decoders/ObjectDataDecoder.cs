@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
-namespace WingetHelper.Utils
+namespace WingetHelper.Decoders
 {
     internal static class ObjectDataDecoder
     {

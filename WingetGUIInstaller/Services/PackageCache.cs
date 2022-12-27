@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WingetHelper.Commands;
 using WingetHelper.Models;
+using WingetHelper.Services;
 
 namespace WingetGUIInstaller.Services
 {
@@ -16,6 +17,7 @@ namespace WingetGUIInstaller.Services
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ExclusionsManager _exclusionsManager;
+        private readonly ICommandExecutor _commandExecutor;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
@@ -27,10 +29,11 @@ namespace WingetGUIInstaller.Services
         private bool _installedCacheValidity;
         private bool _updateCacheValidity;
 
-        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager)
+        public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager, ICommandExecutor commandExecutor)
         {
             _consoleBuffer = consoleOutputCache;
             _exclusionsManager = exclusionsManager;
+            _commandExecutor = commandExecutor;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
             _installedCacheValidity = false;
             _updateCacheValidity = false;
@@ -127,9 +130,9 @@ namespace WingetGUIInstaller.Services
 
         private async Task<WingetPackageDetails> LoadPackageDetailsAsync(string packageId)
         {
-            var details = await PackageCommands.GetPackageDetails(packageId)
-               .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-               .ExecuteAsync();
+            var detailsCommand = PackageCommands.GetPackageDetails(packageId)
+               .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            var details = await _commandExecutor.ExecuteCommandAsync(detailsCommand);
 
             if (details == default)
             {
@@ -171,9 +174,9 @@ namespace WingetGUIInstaller.Services
         private async Task LoadInstalledPackageList()
         {
             // Get all installed packages on the system
-            var commandResult = await PackageCommands.GetInstalledPackages()
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            var command = PackageCommands.GetInstalledPackages()
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            var commandResult = await _commandExecutor.ExecuteCommandAsync(command);
 
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
@@ -183,9 +186,9 @@ namespace WingetGUIInstaller.Services
         private async Task LoadUpgradablePackages()
         {
             // Get only packages that have upgrades available
-            var commandResult = await PackageCommands.GetUpgradablePackages()
-              .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-              .ExecuteAsync();
+            var command = PackageCommands.GetUpgradablePackages()
+              .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            var commandResult = await _commandExecutor.ExecuteCommandAsync(command);
 
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
@@ -195,9 +198,9 @@ namespace WingetGUIInstaller.Services
         private async Task PerformSearchAsync(string searchQuery)
         {
             // Get all search results for the query
-            var commandResult = await PackageCommands.SearchPackages(searchQuery)
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            var command = PackageCommands.SearchPackages(searchQuery)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            var commandResult = await _commandExecutor.ExecuteCommandAsync(command);
 
             _searchResults = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastSearchTime = DateTimeOffset.UtcNow;

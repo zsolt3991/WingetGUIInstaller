@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using WingetHelper.Commands;
 using WingetHelper.Models;
+using WingetHelper.Services;
 
 namespace WingetGUIInstaller.Services
 {
@@ -10,11 +11,13 @@ namespace WingetGUIInstaller.Services
     {
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly PackageCache _packageCache;
+        private readonly ICommandExecutor _commandExecutor;
 
-        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache)
+        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache, ICommandExecutor commandExecutor)
         {
             _consoleBuffer = consoleBuffer;
             _packageCache = packageCache;
+            _commandExecutor = commandExecutor;
         }
 
         public async Task<bool> InstallPacakge(string packageId, Action<WingetProcessState> progressListener = default)
@@ -27,8 +30,8 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            var result = await command.ExecuteAsync();
-            if(result)
+            var result = await _commandExecutor.ExecuteCommandAsync(command);
+            if (result)
             {
                 _packageCache.InvalidateCache();
             }
@@ -45,7 +48,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            var result = await command.ExecuteAsync(); 
+            var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
                 _packageCache.InvalidateCache();
@@ -63,7 +66,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            var result = await command.ExecuteAsync();
+            var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
                 _packageCache.InvalidateCache();
@@ -74,16 +77,17 @@ namespace WingetGUIInstaller.Services
         public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)
         {
             var sourceToExport = !string.IsNullOrEmpty(packageSourceFilter) ? packageSourceFilter : null;
-            await PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            var command = PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            await _commandExecutor.ExecuteCommandAsync(command);
+
         }
 
         public async Task ImportPackageList(StorageFile inputFile, bool importVersions, bool ignoreMissing)
         {
-            await PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            var command = PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            await _commandExecutor.ExecuteCommandAsync(command);
         }
     }
 }

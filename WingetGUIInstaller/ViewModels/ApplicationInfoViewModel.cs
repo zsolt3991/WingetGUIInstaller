@@ -6,18 +6,19 @@ using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using WingetHelper.Commands;
+using WingetHelper.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
     public sealed partial class ApplicationInfoViewModel : ObservableObject
     {
         private readonly DispatcherQueue _dispatcherQueue;
-
+        private readonly ICommandExecutor _commandExecutor;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(WingetInstalled))]
         private Version _installedWingetVersion;
 
-        public ApplicationInfoViewModel(DispatcherQueue dispatcherQueue)
+        public ApplicationInfoViewModel(DispatcherQueue dispatcherQueue, ICommandExecutor commandExecutor)
         {
             ApplicationName = Package.Current.DisplayName;
             ApplicationVersion = Package.Current.Id.Version.ToVersion();
@@ -28,6 +29,7 @@ namespace WingetGUIInstaller.ViewModels
             ApplicationReportUrl = new Uri("https://github.com/zsolt3991/WingetGUIInstaller/issues/new/choose");
 
             _dispatcherQueue = dispatcherQueue;
+            _commandExecutor = commandExecutor;
             _ = CheckWingetVersion();
         }
 
@@ -47,7 +49,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task CheckWingetVersion()
         {
-            var installedVersion = await WingetInfo.GetWingetVersion().ExecuteAsync();
+            var installedVersion = await _commandExecutor.ExecuteCommandAsync(GeneralCommands.GetWingetVersion());
             _dispatcherQueue.TryEnqueue(() => InstalledWingetVersion = installedVersion);
         }
     }

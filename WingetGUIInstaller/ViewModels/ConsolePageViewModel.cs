@@ -5,9 +5,11 @@ using Microsoft.UI.Dispatching;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;
+using WingetHelper.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -16,14 +18,15 @@ namespace WingetGUIInstaller.ViewModels
         private const string RegexPattern = @"[ ](?=(?:[^""]*""[^""]*"")*[^""]*$)";
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ConsoleOutputCache _cache;
-
+        private readonly ICommandExecutor _commandExecutor;
         [ObservableProperty]
         private string _commandLine;
 
-        public ConsolePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache)
+        public ConsolePageViewModel(DispatcherQueue dispatcherQueue, ConsoleOutputCache cache, ICommandExecutor commandExecutor)
         {
             _dispatcherQueue = dispatcherQueue;
             _cache = cache;
+            _commandExecutor = commandExecutor;
             WeakReferenceMessenger.Default.Register<CommandlineOutputMessage>(this, ProcessMessage);
         }
 
@@ -38,9 +41,9 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             var arguments = Regex.Split(CommandLine, RegexPattern);
-            var commandResult = await WingetInfo.CustomWingetCommand(arguments)
-                .ConfigureOutputListener(_cache.IngestMessage)
-                .ExecuteAsync();
+            var command = GeneralCommands.CustomWingetCommand(arguments)
+                .ConfigureOutputListener(_cache.IngestMessage);
+            await _commandExecutor.ExecuteCommandAsync(command);
         }
 
         private void ProcessMessage(object recipient, CommandlineOutputMessage message)

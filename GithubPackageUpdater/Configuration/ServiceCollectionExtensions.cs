@@ -5,7 +5,7 @@ using System;
 
 namespace GithubPackageUpdater.Configuration
 {
-    public static class ServiceProviderExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddGithubUpdater(
             this IServiceCollection services, Action<PackageUpdaterOptions> configureOptions)
