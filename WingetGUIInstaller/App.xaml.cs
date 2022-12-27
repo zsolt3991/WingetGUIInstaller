@@ -11,6 +11,7 @@ using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
+using WingetHelper.Extensions;
 
 namespace WingetGUIInstaller
 {
@@ -91,6 +92,7 @@ namespace WingetGUIInstaller
                 .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))
+                .AddWingetHelper()
                 .BuildServiceProvider());
         }
 

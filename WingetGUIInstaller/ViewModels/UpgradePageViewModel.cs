@@ -139,7 +139,6 @@ namespace WingetGUIInstaller.ViewModels
             );
         }
 
-
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
             _dispatcherQueue.TryEnqueue(() =>

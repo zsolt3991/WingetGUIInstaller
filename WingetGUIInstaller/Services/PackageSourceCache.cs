@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WingetHelper.Commands;
 using WingetHelper.Models;
+using WingetHelper.Services;
 
 namespace WingetGUIInstaller.Services
 {
@@ -12,12 +13,14 @@ namespace WingetGUIInstaller.Services
         // Define a Treshold after which data is automatically fetched again
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
         private readonly ConsoleOutputCache _consoleBuffer;
+        private readonly ICommandExecutor _commandExecutor;
         private List<WingetPackageSource> _availablePackageSources;
         private DateTimeOffset _lastAvailablePackageSourcesRefresh;
 
-        public PackageSourceCache(ConsoleOutputCache consoleOutputCache)
+        public PackageSourceCache(ConsoleOutputCache consoleOutputCache, ICommandExecutor commandExecutor)
         {
             _consoleBuffer = consoleOutputCache;
+            _commandExecutor = commandExecutor;
         }
 
         public async Task<List<WingetPackageSource>> GetAvailablePackageSources(bool forceReload = false)
@@ -33,9 +36,9 @@ namespace WingetGUIInstaller.Services
 
         private async Task LoadPackageSourceListAsync()
         {
-            var commandResult = await PackageSourceCommands.GetPackageSources()
-                .ConfigureOutputListener(_consoleBuffer.IngestMessage)
-                .ExecuteAsync();
+            var command = PackageSourceCommands.GetPackageSources()
+                .ConfigureOutputListener(_consoleBuffer.IngestMessage);
+            var commandResult = await _commandExecutor.ExecuteCommandAsync(command);
 
             _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
