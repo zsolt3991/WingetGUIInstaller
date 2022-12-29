@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 using WingetHelper.Services;
@@ -53,7 +52,8 @@ namespace WingetGUIInstaller.Services
 
             _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
-            _logger.LogInformation("Package source cache refreshed at: {time}", _lastAvailablePackageSourcesRefresh);
+            _logger.LogInformation("Package source cache refreshed at: {time} count: {count}",
+                _lastAvailablePackageSourcesRefresh, _availablePackageSources.Count);
         }
     }
 }

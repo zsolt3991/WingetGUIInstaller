@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using Windows.Storage;
-using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 using WingetHelper.Services;
@@ -16,7 +15,8 @@ namespace WingetGUIInstaller.Services
         private readonly ICommandExecutor _commandExecutor;
         private readonly ILogger<PackageManager> _logger;
 
-        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache, ICommandExecutor commandExecutor, ILogger<PackageManager> logger, ILoggerFactory commandLoggerFactory)
+        public PackageManager(ConsoleOutputCache consoleBuffer, PackageCache packageCache, ICommandExecutor commandExecutor,
+            ILogger<PackageManager> logger)
         {
             _consoleBuffer = consoleBuffer;
             _packageCache = packageCache;
@@ -83,6 +83,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)
         {
+            _logger.LogInformation("Exporting package list to: {file}", outputFile.Path);
             var sourceToExport = !string.IsNullOrEmpty(packageSourceFilter) ? packageSourceFilter : null;
             var command = PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
@@ -92,6 +93,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task ImportPackageList(StorageFile inputFile, bool importVersions, bool ignoreMissing)
         {
+            _logger.LogInformation("Importing package list from: {file}", inputFile.Path);
             var command = PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
             await _commandExecutor.ExecuteCommandAsync(command);

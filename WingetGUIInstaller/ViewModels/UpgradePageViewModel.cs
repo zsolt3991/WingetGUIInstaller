@@ -114,7 +114,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
         private void ViewPackageDetails(PackageDetailsViewModel obj)
         {
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
                 PackageDetails = obj,
                 AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update

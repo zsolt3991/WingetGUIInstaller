@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Models;
 using WingetHelper.Services;
@@ -20,7 +19,6 @@ namespace WingetGUIInstaller.Services
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ExclusionsManager _exclusionsManager;
         private readonly ILogger<PackageCache> _logger;
-        private readonly ILoggerFactory _commandLoggerFactory;
         private readonly ICommandExecutor _commandExecutor;
         private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
@@ -34,12 +32,11 @@ namespace WingetGUIInstaller.Services
         private bool _updateCacheValidity;
 
         public PackageCache(ConsoleOutputCache consoleOutputCache, ExclusionsManager exclusionsManager, ICommandExecutor commandExecutor,
-            ILogger<PackageCache> logger, ILoggerFactory commandLoggerFactory)
+            ILogger<PackageCache> logger)
         {
             _consoleBuffer = consoleOutputCache;
             _exclusionsManager = exclusionsManager;
             _logger = logger;
-            _commandLoggerFactory = commandLoggerFactory;
             _commandExecutor = commandExecutor;
             _packageDetailsCache = new ConcurrentQueue<QueueElement>();
             _installedCacheValidity = false;
@@ -48,6 +45,7 @@ namespace WingetGUIInstaller.Services
 
         public void InvalidateCache()
         {
+            _logger.LogInformation("Package cache invalidated");
             _installedCacheValidity = false;
             _updateCacheValidity = false;
         }
@@ -200,7 +198,8 @@ namespace WingetGUIInstaller.Services
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
             _installedCacheValidity = true;
-            _logger.LogInformation("Installed package cache refreshed at: {time}", _lastUpgrablePackageRefresh);
+            _logger.LogInformation("Installed package cache refreshed at: {time} count: {count}",
+                _lastUpgrablePackageRefresh, _installedPackages.Count);
         }
 
         private async Task LoadUpgradablePackages()
@@ -213,7 +212,8 @@ namespace WingetGUIInstaller.Services
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
             _updateCacheValidity = true;
-            _logger.LogInformation("Upgradable package cache refreshed at: {time}", _lastUpgrablePackageRefresh);
+            _logger.LogInformation("Upgradable package cache refreshed at: {time} count: {count}",
+                _lastUpgrablePackageRefresh, _upgradablePackages.Count);
         }
 
         private async Task PerformSearchAsync(string searchQuery)
@@ -226,7 +226,8 @@ namespace WingetGUIInstaller.Services
             _searchResults = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastSearchTime = DateTimeOffset.UtcNow;
             _lastSerarchQuery = searchQuery;
-            _logger.LogInformation("Installed search result cache refreshed at: {time}", _lastUpgrablePackageRefresh);
+            _logger.LogInformation("Installed search result cache refreshed at: {time} count {count}",
+                _lastSearchTime, _searchResults.Count);
         }
 
         private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,
