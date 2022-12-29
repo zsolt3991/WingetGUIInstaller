@@ -2,8 +2,13 @@
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Serilog;
+using System.IO;
+using Windows.Storage;
+using WingetGUIInstaller.Constants;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using WingetGUIInstaller.Contracts;
@@ -22,6 +27,8 @@ namespace WingetGUIInstaller
     {
         private readonly ToastNotificationManager _notificationManager;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ApplicationDataStorageHelper _appDataStorage;
+        private readonly ILogger<App> _logger;
         private static Window _window;
 
         public static Window Window => _window;
@@ -32,11 +39,23 @@ namespace WingetGUIInstaller
         /// </summary>
         public App()
         {
-            ConfigureServices();
-            InitializeComponent();
-            _notificationManager = Ioc.Default.GetRequiredService<ToastNotificationManager>();
-            _dispatcherQueue = Ioc.Default.GetRequiredService<DispatcherQueue>();
             Current.RequestedTheme = ApplicationTheme.Dark;
+            InitializeComponent();
+
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _appDataStorage = ApplicationDataStorageHelper.GetCurrent();
+
+            ConfigureServices();
+
+            _logger = Ioc.Default.GetRequiredService<ILogger<App>>();
+            _notificationManager = Ioc.Default.GetRequiredService<ToastNotificationManager>();
+
+            UnhandledException += App_UnhandledException;
+        }
+
+        private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            _logger.LogCritical(e.Exception, "An unhandled exception has occured");
         }
 
         /// <summary>
@@ -57,15 +76,20 @@ namespace WingetGUIInstaller
                     var notificationActivatedEventArgs = (AppNotificationActivatedEventArgs)activationArgs.Data;
                     _notificationManager.HandleToastActivation(notificationActivatedEventArgs);
                 }
+
+                _logger.LogInformation("Launch Kind: {kind}", args.UWPLaunchActivatedEventArgs.Kind);
+                _logger.LogInformation("Application Version: {version}", Windows.ApplicationModel.Package.Current.Id.Version.ToFormattedString());
             }
         }
 
         private void ConfigureServices()
         {
-            DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Ioc.Default.ConfigureServices(new ServiceCollection()
-                .AddSingleton(dispatcherQueue)
-                .AddSingleton(ApplicationDataStorageHelper.GetCurrent())
+                .AddLogging(builder => builder
+                    .SetMinimumLevel(GetLogLevel())
+                    .AddSerilog(ConfigureLogging(), true))
+                .AddSingleton(_dispatcherQueue)
+                .AddSingleton(_appDataStorage)
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
@@ -96,7 +120,34 @@ namespace WingetGUIInstaller
                 .BuildServiceProvider());
         }
 
-        private void LaunchAndBringToForegroundIfNeeded()
+        private Serilog.ILogger ConfigureLogging()
+        {
+            return new LoggerConfiguration()
+                .MinimumLevel.Is(GetLogLevel().ToSerilogLevel())
+                .WriteTo.File(
+                    Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.LogFileName),
+                    outputTemplate: LoggingConstants.LogTemplate,
+                    rollingInterval: RollingInterval.Day)
+#if DEBUG
+                .WriteTo.Debug(outputTemplate: LoggingConstants.LogTemplate)
+#endif
+                .Enrich.FromLogContext()
+                .CreateLogger();
+        }
+
+        private LogLevel GetLogLevel()
+        {
+            try
+            {
+                return (LogLevel)_appDataStorage.Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+            }
+            catch
+            {
+                return LogLevel.Information;
+            }
+        }
+
+        private static void LaunchAndBringToForegroundIfNeeded()
         {
             if (_window == null)
             {

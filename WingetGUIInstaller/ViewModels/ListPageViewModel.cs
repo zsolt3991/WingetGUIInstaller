@@ -110,7 +110,7 @@ namespace WingetGUIInstaller.ViewModels
             var upgradeOperation = !string.IsNullOrEmpty(_packages.FirstOrDefault(p => p.Id == details.PackageId)?.Available) ?
                 AvailableOperation.Update : AvailableOperation.None;
 
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
                 PackageDetails = details,
                 AvailableOperation = AvailableOperation.Uninstall | upgradeOperation

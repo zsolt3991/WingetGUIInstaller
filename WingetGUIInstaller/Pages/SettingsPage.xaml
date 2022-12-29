@@ -47,6 +47,19 @@
                                       SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}" />
                         </customControls:CustomContentSettingsControl.CustomContent>
                     </customControls:CustomContentSettingsControl>
+                    <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                 PrimaryText="Log verbosity level"
+                                                                 SecondaryText="Change the verbosity of application logs. Requires a restart to apply">
+                        <customControls:CustomContentSettingsControl.CustomContent>
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                      ItemsSource="{x:Bind ViewModel.LogLevels, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedLogLevel, Mode=TwoWay}" />
+                        </customControls:CustomContentSettingsControl.CustomContent>
+                    </customControls:CustomContentSettingsControl>
+                    <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                  ButtonCommand="{x:Bind ViewModel.OpenLogsFolderCommand}"
+                                                                  ButtonText="Open Logs Directory" PrimaryText="Open Logs Directory"
+                                                                  SecondaryText="Open the applicationdata directory containing the application logs" />
                 </StackPanel>
             </Expander>
 

@@ -32,7 +32,7 @@ namespace WingetGUIInstaller.Pages
                     availableOperations |= AvailableOperation.Update;
                 }
 
-                _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+                _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
                 {
                     AvailableOperation = availableOperations,
                     PackageId = recommendedItem.Id,

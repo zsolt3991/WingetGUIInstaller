@@ -114,7 +114,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
         private void ViewPackageDetails(PackageDetailsViewModel obj)
         {
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
                 PackageDetails = obj,
                 AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update
@@ -191,8 +191,9 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task FetchPackageDetailsAsync(WingetPackageViewModel value)
         {
-            // Clear the displayed details on multiple items being selected
-            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
+
+            // Clear the details if value is null
+            if (value == default)
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
@@ -202,8 +203,8 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            // Clear the details if value is null
-            if (value == default)
+            // Clear the displayed details on multiple items being selected
+            if (_packages.Any(p => p.IsSelected && p.Id != value.Id))
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {

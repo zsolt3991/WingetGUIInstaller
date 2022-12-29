@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using WingetHelper.Commands;
 using WingetHelper.Services;
 
@@ -8,15 +9,18 @@ namespace WingetGUIInstaller.Services
     {
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ICommandExecutor _commandExecutor;
+        private readonly ILogger<PackageSourceManager> _logger;
 
-        public PackageSourceManager(ConsoleOutputCache consoleBuffer, ICommandExecutor commandExecutor)
+        public PackageSourceManager(ConsoleOutputCache consoleBuffer, ICommandExecutor commandExecutor, ILogger<PackageSourceManager> logger)
         {
             _consoleBuffer = consoleBuffer;
             _commandExecutor = commandExecutor;
+            _logger = logger;
         }
 
         public async Task AddPackageSource(string packageSourceName, string packageSourceArgument, string packageSourceType = default)
         {
+            _logger.LogInformation("Adding Package source: {name} with url: {url}", packageSourceName, packageSourceArgument);
             var command = PackageSourceCommands.AddPackageSource(packageSourceName, packageSourceArgument, packageSourceType)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
             await _commandExecutor.ExecuteCommandAsync(command);
@@ -24,6 +28,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task RemovePackageSource(string packageSourceName)
         {
+            _logger.LogInformation("Removing Package source: {name}", packageSourceName);
             var command = PackageSourceCommands.RemovePackageSource(packageSourceName)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
             await _commandExecutor.ExecuteCommandAsync(command);

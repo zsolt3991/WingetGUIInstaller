@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.UI;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageSourceManager _packageSourceManager;
         private readonly PackageSourceCache _packageSourceCache;
+        private readonly ILogger<PackageSourcePageViewModel> _logger;
         private readonly ExclusionsManager _exclusionsManager;
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
@@ -51,13 +53,15 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageSourceViewModel _selectedSource;
 
         public PackageSourcePageViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
-            PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager, ApplicationDataStorageHelper configurationStore)
+            PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager,
+            ApplicationDataStorageHelper configurationStore, ILogger<PackageSourcePageViewModel> logger)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageSourceManager = packageSourceManager;
             _packageSourceCache = packageSourceCache;
             _exclusionsManager = exclusionsManager;
             _configurationStore = configurationStore;
+            _logger = logger;
             _packageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             _packageSources.CollectionChanged += PackageSources_CollectionChanged;
             PackageSourcesView = new AdvancedCollectionView(_packageSources, true);
@@ -217,11 +221,13 @@ namespace WingetGUIInstaller.ViewModels
             foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled))
             {
                 listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource.Name);
+                _logger.LogInformation("Adding {name} from package source filter blacklist", packageSource.Name);
             }
 
             foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
             {
                 listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource.Name);
+                _logger.LogInformation("Removing {name} from package source filter blacklist", packageSource.Name);
             }
 
             if (listChanged)

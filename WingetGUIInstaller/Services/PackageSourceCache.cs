@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,13 +15,15 @@ namespace WingetGUIInstaller.Services
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ICommandExecutor _commandExecutor;
+        private readonly ILogger<PackageSourceCache> _logger;
         private List<WingetPackageSource> _availablePackageSources;
         private DateTimeOffset _lastAvailablePackageSourcesRefresh;
 
-        public PackageSourceCache(ConsoleOutputCache consoleOutputCache, ICommandExecutor commandExecutor)
+        public PackageSourceCache(ConsoleOutputCache consoleOutputCache, ICommandExecutor commandExecutor, ILogger<PackageSourceCache> logger)
         {
             _consoleBuffer = consoleOutputCache;
             _commandExecutor = commandExecutor;
+            _logger = logger;
         }
 
         public async Task<List<WingetPackageSource>> GetAvailablePackageSources(bool forceReload = false)
@@ -28,10 +31,17 @@ namespace WingetGUIInstaller.Services
             if (_availablePackageSources == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastAvailablePackageSourcesRefresh)
             {
+                _logger.LogInformation("Package source cache refresh required. Force: {force}", forceReload);
                 await LoadPackageSourceListAsync();
             }
 
-            return _availablePackageSources?.ToList();
+            if (_availablePackageSources == default)
+            {
+                _logger.LogWarning("No package sources available");
+                return new List<WingetPackageSource>();
+            }
+
+            return _availablePackageSources.ToList();
         }
 
         private async Task LoadPackageSourceListAsync()
@@ -42,6 +52,8 @@ namespace WingetGUIInstaller.Services
 
             _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
+            _logger.LogInformation("Package source cache refreshed at: {time} count: {count}",
+                _lastAvailablePackageSourcesRefresh, _availablePackageSources.Count);
         }
     }
 }

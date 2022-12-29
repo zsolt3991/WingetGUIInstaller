@@ -89,7 +89,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
         private void ViewPackageDetails(PackageDetailsViewModel details)
         {
-            _navigationService.Navigate(NavigationItemKey.PackageDetails, new PackageDetailsNavigationArgs
+            _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
                 PackageDetails = details,
                 AvailableOperation = AvailableOperation.Install

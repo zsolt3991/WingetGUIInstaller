@@ -8,8 +8,7 @@ namespace WingetGUIInstaller.Contracts
     {
         public void GoBack();
         void GoForward();
-        public void Navigate(TNavigationKey key, object args, NavigationStackMode navigationStackMode = NavigationStackMode.Add);
-        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo,
-            object args, NavigationStackMode navigationStackMode = NavigationStackMode.Add);
+        public void Navigate(TNavigationKey key, NavigationTransitionInfo transitionInfo = default,
+            object args = default, NavigationStackMode navigationStackMode = NavigationStackMode.Add);
     }
 }

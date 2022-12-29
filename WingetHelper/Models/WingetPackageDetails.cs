@@ -4,7 +4,7 @@ namespace WingetHelper.Models
 {
     public sealed class WingetPackageDetails
     {
-        public string Id { get; set; }
+        public string Id { get; set; } 
 
         public string Name { get; set; }
 
