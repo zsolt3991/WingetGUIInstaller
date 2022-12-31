@@ -17,15 +17,15 @@ using WingetGUIInstaller.ViewModels;
 namespace WingetGUIInstaller.Pages
 {
     [NavigationKey(NavigationItemKey.Home)]
-    public sealed partial class MainPage : Page
+    public sealed partial class HomePage : Page
     {
         private readonly ApplicationDataStorageHelper _applicationSettings;
         private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
         private bool _pageLoaded = false;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
-        public MainPageViewModel ViewModel { get; }
+        public HomePageViewModel ViewModel { get; }
 
-        public MainPage()
+        public HomePage()
         {
             InitializeComponent();
             Loaded += MainPage_Loaded;
@@ -36,7 +36,7 @@ namespace WingetGUIInstaller.Pages
             _defaultPage = (NavigationItemKey)_applicationSettings
                 .Read(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
 
-            DataContext = ViewModel = Ioc.Default.GetRequiredService<MainPageViewModel>();
+            DataContext = ViewModel = Ioc.Default.GetRequiredService<HomePageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
             WeakReferenceMessenger.Default.Register(this, (MessageHandler<object, NavigationRequestedMessage>)((r, m) =>
@@ -86,10 +86,7 @@ namespace WingetGUIInstaller.Pages
         {
             if (e.PropertyName == nameof(ViewModel.IsUpdateAvailable))
             {
-                if (ViewModel.IsUpdateAvailable)
-                {
-                    await UpdateDialog.ShowAsync().AsTask();
-                }
+                await UpdateDialog.ShowAsync().AsTask();
             }
         }
 
