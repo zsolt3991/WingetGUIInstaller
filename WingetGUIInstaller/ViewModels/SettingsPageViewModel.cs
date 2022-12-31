@@ -23,6 +23,7 @@ namespace WingetGUIInstaller.ViewModels
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
+        private readonly ILogger<SettingsPageViewModel> _logger;
         private bool? _advancedFunctionalityEnabled;
         private bool? _notificationsEnabled;
         private bool? _automaticUpdatesEnabled;
@@ -31,10 +32,11 @@ namespace WingetGUIInstaller.ViewModels
         private DisplayTheme? _selectedTheme;
 
         public SettingsPageViewModel(ApplicationDataStorageHelper configurationStore,
-           GithubPackageUpdaterSerivce updaterSerivce)
+           GithubPackageUpdaterSerivce updaterSerivce, ILogger<SettingsPageViewModel> logger)
         {
             _configurationStore = configurationStore;
             _updaterSerivce = updaterSerivce;
+            _logger = logger;
         }
 
         public bool AdvancedFunctionalityEnabled
@@ -62,7 +64,7 @@ namespace WingetGUIInstaller.ViewModels
                     _configurationStore.Save(ConfigurationPropertyKeys.NotificationsEnabled, value);
                 }
             }
-        }       
+        }
 
         public bool AutomaticUpdatesEnabled
         {
@@ -140,10 +142,17 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task CheckForUpdatesAsync()
         {
-            var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
-            if (!checkResult.IsPackageUpToDate)
+            try
             {
-                WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(checkResult));
+                var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
+                if (checkResult != default)
+                {
+                    WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(checkResult));
+                }
+            }
+            catch (Exception updateException)
+            {
+                _logger.LogError(updateException, "Checking for updates failed with error:");
             }
         }
     }

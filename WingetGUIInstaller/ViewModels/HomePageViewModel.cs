@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Models;
 using GithubPackageUpdater.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ using WingetGUIInstaller.Messages;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class MainPageViewModel : ObservableObject
+    public sealed partial class HomePageViewModel : ObservableObject
     {
         private readonly ApplicationDataStorageHelper _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
-
+        private readonly ILogger<HomePageViewModel> _logger;
         [ObservableProperty]
         private bool _isAdvancedModeEnabled;
 
@@ -28,12 +29,13 @@ namespace WingetGUIInstaller.ViewModels
         [NotifyPropertyChangedFor(nameof(UpdateVersion))]
         private PackageUpdateResponse _update;
 
-        public MainPageViewModel(ApplicationDataStorageHelper configurationStore, DispatcherQueue dispatcherQueue,
-            GithubPackageUpdaterSerivce updaterSerivce)
+        public HomePageViewModel(ApplicationDataStorageHelper configurationStore, DispatcherQueue dispatcherQueue,
+            GithubPackageUpdaterSerivce updaterSerivce, ILogger<HomePageViewModel> logger)
         {
             _configurationStore = configurationStore;
             _dispatcherQueue = dispatcherQueue;
             _updaterSerivce = updaterSerivce;
+            _logger = logger;
 
             WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>
             {
@@ -48,10 +50,7 @@ namespace WingetGUIInstaller.ViewModels
             IsAdvancedModeEnabled = _configurationStore
                 .Read(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
 
-            var checkForUpdate = _configurationStore
-                .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
-
-            if (checkForUpdate)
+            if (CheckForUpdate)
             {
                 _ = CheckForUpdatesAsync();
             }
@@ -62,6 +61,9 @@ namespace WingetGUIInstaller.ViewModels
         public Version UpdateVersion => Update?.AvailableUpdateVersion ?? default;
 
         public string UpdateChangeLog => Update?.ChangeLog ?? string.Empty;
+
+        public bool CheckForUpdate => _configurationStore
+            .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
 
         [RelayCommand]
         private async Task InstallUpdateAsync()
@@ -74,10 +76,17 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task CheckForUpdatesAsync()
         {
-            var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
-            if (checkResult != default)
+            try
             {
-                _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
+                var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
+                if (checkResult != default && !checkResult.IsPackageUpToDate)
+                {
+                    _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
+                }
+            }
+            catch (Exception updateException)
+            {
+                _logger.LogError(updateException, "Checking for updates failed with error:");
             }
         }
     }

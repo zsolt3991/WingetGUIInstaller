@@ -13,6 +13,9 @@ namespace WingetGUIInstaller.Controls
         public static readonly DependencyProperty UpdateChangeLogProperty = DependencyProperty
             .Register("UpdateChangeLog", typeof(string), typeof(UpdateDialog), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty UpdateAvailableProperty = DependencyProperty
+            .Register("UpdateAvailable", typeof(bool), typeof(UpdateDialog), new PropertyMetadata(false));
+
         public Version UpdateVersion
         {
             get => (Version)GetValue(UpdateVersionProperty);
@@ -23,6 +26,12 @@ namespace WingetGUIInstaller.Controls
         {
             get => (string)GetValue(UpdateChangeLogProperty);
             set => SetValue(UpdateChangeLogProperty, value);
+        }
+
+        public bool UpdateAvailable
+        {
+            get => (bool)GetValue(UpdateAvailableProperty);
+            set => SetValue(UpdateAvailableProperty, value);
         }
 
         public UpdateDialog()

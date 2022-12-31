@@ -1,4 +1,4 @@
-﻿<Page x:Class="WingetGUIInstaller.Pages.MainPage"
+﻿<Page x:Class="WingetGUIInstaller.Pages.HomePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
@@ -14,6 +14,7 @@
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <customControls:UpdateDialog x:Name="UpdateDialog"
                                      PrimaryButtonCommand="{x:Bind ViewModel.InstallUpdateCommand}"
+                                     UpdateAvailable="{x:Bind ViewModel.IsUpdateAvailable, Mode=OneWay}"
                                      UpdateChangeLog="{x:Bind ViewModel.UpdateChangeLog, Mode=OneWay}"
                                      UpdateVersion="{x:Bind ViewModel.UpdateVersion, Mode=OneWay}" />
 
