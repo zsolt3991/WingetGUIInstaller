@@ -245,9 +245,9 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             // Use the highlighted item if there is no selection
-            if (_selectedSource != default)
+            if (SelectedSource != default)
             {
-                return new List<string>() { _selectedSource.Name };
+                return new List<string>() { SelectedSource.Name };
             }
 
             return new List<string>();

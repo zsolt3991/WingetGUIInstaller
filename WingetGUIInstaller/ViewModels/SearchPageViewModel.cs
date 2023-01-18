@@ -274,9 +274,9 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             // Use the highlighted item if there is no selection
-            if (_selectedPackage != default)
+            if (SelectedPackage != default)
             {
-                return new List<string>() { _selectedPackage.Id };
+                return new List<string>() { SelectedPackage.Id };
             }
 
             return new List<string>();

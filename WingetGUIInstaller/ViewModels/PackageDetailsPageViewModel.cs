@@ -41,11 +41,11 @@ namespace WingetGUIInstaller.ViewModels
             _toastNotificationManager = toastNotificationManager;
         }
 
-        public bool IsInstallSupported => _availableOperation.HasFlag(AvailableOperation.Install);
+        public bool IsInstallSupported => AvailableOperation.HasFlag(AvailableOperation.Install);
 
-        public bool IsUpdateSupported => _availableOperation.HasFlag(AvailableOperation.Update);
+        public bool IsUpdateSupported => AvailableOperation.HasFlag(AvailableOperation.Update);
 
-        public bool IsUninstallSupported => _availableOperation.HasFlag(AvailableOperation.Uninstall);
+        public bool IsUninstallSupported => AvailableOperation.HasFlag(AvailableOperation.Uninstall);
 
         public void UpdateData(PackageDetailsNavigationArgs packageDetails)
         {
@@ -78,7 +78,7 @@ namespace WingetGUIInstaller.ViewModels
                 AvailableOperation = AvailableOperation &= ~AvailableOperation.Install;
             }
 
-            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Install, installresult);
+            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Install, installresult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
@@ -98,7 +98,7 @@ namespace WingetGUIInstaller.ViewModels
                 AvailableOperation = AvailableOperation &= ~AvailableOperation.Update;
             }
 
-            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
+            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
@@ -118,7 +118,7 @@ namespace WingetGUIInstaller.ViewModels
                 AvailableOperation = AvailableOperation &= ~AvailableOperation.Uninstall;
             }
 
-            _toastNotificationManager.ShowPackageOperationStatus(_packageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);
+            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
