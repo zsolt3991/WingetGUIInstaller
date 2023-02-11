@@ -120,6 +120,9 @@
   <data name="AboutNavigationItem.Content" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="AboutPageTitle.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
   <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
     <value>Advanced Functions</value>
   </data>
@@ -128,6 +131,9 @@
   </data>
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
+  </data>
+  <data name="GitHubProjectLink.Text" xml:space="preserve">
+    <value>Check out the project GitHub</value>
   </data>
   <data name="ImportExportPackagesNavigationItem.Content" xml:space="preserve">
     <value>Import/Export Package List</value>
@@ -141,8 +147,14 @@
   <data name="PackageSourcesNavigationItem.Content" xml:space="preserve">
     <value>Package Sources</value>
   </data>
+  <data name="PlatformLabel.Text" xml:space="preserve">
+    <value>Platform:</value>
+  </data>
   <data name="RecommendedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Recommendations</value>
+  </data>
+  <data name="ReportAnIssueLink.Text" xml:space="preserve">
+    <value>Report an issue</value>
   </data>
   <data name="SearchPackagesNavigationItem.Content" xml:space="preserve">
     <value>Search Packages</value>
@@ -152,5 +164,14 @@
   </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
     <value>Update Packages</value>
+  </data>
+  <data name="VersionLabel.Text" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="WingetInstallStatusLabel.Text" xml:space="preserve">
+    <value>Winget Installation Status:</value>
+  </data>
+  <data name="WingetVersionLabel.Text" xml:space="preserve">
+    <value>Winget version:</value>
   </data>
 </root>
