@@ -12,7 +12,6 @@ namespace WingetGUIInstaller.Services
 {
     public sealed class PackageCache
     {
-        private const int DetailsCacheSize = 5;
         // Define a Treshold after which data is automatically fetched again
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
 
@@ -20,7 +19,6 @@ namespace WingetGUIInstaller.Services
         private readonly ExclusionsManager _exclusionsManager;
         private readonly ILogger<PackageCache> _logger;
         private readonly ICommandExecutor _commandExecutor;
-        private readonly ConcurrentQueue<QueueElement> _packageDetailsCache;
         private List<WingetPackageEntry> _installedPackages;
         private List<WingetPackageEntry> _upgradablePackages;
         private List<WingetPackageEntry> _searchResults;
@@ -38,7 +36,6 @@ namespace WingetGUIInstaller.Services
             _exclusionsManager = exclusionsManager;
             _logger = logger;
             _commandExecutor = commandExecutor;
-            _packageDetailsCache = new ConcurrentQueue<QueueElement>();
             _installedCacheValidity = false;
             _updateCacheValidity = false;
         }
@@ -121,73 +118,6 @@ namespace WingetGUIInstaller.Services
             return searchResults.ToList();
         }
 
-        public async Task<WingetPackageDetails> GetPackageDetails(string packageId, bool forceReload = false)
-        {
-            var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
-            if (cachedPackage != default)
-            {
-                if (forceReload || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
-                {
-                    _logger.LogInformation("Package details refresh required. Force: {force}", forceReload);
-                    return await LoadPackageDetailsAsync(packageId);
-                }
-                else
-                {
-                    return cachedPackage.PackageDetails;
-                }
-            }
-
-            return await LoadPackageDetailsAsync(packageId);
-        }
-
-        private async Task<WingetPackageDetails> LoadPackageDetailsAsync(string packageId)
-        {
-            var detailsCommand = PackageCommands.GetPackageDetails(packageId)
-               .ConfigureOutputListener(_consoleBuffer.IngestMessage);
-            var details = await _commandExecutor.ExecuteCommandAsync(detailsCommand);
-
-            if (details == default)
-            {
-                _logger.LogWarning("No package details for packageId: {packageId}", packageId);
-                return default;
-            }
-
-            if (_packageDetailsCache.Count >= DetailsCacheSize)
-            {
-                var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
-                if (cachedPackage != default)
-                {
-                    _logger.LogInformation("Updating cached package details for packageId: {packageId}", packageId);
-                    cachedPackage.PackageDetails = details;
-                    cachedPackage.LastUpdated = DateTimeOffset.UtcNow;
-                }
-                else
-                {
-                    _packageDetailsCache.TryDequeue(out var itemToRemove);
-                    _logger.LogInformation("Removed cached package details for packageId: {packageId}", itemToRemove?.PackageId);
-                    _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
-                    _packageDetailsCache.Enqueue(new QueueElement
-                    {
-                        PackageId = packageId,
-                        PackageDetails = details,
-                        LastUpdated = DateTimeOffset.UtcNow
-                    });
-                }
-            }
-            else
-            {
-                _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
-                _packageDetailsCache.Enqueue(new QueueElement
-                {
-                    PackageId = packageId,
-                    PackageDetails = details,
-                    LastUpdated = DateTimeOffset.UtcNow
-                });
-            }
-
-            return details;
-        }
-
         private async Task LoadInstalledPackageList()
         {
             // Get all installed packages on the system
@@ -254,13 +184,6 @@ namespace WingetGUIInstaller.Services
             }
 
             return packages;
-        }
-
-        private sealed class QueueElement
-        {
-            public string PackageId { get; init; }
-            public DateTimeOffset LastUpdated { get; set; }
-            public WingetPackageDetails PackageDetails { get; set; }
         }
     }
 }
