@@ -31,6 +31,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
+        private readonly PackageDetailsCache _packageDetailsCache;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
 
         [ObservableProperty]
@@ -64,13 +65,15 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageViewModel _selectedPackage;
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue, ToastNotificationManager notificationManager,
-            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService)
+            PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService,
+            PackageDetailsCache packageDetailsCache)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
             _notificationManager = notificationManager;
             _navigationService = navigationService;
+            _packageDetailsCache = packageDetailsCache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _notificationManager = notificationManager;
             _packages.CollectionChanged += Packages_CollectionChanged;
@@ -87,11 +90,11 @@ namespace WingetGUIInstaller.ViewModels
         public bool SearchQueryValid => !string.IsNullOrWhiteSpace(SearchQuery);
 
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
-        private void ViewPackageDetails(PackageDetailsViewModel details)
+        private void ViewPackageDetails(string packageId)
         {
             _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
-                PackageDetails = details,
+                PackageId = packageId,
                 AvailableOperation = AvailableOperation.Install
             });
         }
@@ -145,6 +148,7 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
 
             var successfulInstalls = 0;
             foreach (var id in packageIds)
@@ -164,6 +168,7 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             await SerchPackagesAsync(SearchQuery, true);
         }
 
@@ -197,7 +202,7 @@ namespace WingetGUIInstaller.ViewModels
                 DetailsLoading = true;
             });
 
-            var details = await _packageCache.GetPackageDetails(value.Id);
+            var details = await _packageDetailsCache.GetPackageDetails(value.Id);
             if (details != default)
             {
                 _dispatcherQueue.TryEnqueue(() =>

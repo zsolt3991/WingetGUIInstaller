@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -14,6 +15,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Models;
@@ -114,6 +116,7 @@ namespace WingetGUIInstaller.ViewModels
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
 
             var successfulInstalls = 0;
             foreach (var id in packageIds)
@@ -132,6 +135,7 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             await LoadRecommendedItemsAsync(true);
         }
 

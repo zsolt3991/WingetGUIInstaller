@@ -34,6 +34,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
+        private readonly PackageDetailsCache _packageDetailsCache;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
 
         [ObservableProperty]
@@ -65,13 +66,15 @@ namespace WingetGUIInstaller.ViewModels
         private WingetPackageViewModel _selectedPackage;
 
         public UpgradePageViewModel(DispatcherQueue dispatcherQueue, PackageCache packageCache, PackageManager packageManager,
-            ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService)
+            ToastNotificationManager notificationManager, INavigationService<NavigationItemKey> navigationService,
+            PackageDetailsCache packageDetailsCache)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
             _packageManager = packageManager;
             _notificationManager = notificationManager;
             _navigationService = navigationService;
+            _packageDetailsCache = packageDetailsCache;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
@@ -112,11 +115,11 @@ namespace WingetGUIInstaller.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
-        private void ViewPackageDetails(PackageDetailsViewModel obj)
+        private void ViewPackageDetails(string packageId)
         {
             _navigationService.Navigate(NavigationItemKey.PackageDetails, args: new PackageDetailsNavigationArgs
             {
-                PackageDetails = obj,
+                PackageId = packageId,
                 AvailableOperation = AvailableOperation.Uninstall | AvailableOperation.Update
             });
         }
@@ -166,6 +169,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task UpgradePackagesAsync(IEnumerable<string> packageIds)
         {
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
             _dispatcherQueue.TryEnqueue(() => IsLoading = true);
 
             var successfulInstalls = 0;
@@ -185,6 +189,7 @@ namespace WingetGUIInstaller.ViewModels
             }
 
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             await ListUpgradableItemsAsync(true);
         }
 
@@ -220,7 +225,7 @@ namespace WingetGUIInstaller.ViewModels
                 DetailsLoading = true;
             });
 
-            var details = await _packageCache.GetPackageDetails(value.Id);
+            var details = await _packageDetailsCache.GetPackageDetails(value.Id);
             if (details != default)
             {
                 _dispatcherQueue.TryEnqueue(() =>

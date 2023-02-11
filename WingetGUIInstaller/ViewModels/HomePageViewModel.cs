@@ -20,8 +20,12 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly ILogger<HomePageViewModel> _logger;
+
         [ObservableProperty]
         private bool _isAdvancedModeEnabled;
+
+        [ObservableProperty]
+        private bool _isNavigationAllowed;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
@@ -36,6 +40,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue = dispatcherQueue;
             _updaterSerivce = updaterSerivce;
             _logger = logger;
+            _isNavigationAllowed = true;
 
             WeakReferenceMessenger.Default.Register<ConsoleEnabledChangeMessage>(this, (r, m) =>
             {
@@ -45,6 +50,11 @@ namespace WingetGUIInstaller.ViewModels
             WeakReferenceMessenger.Default.Register<UpdateAvailableMessage>(this, (r, m) =>
             {
                 _dispatcherQueue.TryEnqueue(() => { Update = m.Value; });
+            });
+
+            WeakReferenceMessenger.Default.Register<TopLevelNavigationAllowedMessage>(this, (r, m) =>
+            {
+                _dispatcherQueue.TryEnqueue(() => { IsNavigationAllowed = m.Value; });
             });
 
             IsAdvancedModeEnabled = _configurationStore

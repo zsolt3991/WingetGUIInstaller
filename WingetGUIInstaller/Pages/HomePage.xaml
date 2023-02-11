@@ -21,6 +21,7 @@
         <controls:NavigationView x:Name="NavView"
                                  BackRequested="NavView_BackRequested" IsBackButtonVisible="Visible"
                                  IsBackEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
+                                 IsEnabled="{x:Bind ViewModel.IsNavigationAllowed, Mode=OneWay}"
                                  IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
