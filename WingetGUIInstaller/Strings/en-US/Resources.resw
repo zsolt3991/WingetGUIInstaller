@@ -126,11 +126,20 @@
   <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
     <value>Advanced Functions</value>
   </data>
+  <data name="CommandLineTextBlock.PlaceholderText" xml:space="preserve">
+    <value>Enter command to execute</value>
+  </data>
   <data name="ConsoleNavigationItem.Content" xml:space="preserve">
     <value>Console</value>
   </data>
+  <data name="ConsolePageTitle.Text" xml:space="preserve">
+    <value>Live Output</value>
+  </data>
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
+  </data>
+  <data name="ExecuteButton.Content" xml:space="preserve">
+    <value>Execute</value>
   </data>
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
