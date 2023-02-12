@@ -138,8 +138,23 @@
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
   </data>
+  <data name="ExcludedPackagesPageTitle.Text" xml:space="preserve">
+    <value>Excluded Packages</value>
+  </data>
+  <data name="ExclusionEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Excluded Packages</value>
+  </data>
+  <data name="ExclusionEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enables Packages on the list to be excluded from operations through this application</value>
+  </data>
   <data name="ExecuteButton.Content" xml:space="preserve">
     <value>Execute</value>
+  </data>
+  <data name="FilterExcludable.PlaceholderText" xml:space="preserve">
+    <value>Filter packages to exclude</value>
+  </data>
+  <data name="FilterExcluded.PlaceholderText" xml:space="preserve">
+    <value>Filter Excluded Packages</value>
   </data>
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
@@ -152,6 +167,15 @@
   </data>
   <data name="InstalledPackagesNavigationItem.Content" xml:space="preserve">
     <value>Installed Packages</value>
+  </data>
+  <data name="ManageExcludedPackagesLabel.Text" xml:space="preserve">
+    <value>Manage excluded packages</value>
+  </data>
+  <data name="PackageSelectorDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="PackageSelectorDialog.Title" xml:space="preserve">
+    <value>Select Package</value>
   </data>
   <data name="PackageSourcesNavigationItem.Content" xml:space="preserve">
     <value>Package Sources</value>
