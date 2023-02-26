@@ -195,11 +195,17 @@
   <data name="ImportExportPackagesNavigationItem.Content" xml:space="preserve">
     <value>Import/Export Package List</value>
   </data>
+  <data name="InstallAllRecommended.Content" xml:space="preserve">
+    <value>Install all recommended</value>
+  </data>
   <data name="InstallationOptionsNavigationHeader.Content" xml:space="preserve">
     <value>Installation Options</value>
   </data>
   <data name="InstalledPackagesNavigationItem.Content" xml:space="preserve">
     <value>Installed Packages</value>
+  </data>
+  <data name="InstallSelected.Content" xml:space="preserve">
+    <value>Install selected</value>
   </data>
   <data name="LaunchPageSelection.PrimaryText" xml:space="preserve">
     <value>Default Page</value>
@@ -240,8 +246,14 @@
   <data name="PackageSourcesNavigationItem.Content" xml:space="preserve">
     <value>Package Sources</value>
   </data>
+  <data name="PackagesSelectedCount.Text" xml:space="preserve">
+    <value>package(s) selected</value>
+  </data>
   <data name="PlatformLabel.Text" xml:space="preserve">
     <value>Platform:</value>
+  </data>
+  <data name="RecommendationsPageTitle.Text" xml:space="preserve">
+    <value>Recommendations</value>
   </data>
   <data name="RecommendedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Recommendations</value>
