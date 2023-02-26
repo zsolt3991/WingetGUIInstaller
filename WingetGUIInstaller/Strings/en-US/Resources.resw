@@ -171,6 +171,9 @@
   <data name="DataGridInstalledVersionColumn.Header" xml:space="preserve">
     <value>Installed Version</value>
   </data>
+  <data name="DataGridPackageIdColumn.Header" xml:space="preserve">
+    <value>Package Id</value>
+  </data>
   <data name="DataGridPackageNameColumn.Header" xml:space="preserve">
     <value>Package Name</value>
   </data>
@@ -210,6 +213,9 @@
   <data name="ImportExportPackagesNavigationItem.Content" xml:space="preserve">
     <value>Import/Export Package List</value>
   </data>
+  <data name="InstallAll.Content" xml:space="preserve">
+    <value>Install all</value>
+  </data>
   <data name="InstallAllRecommended.Content" xml:space="preserve">
     <value>Install all recommended</value>
   </data>
@@ -217,6 +223,9 @@
     <value>Installation Options</value>
   </data>
   <data name="InstalledPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Installed Packages</value>
+  </data>
+  <data name="InstalledPackagesPageTitle.Text" xml:space="preserve">
     <value>Installed Packages</value>
   </data>
   <data name="InstallSelected.Content" xml:space="preserve">
@@ -279,7 +288,13 @@
   <data name="ReportAnIssueLink.Text" xml:space="preserve">
     <value>Report an issue</value>
   </data>
+  <data name="SearchButton.Content" xml:space="preserve">
+    <value>Search</value>
+  </data>
   <data name="SearchPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Search Packages</value>
+  </data>
+  <data name="SearchPackagesPageTitle.Text" xml:space="preserve">
     <value>Search Packages</value>
   </data>
   <data name="SettingsNavigationItem.Content" xml:space="preserve">
@@ -287,6 +302,9 @@
   </data>
   <data name="SettingsPageTitle.Text" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="UninstallSelected.Content" xml:space="preserve">
+    <value>Uninstall selected</value>
   </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
     <value>Update Packages</value>
