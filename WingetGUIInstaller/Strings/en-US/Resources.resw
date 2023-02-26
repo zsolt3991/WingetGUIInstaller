@@ -165,6 +165,18 @@
   <data name="ConsolePageTitle.Text" xml:space="preserve">
     <value>Live Output</value>
   </data>
+  <data name="DataGridAvailableVersionColumn.Header" xml:space="preserve">
+    <value>Available Version</value>
+  </data>
+  <data name="DataGridInstalledVersionColumn.Header" xml:space="preserve">
+    <value>Installed Version</value>
+  </data>
+  <data name="DataGridPackageNameColumn.Header" xml:space="preserve">
+    <value>Package Name</value>
+  </data>
+  <data name="DataGridPackageSourceColumn.Header" xml:space="preserve">
+    <value>Source</value>
+  </data>
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
   </data>
@@ -185,6 +197,9 @@
   </data>
   <data name="FilterExcluded.PlaceholderText" xml:space="preserve">
     <value>Filter Excluded Packages</value>
+  </data>
+  <data name="FilterPackages.PlaceholderText" xml:space="preserve">
+    <value>Filter Packages</value>
   </data>
   <data name="GeneralSettingsHeader.Text" xml:space="preserve">
     <value>General Settings</value>
@@ -258,6 +273,9 @@
   <data name="RecommendedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Recommendations</value>
   </data>
+  <data name="RefreshGlyphButtonTooltip.Content" xml:space="preserve">
+    <value>Refresh (F5)</value>
+  </data>
   <data name="ReportAnIssueLink.Text" xml:space="preserve">
     <value>Report an issue</value>
   </data>
@@ -272,6 +290,15 @@
   </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
     <value>Update Packages</value>
+  </data>
+  <data name="UpgradeAll.Content" xml:space="preserve">
+    <value>Upgrade all</value>
+  </data>
+  <data name="UpgradePackagesPageTitle.Text" xml:space="preserve">
+    <value>Upgrade Packages</value>
+  </data>
+  <data name="UpgradeSelected.Content" xml:space="preserve">
+    <value>Upgrade selected</value>
   </data>
   <data name="VersionLabel.Text" xml:space="preserve">
     <value>Version:</value>
