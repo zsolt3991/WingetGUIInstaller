@@ -126,6 +126,36 @@
   <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
     <value>Advanced Functions</value>
   </data>
+  <data name="AdvancedModeToggle.PrimaryText" xml:space="preserve">
+    <value>Advanced Mode</value>
+  </data>
+  <data name="AdvancedModeToggle.SecondaryText" xml:space="preserve">
+    <value>Enables advanced functionality such as package source management, exclusions, custom commands. Use at your own risk!</value>
+  </data>
+  <data name="ApplicationThemeSelection.PrimaryText" xml:space="preserve">
+    <value>Application Theme</value>
+  </data>
+  <data name="ApplicationThemeSelection.SecondaryText" xml:space="preserve">
+    <value>Change the application theme manually or follow system default</value>
+  </data>
+  <data name="ApplicationUpdateSettingsHeader.Text" xml:space="preserve">
+    <value>Application Updates</value>
+  </data>
+  <data name="AutomaticUpdatesEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Automatically check for updates</value>
+  </data>
+  <data name="AutomaticUpdatesEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enables checking for updates on application startup</value>
+  </data>
+  <data name="CheckForUpdates.ButtonText" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="CheckForUpdates.PrimaryText" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="CheckForUpdates.SecondaryText" xml:space="preserve">
+    <value>Check manually for application updates</value>
+  </data>
   <data name="CommandLineTextBlock.PlaceholderText" xml:space="preserve">
     <value>Enter command to execute</value>
   </data>
@@ -156,6 +186,9 @@
   <data name="FilterExcluded.PlaceholderText" xml:space="preserve">
     <value>Filter Excluded Packages</value>
   </data>
+  <data name="GeneralSettingsHeader.Text" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
   </data>
@@ -168,8 +201,35 @@
   <data name="InstalledPackagesNavigationItem.Content" xml:space="preserve">
     <value>Installed Packages</value>
   </data>
+  <data name="LaunchPageSelection.PrimaryText" xml:space="preserve">
+    <value>Default Page</value>
+  </data>
+  <data name="LaunchPageSelection.SecondaryText" xml:space="preserve">
+    <value>Change the page that is shown when the application starts up</value>
+  </data>
+  <data name="LogLevelSelection.PrimaryText" xml:space="preserve">
+    <value>Log verbosity level</value>
+  </data>
+  <data name="LogLevelSelection.SecondaryText" xml:space="preserve">
+    <value>Change the verbosity of application logs. Requires a restart to apply</value>
+  </data>
   <data name="ManageExcludedPackagesLabel.Text" xml:space="preserve">
     <value>Manage excluded packages</value>
+  </data>
+  <data name="NotificationsEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Notifications</value>
+  </data>
+  <data name="NotificationsEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enable Windows notifications from the app</value>
+  </data>
+  <data name="OpenLogsDirectory.ButtonText" xml:space="preserve">
+    <value>Open Logs Directory</value>
+  </data>
+  <data name="OpenLogsDirectory.PrimaryText" xml:space="preserve">
+    <value>Open Logs Directory</value>
+  </data>
+  <data name="OpenLogsDirectory.SecondaryText" xml:space="preserve">
+    <value>Open the applicationdata directory containing the application logs</value>
   </data>
   <data name="PackageSelectorDialog.PrimaryButtonText" xml:space="preserve">
     <value>Select</value>
@@ -193,6 +253,9 @@
     <value>Search Packages</value>
   </data>
   <data name="SettingsNavigationItem.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsPageTitle.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
