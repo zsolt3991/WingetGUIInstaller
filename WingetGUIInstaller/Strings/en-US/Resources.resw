@@ -126,6 +126,18 @@
   <data name="AddPackageSource.Content" xml:space="preserve">
     <value>Add package source</value>
   </data>
+  <data name="AddPackageSourceArgument.Text" xml:space="preserve">
+    <value>Source URL</value>
+  </data>
+  <data name="AddPackageSourceDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddPackageSourceDialog.Title" xml:space="preserve">
+    <value>Add Package Source</value>
+  </data>
+  <data name="AddPackageSourceName.Text" xml:space="preserve">
+    <value>Source Name</value>
+  </data>
   <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
     <value>Advanced Functions</value>
   </data>
@@ -134,6 +146,9 @@
   </data>
   <data name="AdvancedModeToggle.SecondaryText" xml:space="preserve">
     <value>Enables advanced functionality such as package source management, exclusions, custom commands. Use at your own risk!</value>
+  </data>
+  <data name="AlreadyOnLatestVersion.Text" xml:space="preserve">
+    <value>You are already on the latest version</value>
   </data>
   <data name="ApplicationThemeSelection.PrimaryText" xml:space="preserve">
     <value>Application Theme</value>
@@ -212,6 +227,9 @@
   </data>
   <data name="DeleteSelectedPackageSources.Content" xml:space="preserve">
     <value>Delete selected</value>
+  </data>
+  <data name="DescriptionField.Text" xml:space="preserve">
+    <value>Description:</value>
   </data>
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
@@ -345,6 +363,9 @@
   <data name="ManagePackageSourcesHeader.Text" xml:space="preserve">
     <value>Manage package sources</value>
   </data>
+  <data name="MoreButtonTooltip.Content" xml:space="preserve">
+    <value>More</value>
+  </data>
   <data name="NotificationsEnabledToggle.PrimaryText" xml:space="preserve">
     <value>Enable Notifications</value>
   </data>
@@ -359,6 +380,9 @@
   </data>
   <data name="OpenLogsDirectory.SecondaryText" xml:space="preserve">
     <value>Open the applicationdata directory containing the application logs</value>
+  </data>
+  <data name="PackageNameField.Text" xml:space="preserve">
+    <value>Package:</value>
   </data>
   <data name="PackageSelectorDialog.PrimaryButtonText" xml:space="preserve">
     <value>Select</value>
@@ -426,8 +450,20 @@
   <data name="UninstallSelected.Content" xml:space="preserve">
     <value>Uninstall selected</value>
   </data>
+  <data name="UpdateApplicationDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Update Now</value>
+  </data>
+  <data name="UpdateApplicationDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Update Later</value>
+  </data>
+  <data name="UpdateAvailableVersion.Text" xml:space="preserve">
+    <value>New version available:</value>
+  </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
     <value>Update Packages</value>
+  </data>
+  <data name="UpdateUnavailable.Text" xml:space="preserve">
+    <value>No updates available</value>
   </data>
   <data name="Upgrade.Content" xml:space="preserve">
     <value>Upgrade</value>

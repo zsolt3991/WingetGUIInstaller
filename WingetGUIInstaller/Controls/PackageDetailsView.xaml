@@ -19,7 +19,7 @@
         <TextBlock Grid.Row="0" Grid.Column="0" Margin="5,2" MaxLines="1"
                    Style="{StaticResource SubtitleTextBlockStyle}"
                    TextTrimming="WordEllipsis">
-            <Run Text="Package:" />
+            <Run x:Uid="PackageNameField" />
             <Run Text="{x:Bind PackageDetails.PackageName, Mode=OneWay}" />
             <Run Text="[" />
             <Run Text="{x:Bind PackageDetails.PackageId, Mode=OneWay}" />
@@ -30,8 +30,10 @@
                 Command="{x:Bind MoreButtonCommand, Mode=OneWay}"
                 CommandParameter="{x:Bind PackageDetails.PackageId, Mode=OneWay}"
                 Style="{ThemeResource AccentButtonStyle}"
-                ToolTipService.ToolTip="More"
                 Visibility="{x:Bind MoreButtonVisibility, Mode=OneWay}">
+            <ToolTipService.ToolTip>
+                <ToolTip x:Uid="MoreButtonTooltip" />
+            </ToolTipService.ToolTip>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE712;" />
         </Button>
 
@@ -41,21 +43,21 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        TextTrimming="WordEllipsis"
                        Visibility="{x:Bind PackageDetails.PackageAuthor, Converter={StaticResource stringVisibilityConverter}, Mode=OneWay}">
-                <Run Text="Author:" />
+                <Run x:Uid="AuthorField" />
                 <Run Text="{x:Bind PackageDetails.PackageAuthor, Mode=OneWay}" />
             </TextBlock>
             <TextBlock Margin="10,2,5,2" MaxLines="1"
                        Style="{StaticResource BodyTextBlockStyle}"
                        TextTrimming="WordEllipsis"
                        Visibility="{x:Bind PackageDetails.Description, Converter={StaticResource stringVisibilityConverter}, Mode=OneWay}">
-                <Run Text="Description:" />
+                <Run x:Uid="DescriptionField" />
                 <Run Text="{x:Bind PackageDetails.Description, Mode=OneWay}" />
             </TextBlock>
             <TextBlock Margin="10,2,5,2" MaxLines="1"
                        Style="{StaticResource BodyTextBlockStyle}"
                        TextTrimming="WordEllipsis"
                        Visibility="{x:Bind PackageDetails.PackageURL, Converter={StaticResource linkVisibilityConverter}, Mode=OneWay}">
-                <Run Text="URL:" />
+                <Run x:Uid="HomePageField" />
                 <Hyperlink NavigateUri="{x:Bind PackageDetails.PackageURL, Mode=OneWay}">
                     <Run Text="{x:Bind PackageDetails.PackageURL, Mode=OneWay}" />
                 </Hyperlink>

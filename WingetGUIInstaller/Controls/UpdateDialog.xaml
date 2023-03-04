@@ -2,10 +2,9 @@
                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
-               xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls" HorizontalAlignment="Center"
-               VerticalAlignment="Center"
+               xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls" x:Uid="UpdateApplicationDialog"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
                IsPrimaryButtonEnabled="{x:Bind UpdateAvailable, Mode=OneWay}"
-               PrimaryButtonText="Update Now" SecondaryButtonText="Dismiss"
                Style="{StaticResource DefaultContentDialogStyle}">
 
     <ContentDialog.Resources>
@@ -15,13 +14,13 @@
         <toolkit:SwitchPresenter Value="{x:Bind UpdateAvailable, Mode=OneWay, Converter={StaticResource boolToStringConverter}}">
             <toolkit:Case Value="True">
                 <TextBlock Margin="5" Style="{ThemeResource SubtitleTextBlockStyle}">
-                    <Run Text="New version available:" />
+                    <Run x:Uid="UpdateAvailableVersion" />
                     <Run Text="{x:Bind UpdateVersion, Mode=OneWay}" />
                 </TextBlock>
             </toolkit:Case>
             <toolkit:Case Value="False">
                 <TextBlock Margin="5" Style="{ThemeResource SubtitleTextBlockStyle}">
-                    <Run Text="No updates available" />
+                    <Run x:Uid="UpdateUnavailable" />
                 </TextBlock>
             </toolkit:Case>
         </toolkit:SwitchPresenter>
@@ -37,7 +36,7 @@
             </toolkit:Case>
             <toolkit:Case Value="False">
                 <TextBlock Margin="5" Style="{ThemeResource BodyTextBlockStyle}">
-                    <Run Text="You already have the latest version." />
+                    <Run x:Uid="AlreadyOnLatestVersion" />
                 </TextBlock>
             </toolkit:Case>
         </toolkit:SwitchPresenter>
