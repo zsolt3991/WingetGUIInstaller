@@ -123,6 +123,9 @@
   <data name="AboutPageTitle.Text" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="AddPackageSource.Content" xml:space="preserve">
+    <value>Add package source</value>
+  </data>
   <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
     <value>Advanced Functions</value>
   </data>
@@ -180,6 +183,9 @@
   <data name="DataGridAvailableVersionColumn.Header" xml:space="preserve">
     <value>Available Version</value>
   </data>
+  <data name="DataGridEnabledColumn.Header" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
   <data name="DataGridInstalledVersionColumn.Header" xml:space="preserve">
     <value>Installed Version</value>
   </data>
@@ -189,8 +195,17 @@
   <data name="DataGridPackageNameColumn.Header" xml:space="preserve">
     <value>Package Name</value>
   </data>
+  <data name="DataGridPackageSourceArgumentColumn.Header" xml:space="preserve">
+    <value>Source Url</value>
+  </data>
   <data name="DataGridPackageSourceColumn.Header" xml:space="preserve">
     <value>Source</value>
+  </data>
+  <data name="DataGridPackageSourceNameColumn.Header" xml:space="preserve">
+    <value>Soruce Name</value>
+  </data>
+  <data name="DeleteSelectedPackageSources.Content" xml:space="preserve">
+    <value>Delete selected</value>
   </data>
   <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
     <value>Excluded Packages</value>
@@ -225,6 +240,12 @@
   <data name="ExportVersionsToggle.SecondaryText" xml:space="preserve">
     <value>Include the currently installed package version in the exported list</value>
   </data>
+  <data name="FilterEnabledPackageSourcesToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Package Source Filtering</value>
+  </data>
+  <data name="FilterEnabledPackageSourcesToggle.SecondaryText" xml:space="preserve">
+    <value>Enables Results filtering on Package Sources. Package Sources can be Enabled/Disabled under Package Source Management</value>
+  </data>
   <data name="FilterExcludable.PlaceholderText" xml:space="preserve">
     <value>Filter packages to exclude</value>
   </data>
@@ -234,11 +255,20 @@
   <data name="FilterPackages.PlaceholderText" xml:space="preserve">
     <value>Filter Packages</value>
   </data>
+  <data name="FilterPackageSources.PlaceholderText" xml:space="preserve">
+    <value>Filter Package sources</value>
+  </data>
   <data name="GeneralSettingsHeader.Text" xml:space="preserve">
     <value>General Settings</value>
   </data>
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
+  </data>
+  <data name="IgnoreEmptyPackageSourceToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Packages without explicit Package Source</value>
+  </data>
+  <data name="IgnoreEmptyPackageSourceToggle.SecondaryText" xml:space="preserve">
+    <value>Packages that do not have a package source will be hidden from results.</value>
   </data>
   <data name="IgnoreImportedUnavailableToggle.PrimaryText" xml:space="preserve">
     <value>Ignore Unavailable Packages</value>
@@ -297,6 +327,9 @@
   <data name="ManageExcludedPackagesLabel.Text" xml:space="preserve">
     <value>Manage excluded packages</value>
   </data>
+  <data name="ManagePackageSourcesHeader.Text" xml:space="preserve">
+    <value>Manage package sources</value>
+  </data>
   <data name="NotificationsEnabledToggle.PrimaryText" xml:space="preserve">
     <value>Enable Notifications</value>
   </data>
@@ -320,6 +353,12 @@
   </data>
   <data name="PackageSourcesNavigationItem.Content" xml:space="preserve">
     <value>Package Sources</value>
+  </data>
+  <data name="PackageSourcesPageTitle.Text" xml:space="preserve">
+    <value>Package Sources</value>
+  </data>
+  <data name="PackageSourcesSelectedCount.Text" xml:space="preserve">
+    <value>package source(s) selected</value>
   </data>
   <data name="PackagesSelectedCount.Text" xml:space="preserve">
     <value>package(s) selected</value>
