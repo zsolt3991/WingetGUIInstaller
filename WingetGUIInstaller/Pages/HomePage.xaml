@@ -24,30 +24,30 @@
                                  IsEnabled="{x:Bind ViewModel.IsNavigationAllowed, Mode=OneWay}"
                                  IsSettingsVisible="False" OpenPaneLength="280" SelectionChanged="NavView_SelectionChnage">
             <controls:NavigationView.MenuItems>
-                <controls:NavigationViewItemHeader x:Name="MainPagesHeader" Content="Installation Options" />
+                <controls:NavigationViewItemHeader x:Name="MainPagesHeader" x:Uid="InstallationOptionsNavigationHeader" />
 
-                <controls:NavigationViewItem Content="Recommendations" Icon="SolidStar"
+                <controls:NavigationViewItem x:Uid="RecommendedPackagesNavigationItem" Icon="SolidStar"
                                              Tag="{x:Bind enums:NavigationItemKey.Recommendations}" />
-                <controls:NavigationViewItem Content="Search Packages" Icon="Find"
+                <controls:NavigationViewItem x:Uid="SearchPackagesNavigationItem" Icon="Find"
                                              Tag="{x:Bind enums:NavigationItemKey.Search}" />
-                <controls:NavigationViewItem Content="Update Packages" Icon="Refresh"
+                <controls:NavigationViewItem x:Uid="UpdatePackagesNavigationItem" Icon="Refresh"
                                              Tag="{x:Bind enums:NavigationItemKey.Upgrades}" />
-                <controls:NavigationViewItem Content="Installed Packages" Icon="AllApps"
+                <controls:NavigationViewItem x:Uid="InstalledPackagesNavigationItem" Icon="AllApps"
                                              Tag="{x:Bind enums:NavigationItemKey.InstalledPackages}" />
 
                 <controls:NavigationViewItemHeader x:Name="AdvancedPagesHeader"
-                                                   Content="Advanced Functions"
+                                                   x:Uid="AdvancedFuntionsNavigationHeader"
                                                    Visibility="{x:Bind ViewModel.IsAdvancedModeEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}" />
-                <controls:NavigationViewItem Content="Excluded Packages" Icon="DisableUpdates"
+                <controls:NavigationViewItem x:Uid="ExcludedPackagesNavigationItem" Icon="DisableUpdates"
                                              Tag="{x:Bind enums:NavigationItemKey.ExcludedPackages}"
                                              Visibility="{x:Bind ViewModel.IsAdvancedModeEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}" />
-                <controls:NavigationViewItem Content="Import/Export Pacakge List" Icon="Import"
+                <controls:NavigationViewItem x:Uid="ImportExportPackagesNavigationItem" Icon="Import"
                                              Tag="{x:Bind enums:NavigationItemKey.ImportExport}"
                                              Visibility="{x:Bind ViewModel.IsAdvancedModeEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}" />
-                <controls:NavigationViewItem Content="Package Sources" Icon="Manage"
+                <controls:NavigationViewItem x:Uid="PackageSourcesNavigationItem" Icon="Manage"
                                              Tag="{x:Bind enums:NavigationItemKey.PackageSources}"
                                              Visibility="{x:Bind ViewModel.IsAdvancedModeEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}" />
-                <controls:NavigationViewItem Content="Console"
+                <controls:NavigationViewItem x:Uid="ConsoleNavigationItem"
                                              Tag="{x:Bind enums:NavigationItemKey.Console}"
                                              Visibility="{x:Bind ViewModel.IsAdvancedModeEnabled, Mode=OneWay, Converter={StaticResource visibilityConverter}}">
                     <NavigationViewItem.Icon>
@@ -56,9 +56,9 @@
                 </controls:NavigationViewItem>
             </controls:NavigationView.MenuItems>
             <controls:NavigationView.FooterMenuItems>
-                <controls:NavigationViewItem Content="Settings" Icon="Setting"
+                <controls:NavigationViewItem x:Uid="SettingsNavigationItem" Icon="Setting"
                                              Tag="{x:Bind enums:NavigationItemKey.Settings}" />
-                <controls:NavigationViewItem Content="About" Tag="{x:Bind enums:NavigationItemKey.About}">
+                <controls:NavigationViewItem x:Uid="AboutNavigationItem" Tag="{x:Bind enums:NavigationItemKey.About}">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
                     </NavigationViewItem.Icon>

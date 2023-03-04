@@ -1,0 +1,492 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AboutNavigationItem.Content" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AboutPageTitle.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AddPackageSource.Content" xml:space="preserve">
+    <value>Add package source</value>
+  </data>
+  <data name="AddPackageSourceArgument.Text" xml:space="preserve">
+    <value>Source URL</value>
+  </data>
+  <data name="AddPackageSourceDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddPackageSourceDialog.Title" xml:space="preserve">
+    <value>Add Package Source</value>
+  </data>
+  <data name="AddPackageSourceName.Text" xml:space="preserve">
+    <value>Source Name</value>
+  </data>
+  <data name="AdvancedFuntionsNavigationHeader.Content" xml:space="preserve">
+    <value>Advanced Functions</value>
+  </data>
+  <data name="AdvancedModeToggle.PrimaryText" xml:space="preserve">
+    <value>Advanced Mode</value>
+  </data>
+  <data name="AdvancedModeToggle.SecondaryText" xml:space="preserve">
+    <value>Enables advanced functionality such as package source management, exclusions, custom commands. Use at your own risk!</value>
+  </data>
+  <data name="AlreadyOnLatestVersion.Text" xml:space="preserve">
+    <value>You are already on the latest version</value>
+  </data>
+  <data name="ApplicationThemeSelection.PrimaryText" xml:space="preserve">
+    <value>Application Theme</value>
+  </data>
+  <data name="ApplicationThemeSelection.SecondaryText" xml:space="preserve">
+    <value>Change the application theme manually or follow system default</value>
+  </data>
+  <data name="ApplicationUpdateSettingsHeader.Text" xml:space="preserve">
+    <value>Application Updates</value>
+  </data>
+  <data name="AuthorField.Text" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="AutomaticUpdatesEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Automatically check for updates</value>
+  </data>
+  <data name="AutomaticUpdatesEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enables checking for updates on application startup</value>
+  </data>
+  <data name="BrowseExportFile.ButtonText" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="BrowseExportFile.PrimaryText" xml:space="preserve">
+    <value>Browse for output file</value>
+  </data>
+  <data name="BrowseImportFile.ButtonText" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="BrowseImportFile.PrimaryText" xml:space="preserve">
+    <value>Browse for package list JSON file</value>
+  </data>
+  <data name="CheckForUpdates.ButtonText" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="CheckForUpdates.PrimaryText" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="CheckForUpdates.SecondaryText" xml:space="preserve">
+    <value>Check manually for application updates</value>
+  </data>
+  <data name="CommandLineTextBlock.PlaceholderText" xml:space="preserve">
+    <value>Enter command to execute</value>
+  </data>
+  <data name="ConsoleNavigationItem.Content" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="ConsolePageTitle.Text" xml:space="preserve">
+    <value>Live Output</value>
+  </data>
+  <data name="CopyrightField.Text" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="DataGridAvailableVersionColumn.Header" xml:space="preserve">
+    <value>Available Version</value>
+  </data>
+  <data name="DataGridEnabledColumn.Header" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="DataGridInstalledVersionColumn.Header" xml:space="preserve">
+    <value>Installed Version</value>
+  </data>
+  <data name="DataGridPackageIdColumn.Header" xml:space="preserve">
+    <value>Package Id</value>
+  </data>
+  <data name="DataGridPackageNameColumn.Header" xml:space="preserve">
+    <value>Package Name</value>
+  </data>
+  <data name="DataGridPackageSourceArgumentColumn.Header" xml:space="preserve">
+    <value>Source Url</value>
+  </data>
+  <data name="DataGridPackageSourceColumn.Header" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="DataGridPackageSourceNameColumn.Header" xml:space="preserve">
+    <value>Soruce Name</value>
+  </data>
+  <data name="DeleteSelectedPackageSources.Content" xml:space="preserve">
+    <value>Delete selected</value>
+  </data>
+  <data name="DescriptionField.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="ExcludedPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Excluded Packages</value>
+  </data>
+  <data name="ExcludedPackagesPageTitle.Text" xml:space="preserve">
+    <value>Excluded Packages</value>
+  </data>
+  <data name="ExclusionEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Excluded Packages</value>
+  </data>
+  <data name="ExclusionEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enables Packages on the list to be excluded from operations through this application</value>
+  </data>
+  <data name="ExecuteButton.Content" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="ExportPackageListButton.Content" xml:space="preserve">
+    <value>Export Package List</value>
+  </data>
+  <data name="ExportPackagesHeader.Text" xml:space="preserve">
+    <value>Export Package List</value>
+  </data>
+  <data name="ExportSourceSelector.PrimaryText" xml:space="preserve">
+    <value>Export packages from source</value>
+  </data>
+  <data name="ExportSourceSelector.SecondaryText" xml:space="preserve">
+    <value>Export only packages installed from selected package source</value>
+  </data>
+  <data name="ExportVersionsToggle.PrimaryText" xml:space="preserve">
+    <value>Include Versions</value>
+  </data>
+  <data name="ExportVersionsToggle.SecondaryText" xml:space="preserve">
+    <value>Include the currently installed package version in the exported list</value>
+  </data>
+  <data name="FilterEnabledPackageSourcesToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Package Source Filtering</value>
+  </data>
+  <data name="FilterEnabledPackageSourcesToggle.SecondaryText" xml:space="preserve">
+    <value>Enables Results filtering on Package Sources. Package Sources can be Enabled/Disabled under Package Source Management</value>
+  </data>
+  <data name="FilterExcludable.PlaceholderText" xml:space="preserve">
+    <value>Filter packages to exclude</value>
+  </data>
+  <data name="FilterExcluded.PlaceholderText" xml:space="preserve">
+    <value>Filter Excluded Packages</value>
+  </data>
+  <data name="FilterPackages.PlaceholderText" xml:space="preserve">
+    <value>Filter Packages</value>
+  </data>
+  <data name="FilterPackageSources.PlaceholderText" xml:space="preserve">
+    <value>Filter Package sources</value>
+  </data>
+  <data name="GeneralSettingsHeader.Text" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="GitHubProjectLink.Text" xml:space="preserve">
+    <value>Check out the project GitHub</value>
+  </data>
+  <data name="HomePageField.Text" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="IgnoreEmptyPackageSourceToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Packages without explicit Package Source</value>
+  </data>
+  <data name="IgnoreEmptyPackageSourceToggle.SecondaryText" xml:space="preserve">
+    <value>Packages that do not have a package source will be hidden from results.</value>
+  </data>
+  <data name="IgnoreImportedUnavailableToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Unavailable Packages</value>
+  </data>
+  <data name="IgnoreImportedUnavailableToggle.SecondaryText" xml:space="preserve">
+    <value>Ignore packages present in the packages list that are not available anymore</value>
+  </data>
+  <data name="IgnoreImportedVersionToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Versions</value>
+  </data>
+  <data name="IgnoreImportedVersionToggle.SecondaryText" xml:space="preserve">
+    <value>Ignore version specification if present in the packages list and install latest available version</value>
+  </data>
+  <data name="ImportExportPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Import/Export Package List</value>
+  </data>
+  <data name="ImportExportPageTitle.Text" xml:space="preserve">
+    <value>Import/Export Package List</value>
+  </data>
+  <data name="ImportPackageListButton.Content" xml:space="preserve">
+    <value>Import Package List</value>
+  </data>
+  <data name="ImportPackagesHeader.Text" xml:space="preserve">
+    <value>Import Package List</value>
+  </data>
+  <data name="Install.Content" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="InstallAll.Content" xml:space="preserve">
+    <value>Install all</value>
+  </data>
+  <data name="InstallAllRecommended.Content" xml:space="preserve">
+    <value>Install all recommended</value>
+  </data>
+  <data name="InstallationOptionsNavigationHeader.Content" xml:space="preserve">
+    <value>Installation Options</value>
+  </data>
+  <data name="InstalledPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Installed Packages</value>
+  </data>
+  <data name="InstalledPackagesPageTitle.Text" xml:space="preserve">
+    <value>Installed Packages</value>
+  </data>
+  <data name="InstallSelected.Content" xml:space="preserve">
+    <value>Install selected</value>
+  </data>
+  <data name="LaunchPageSelection.PrimaryText" xml:space="preserve">
+    <value>Default Page</value>
+  </data>
+  <data name="LaunchPageSelection.SecondaryText" xml:space="preserve">
+    <value>Change the page that is shown when the application starts up</value>
+  </data>
+  <data name="LicenseField.Text" xml:space="preserve">
+    <value>License:</value>
+  </data>
+  <data name="LogLevelSelection.PrimaryText" xml:space="preserve">
+    <value>Log verbosity level</value>
+  </data>
+  <data name="LogLevelSelection.SecondaryText" xml:space="preserve">
+    <value>Change the verbosity of application logs. Requires a restart to apply</value>
+  </data>
+  <data name="ManageExcludedPackagesLabel.Text" xml:space="preserve">
+    <value>Manage excluded packages</value>
+  </data>
+  <data name="ManagePackageSourcesHeader.Text" xml:space="preserve">
+    <value>Manage package sources</value>
+  </data>
+  <data name="MoreButtonTooltip.Content" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="NotificationsEnabledToggle.PrimaryText" xml:space="preserve">
+    <value>Enable Notifications</value>
+  </data>
+  <data name="NotificationsEnabledToggle.SecondaryText" xml:space="preserve">
+    <value>Enable Windows notifications from the app</value>
+  </data>
+  <data name="OpenLogsDirectory.ButtonText" xml:space="preserve">
+    <value>Open Logs Directory</value>
+  </data>
+  <data name="OpenLogsDirectory.PrimaryText" xml:space="preserve">
+    <value>Open Logs Directory</value>
+  </data>
+  <data name="OpenLogsDirectory.SecondaryText" xml:space="preserve">
+    <value>Open the applicationdata directory containing the application logs</value>
+  </data>
+  <data name="PackageNameField.Text" xml:space="preserve">
+    <value>Package:</value>
+  </data>
+  <data name="PackageSelectorDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="PackageSelectorDialog.Title" xml:space="preserve">
+    <value>Select Package</value>
+  </data>
+  <data name="PackageSourcesNavigationItem.Content" xml:space="preserve">
+    <value>Package Sources</value>
+  </data>
+  <data name="PackageSourcesPageTitle.Text" xml:space="preserve">
+    <value>Package Sources</value>
+  </data>
+  <data name="PackageSourcesSelectedCount.Text" xml:space="preserve">
+    <value>package source(s) selected</value>
+  </data>
+  <data name="PackagesSelectedCount.Text" xml:space="preserve">
+    <value>package(s) selected</value>
+  </data>
+  <data name="PlatformLabel.Text" xml:space="preserve">
+    <value>Platform:</value>
+  </data>
+  <data name="PrivacyField.Text" xml:space="preserve">
+    <value>Privacy:</value>
+  </data>
+  <data name="PublisherField.Text" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
+  <data name="RecommendationsPageTitle.Text" xml:space="preserve">
+    <value>Recommendations</value>
+  </data>
+  <data name="RecommendedPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Recommendations</value>
+  </data>
+  <data name="RefreshGlyphButtonTooltip.Content" xml:space="preserve">
+    <value>Refresh (F5)</value>
+  </data>
+  <data name="ReleaseNotesField.Text" xml:space="preserve">
+    <value>Release Notes URL:</value>
+  </data>
+  <data name="ReportAnIssueLink.Text" xml:space="preserve">
+    <value>Report an issue</value>
+  </data>
+  <data name="SearchButton.Content" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchPackagesNavigationItem.Content" xml:space="preserve">
+    <value>Search Packages</value>
+  </data>
+  <data name="SearchPackagesPageTitle.Text" xml:space="preserve">
+    <value>Search Packages</value>
+  </data>
+  <data name="SettingsNavigationItem.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsPageTitle.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SupportField.Text" xml:space="preserve">
+    <value>Support:</value>
+  </data>
+  <data name="Uninstall.Content" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="UninstallSelected.Content" xml:space="preserve">
+    <value>Uninstall selected</value>
+  </data>
+  <data name="UpdateApplicationDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Update Now</value>
+  </data>
+  <data name="UpdateApplicationDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Update Later</value>
+  </data>
+  <data name="UpdateAvailableVersion.Text" xml:space="preserve">
+    <value>New version available:</value>
+  </data>
+  <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
+    <value>Update Packages</value>
+  </data>
+  <data name="UpdateUnavailable.Text" xml:space="preserve">
+    <value>No updates available</value>
+  </data>
+  <data name="Upgrade.Content" xml:space="preserve">
+    <value>Upgrade</value>
+  </data>
+  <data name="UpgradeAll.Content" xml:space="preserve">
+    <value>Upgrade all</value>
+  </data>
+  <data name="UpgradePackagesPageTitle.Text" xml:space="preserve">
+    <value>Upgrade Packages</value>
+  </data>
+  <data name="UpgradeSelected.Content" xml:space="preserve">
+    <value>Upgrade selected</value>
+  </data>
+  <data name="VersionField.Text" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="VersionLabel.Text" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="WingetInstallStatusLabel.Text" xml:space="preserve">
+    <value>Winget Installation Status:</value>
+  </data>
+  <data name="WingetVersionLabel.Text" xml:space="preserve">
+    <value>Winget version:</value>
+  </data>
+</root>

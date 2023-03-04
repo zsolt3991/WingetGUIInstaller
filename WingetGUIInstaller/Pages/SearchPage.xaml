@@ -22,9 +22,8 @@
         </Grid.RowDefinitions>
 
         <TextBlock Name="PageTitle"
-                   Grid.Row="0" Margin="5"
-                   Style="{ThemeResource TitleTextBlockStyle}"
-                   Text="Search for Packages" />
+                   x:Uid="SearchPackagesPageTitle" Grid.Row="0" Margin="5"
+                   Style="{ThemeResource TitleTextBlockStyle}" />
 
         <controls:LoadingIndicator Name="LoadingWidget"
                                    Grid.Row="0" Grid.RowSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -41,9 +40,9 @@
                      Grid.Column="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                      Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="SearchButton"
-                    Grid.Column="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    x:Uid="SearchButton" Grid.Column="1" Margin="5" HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.SearchPackagesCommand}"
-                    Content="Search"
                     Style="{ThemeResource DefaultButtonStyle}">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter" ScopeOwner="{x:Bind SearchQuery}" />
@@ -73,15 +72,19 @@
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
                 <toolkit:DataGridTextColumn Width="2*"
+                                            x:Uid="DataGridPackageNameColumn"
                                             Binding="{Binding Name}"
-                                            CanUserSort="True" Header="Package Name" Tag="PackageName" />
+                                            CanUserSort="True" Tag="PackageName" />
                 <toolkit:DataGridTextColumn Width="2*"
+                                            x:Uid="DataGridPackageIdColumn"
                                             Binding="{Binding Id}"
                                             CanUserSort="True" Header="Package Id" Tag="PackageId" />
                 <toolkit:DataGridTextColumn Width="1*"
+                                            x:Uid="DataGridAvailableVersionColumn"
                                             Binding="{Binding Version}"
                                             Header="Latest Version" Tag="PackageVersion" />
                 <toolkit:DataGridTextColumn Width="1*"
+                                            x:Uid="DataGridPackageSourceColumn"
                                             Binding="{Binding Source}"
                                             CanUserSort="True" Header="Source" Tag="Source" />
             </toolkit:DataGrid.Columns>
@@ -103,17 +106,17 @@
                        Margin="10" VerticalAlignment="Center" RelativePanel.AlignLeftWithPanel="True"
                        Style="{ThemeResource BodyLargeTextBlockStyle}">
                 <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
-                <Run Text="package(s) selected" />
+                <Run x:Uid="PackagesSelectedCount" />
             </TextBlock>
             <Button Name="InstallSelected"
-                    MinWidth="160" Margin="5"
+                    x:Uid="InstallSelected" MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallSelectedPackagesCommand}"
-                    Content="Install Selected" RelativePanel.AlignRightWithPanel="True"
+                    RelativePanel.AlignRightWithPanel="True"
                     Style="{ThemeResource ButtonLargeTextStyle}" />
             <Button Name="InstallAll"
-                    MinWidth="160" Margin="5"
+                    x:Uid="InstallAll" MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.InstallAllPackagesCommand}"
-                    Content="Install All" RelativePanel.LeftOf="InstallSelected"
+                    RelativePanel.LeftOf="InstallSelected"
                     Style="{ThemeResource ButtonLargeTextStyle}" />
         </RelativePanel>
     </Grid>

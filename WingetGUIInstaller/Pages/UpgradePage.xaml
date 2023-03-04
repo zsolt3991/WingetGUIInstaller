@@ -22,20 +22,22 @@
 
         <RelativePanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Name="PageTitle"
-                       Margin="5" HorizontalAlignment="Left" RelativePanel.AlignLeftWithPanel="True"
-                       Style="{ThemeResource TitleTextBlockStyle}"
-                       Text="Update Packages" />
+                       x:Uid="UpgradePackagesPageTitle" Margin="5" HorizontalAlignment="Left"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       Style="{ThemeResource TitleTextBlockStyle}" />
             <TextBox Name="FilterText" Width="200"
-                     Margin="5" PlaceholderText="Filter Results" RelativePanel.LeftOf="RefreshContent"
+                     x:Uid="FilterPackages" Margin="5" RelativePanel.LeftOf="RefreshContent"
                      Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="RefreshContent"
-                    Margin="5" HorizontalAlignment="Right"
+                    x:Uid="RefreshGlyphButton" Margin="5" HorizontalAlignment="Right"
                     Command="{x:Bind ViewModel.RefreshPackageListCommand}"
                     Content="&#xE149;"
                     FontFamily="{ThemeResource SymbolThemeFontFamily}"
                     RelativePanel.AlignRightWithPanel="True"
-                    Style="{ThemeResource ButtonGlyphIconStyle}"
-                    ToolTipService.ToolTip="Refresh (F5)">
+                    Style="{ThemeResource ButtonGlyphIconStyle}">
+                <ToolTipService.ToolTip>
+                    <ToolTip x:Uid="RefreshGlyphButtonTooltip" />
+                </ToolTipService.ToolTip>
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F5" />
                 </Button.KeyboardAccelerators>
@@ -70,17 +72,21 @@
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
                 <toolkit:DataGridTextColumn Width="2*"
+                                            x:Uid="DataGridPackageNameColumn"
                                             Binding="{Binding Name}"
-                                            CanUserSort="True" Header="Package Name" Tag="PackageName" />
+                                            CanUserSort="True" Tag="PackageName" />
                 <toolkit:DataGridTextColumn Width="1*"
+                                            x:Uid="DataGridInstalledVersionColumn"
                                             Binding="{Binding Version}"
-                                            Header="Installed Version" Tag="PackageVersion" />
+                                            Tag="PackageVersion" />
                 <toolkit:DataGridTextColumn Width="1*"
+                                            x:Uid="DataGridAvailableVersionColumn"
                                             Binding="{Binding Available}"
-                                            Header="Update Version" Tag="PackageUpdateVersion" />
+                                            Tag="PackageUpdateVersion" />
                 <toolkit:DataGridTextColumn Width="1*"
+                                            x:Uid="DataGridPackageSourceColumn"
                                             Binding="{Binding Source}"
-                                            CanUserSort="True" Header="Source" Tag="Source" />
+                                            CanUserSort="True" Tag="Source" />
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 
@@ -100,17 +106,17 @@
                        Margin="10" VerticalAlignment="Center" RelativePanel.AlignLeftWithPanel="True"
                        Style="{ThemeResource BodyLargeTextBlockStyle}">
                 <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
-                <Run Text="package(s) selected" />
+                <Run x:Uid="PackagesSelectedCount" />
             </TextBlock>
             <Button Name="UpgradeSelected"
-                    MinWidth="160" Margin="5"
+                    x:Uid="UpgradeSelected" MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.UpgradeSelectedPackagesCommand}"
-                    Content="Upgrade Selected" RelativePanel.AlignRightWithPanel="True"
+                    RelativePanel.AlignRightWithPanel="True"
                     Style="{ThemeResource ButtonLargeTextStyle}" />
             <Button Name="UpgradeAll"
-                    MinWidth="160" Margin="5"
+                    x:Uid="UpgradeAll" MinWidth="160" Margin="5"
                     Command="{x:Bind ViewModel.UpgradeAllPackagesCommand}"
-                    Content="Upgrade All" RelativePanel.LeftOf="UpgradeSelected"
+                    RelativePanel.LeftOf="UpgradeSelected"
                     Style="{ThemeResource ButtonLargeTextStyle}" />
         </RelativePanel>
 

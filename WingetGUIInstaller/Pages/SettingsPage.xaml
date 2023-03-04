@@ -11,73 +11,61 @@
         </Grid.RowDefinitions>
 
         <TextBlock Name="PageTitle"
-                   Grid.Row="0" Margin="5"
-                   Style="{ThemeResource TitleTextBlockStyle}"
-                   Text="Settings" />
+                   x:Uid="SettingsPageTitle" Grid.Row="0" Margin="5"
+                   Style="{ThemeResource TitleTextBlockStyle}" />
 
         <StackPanel Grid.Row="1">
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5" IsExpanded="True">
                 <Expander.Header>
-                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="General Settings" />
+                    <TextBlock x:Uid="GeneralSettingsHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
                 </Expander.Header>
                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Enable Notifications" SecondaryText="Enable Windows notifications from the app" />
+                    <customControls:ToggleButtonSettingsControl x:Uid="NotificationsEnabledToggle" Margin="0,1" HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}" />
 
-                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.AdvancedFunctionalityEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Advanced Mode"
-                                                                SecondaryText="Enables advanced functionality such as package source management, exclusions, custom commands. Use at your own risk!" />
-                    <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" PrimaryText="Default Page"
-                                                                 SecondaryText="Change the page that is shown when the application starts up">
+                    <customControls:ToggleButtonSettingsControl x:Uid="AdvancedModeToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.AdvancedFunctionalityEnabled, Mode=TwoWay}" />
+                    <customControls:CustomContentSettingsControl x:Uid="LaunchPageSelection" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <customControls:CustomContentSettingsControl.CustomContent>
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                       ItemsSource="{x:Bind ViewModel.AvailablePages, Mode=OneTime}"
                                       SelectedItem="{x:Bind ViewModel.SelectedPage, Mode=TwoWay}" />
                         </customControls:CustomContentSettingsControl.CustomContent>
                     </customControls:CustomContentSettingsControl>
-                    <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                 PrimaryText="Application Theme"
-                                                                 SecondaryText="Change the application theme manually or follow system default">
+                    <customControls:CustomContentSettingsControl x:Uid="ApplicationThemeSelection" Margin="0,1" HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Stretch">
                         <customControls:CustomContentSettingsControl.CustomContent>
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                       ItemsSource="{x:Bind ViewModel.ApplicationThemes, Mode=OneTime}"
                                       SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}" />
                         </customControls:CustomContentSettingsControl.CustomContent>
                     </customControls:CustomContentSettingsControl>
-                    <customControls:CustomContentSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                 PrimaryText="Log verbosity level"
-                                                                 SecondaryText="Change the verbosity of application logs. Requires a restart to apply">
+                    <customControls:CustomContentSettingsControl x:Uid="LogLevelSelection" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <customControls:CustomContentSettingsControl.CustomContent>
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                       ItemsSource="{x:Bind ViewModel.LogLevels, Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.SelectedLogLevel, Mode=TwoWay}" />
                         </customControls:CustomContentSettingsControl.CustomContent>
                     </customControls:CustomContentSettingsControl>
-                    <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                  ButtonCommand="{x:Bind ViewModel.OpenLogsFolderCommand}"
-                                                                  ButtonText="Open Logs Directory" PrimaryText="Open Logs Directory"
-                                                                  SecondaryText="Open the applicationdata directory containing the application logs" />
+                    <customControls:StandardButtonSettingsControl x:Uid="OpenLogsDirectory" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                  ButtonCommand="{x:Bind ViewModel.OpenLogsFolderCommand}" />
                 </StackPanel>
             </Expander>
 
             <Expander Margin="5,2" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Top" Background="Transparent" CornerRadius="5">
                 <Expander.Header>
-                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Application Update" />
+                    <TextBlock x:Uid="ApplicationUpdateSettingsHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
                 </Expander.Header>
                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <customControls:ToggleButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                IsOn="{x:Bind ViewModel.AutomaticUpdatesEnabled, Mode=TwoWay}"
-                                                                PrimaryText="Automatically check for updates"
-                                                                SecondaryText="Enables checking for updates on application startup" />
+                    <customControls:ToggleButtonSettingsControl x:Uid="AutomaticUpdatesEnabledToggle" Margin="0,1" HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                IsOn="{x:Bind ViewModel.AutomaticUpdatesEnabled, Mode=TwoWay}" />
 
-                    <customControls:StandardButtonSettingsControl Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                                  ButtonCommand="{x:Bind ViewModel.CheckForUpdatesCommand}"
-                                                                  ButtonText="Check for updates" PrimaryText="Check for updates"
-                                                                  SecondaryText="Manually check for updates" />
+                    <customControls:StandardButtonSettingsControl x:Uid="CheckForUpdates" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                  ButtonCommand="{x:Bind ViewModel.CheckForUpdatesCommand}" />
                 </StackPanel>
             </Expander>
         </StackPanel>

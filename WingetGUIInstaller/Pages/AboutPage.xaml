@@ -17,9 +17,8 @@
         </Grid.RowDefinitions>
 
         <TextBlock Name="PageTitle"
-                   Grid.Row="0" Margin="5"
-                   Style="{ThemeResource TitleTextBlockStyle}"
-                   Text="About" />
+                   x:Uid="AboutPageTitle" Grid.Row="0" Margin="5"
+                   Style="{ThemeResource TitleTextBlockStyle}" />
 
         <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                          HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
@@ -37,36 +36,36 @@
             <StackPanel Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
 
                 <TextBlock Margin="5" Style="{ThemeResource BodyTextBlockStyle}">
-                    <Run Text="Version:" />
+                    <Run x:Uid="VersionLabel" />
                     <Run Text="{x:Bind ViewModel.ApplicationVersion}" />
                 </TextBlock>
 
                 <TextBlock Margin="5" Style="{ThemeResource BodyTextBlockStyle}">
-                    <Run Text="Platform:" />
+                    <Run x:Uid="PlatformLabel" />
                     <Run Text="{x:Bind ViewModel.ApplicationPlatform}" />
                 </TextBlock>
 
                 <TextBlock Margin="5" Style="{ThemeResource BodyTextBlockStyle}">
-                    <Run Text="Winget Install Status:" />
+                    <Run x:Uid="WingetInstallStatusLabel" />
                     <Run Text="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource installedStatusConverter}, Mode=OneWay}" />
                 </TextBlock>
 
                 <TextBlock Margin="5"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            Visibility="{x:Bind ViewModel.WingetInstalled, Converter={StaticResource visibilityConverter}, Mode=OneWay}">
-                    <Run Text="Winget Version:" />
+                    <Run x:Uid="WingetVersionLabel" />
                     <Run Text="{x:Bind ViewModel.InstalledWingetVersion, Mode=OneWay}" />
                 </TextBlock>
 
                 <TextBlock Margin="5" Style="{ThemeResource CaptionTextBlockStyle}">
                     <Hyperlink NavigateUri="{x:Bind ViewModel.ApplicationRepositoryUrl}">
-                        <Run Text="Check out the project GitHub" />
+                        <Run x:Uid="GitHubProjectLink" />
                     </Hyperlink>
                 </TextBlock>
 
                 <TextBlock Margin="5" Style="{ThemeResource CaptionTextBlockStyle}">
                     <Hyperlink NavigateUri="{x:Bind ViewModel.ApplicationReportUrl}">
-                        <Run Text="Report an issue" />
+                        <Run x:Uid="ReportAnIssueLink" />
                     </Hyperlink>
                 </TextBlock>
             </StackPanel>
