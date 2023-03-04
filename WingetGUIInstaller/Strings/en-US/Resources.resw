@@ -144,6 +144,9 @@
   <data name="ApplicationUpdateSettingsHeader.Text" xml:space="preserve">
     <value>Application Updates</value>
   </data>
+  <data name="AuthorField.Text" xml:space="preserve">
+    <value>Author:</value>
+  </data>
   <data name="AutomaticUpdatesEnabledToggle.PrimaryText" xml:space="preserve">
     <value>Automatically check for updates</value>
   </data>
@@ -179,6 +182,9 @@
   </data>
   <data name="ConsolePageTitle.Text" xml:space="preserve">
     <value>Live Output</value>
+  </data>
+  <data name="CopyrightField.Text" xml:space="preserve">
+    <value>Copyright:</value>
   </data>
   <data name="DataGridAvailableVersionColumn.Header" xml:space="preserve">
     <value>Available Version</value>
@@ -264,6 +270,9 @@
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
   </data>
+  <data name="HomePageField.Text" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
   <data name="IgnoreEmptyPackageSourceToggle.PrimaryText" xml:space="preserve">
     <value>Ignore Packages without explicit Package Source</value>
   </data>
@@ -294,6 +303,9 @@
   <data name="ImportPackagesHeader.Text" xml:space="preserve">
     <value>Import Package List</value>
   </data>
+  <data name="Install.Content" xml:space="preserve">
+    <value>Install</value>
+  </data>
   <data name="InstallAll.Content" xml:space="preserve">
     <value>Install all</value>
   </data>
@@ -317,6 +329,9 @@
   </data>
   <data name="LaunchPageSelection.SecondaryText" xml:space="preserve">
     <value>Change the page that is shown when the application starts up</value>
+  </data>
+  <data name="LicenseField.Text" xml:space="preserve">
+    <value>License:</value>
   </data>
   <data name="LogLevelSelection.PrimaryText" xml:space="preserve">
     <value>Log verbosity level</value>
@@ -366,6 +381,12 @@
   <data name="PlatformLabel.Text" xml:space="preserve">
     <value>Platform:</value>
   </data>
+  <data name="PrivacyField.Text" xml:space="preserve">
+    <value>Privacy:</value>
+  </data>
+  <data name="PublisherField.Text" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
   <data name="RecommendationsPageTitle.Text" xml:space="preserve">
     <value>Recommendations</value>
   </data>
@@ -374,6 +395,9 @@
   </data>
   <data name="RefreshGlyphButtonTooltip.Content" xml:space="preserve">
     <value>Refresh (F5)</value>
+  </data>
+  <data name="ReleaseNotesField.Text" xml:space="preserve">
+    <value>Release Notes URL:</value>
   </data>
   <data name="ReportAnIssueLink.Text" xml:space="preserve">
     <value>Report an issue</value>
@@ -393,11 +417,20 @@
   <data name="SettingsPageTitle.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="SupportField.Text" xml:space="preserve">
+    <value>Support:</value>
+  </data>
+  <data name="Uninstall.Content" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
   <data name="UninstallSelected.Content" xml:space="preserve">
     <value>Uninstall selected</value>
   </data>
   <data name="UpdatePackagesNavigationItem.Content" xml:space="preserve">
     <value>Update Packages</value>
+  </data>
+  <data name="Upgrade.Content" xml:space="preserve">
+    <value>Upgrade</value>
   </data>
   <data name="UpgradeAll.Content" xml:space="preserve">
     <value>Upgrade all</value>
@@ -407,6 +440,9 @@
   </data>
   <data name="UpgradeSelected.Content" xml:space="preserve">
     <value>Upgrade selected</value>
+  </data>
+  <data name="VersionField.Text" xml:space="preserve">
+    <value>Version:</value>
   </data>
   <data name="VersionLabel.Text" xml:space="preserve">
     <value>Version:</value>
