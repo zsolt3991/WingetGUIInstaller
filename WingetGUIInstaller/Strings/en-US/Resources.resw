@@ -147,6 +147,18 @@
   <data name="AutomaticUpdatesEnabledToggle.SecondaryText" xml:space="preserve">
     <value>Enables checking for updates on application startup</value>
   </data>
+  <data name="BrowseExportFile.ButtonText" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="BrowseExportFile.PrimaryText" xml:space="preserve">
+    <value>Browse for output file</value>
+  </data>
+  <data name="BrowseImportFile.ButtonText" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="BrowseImportFile.PrimaryText" xml:space="preserve">
+    <value>Browse for package list JSON file</value>
+  </data>
   <data name="CheckForUpdates.ButtonText" xml:space="preserve">
     <value>Check for updates</value>
   </data>
@@ -195,6 +207,24 @@
   <data name="ExecuteButton.Content" xml:space="preserve">
     <value>Execute</value>
   </data>
+  <data name="ExportPackageListButton.Content" xml:space="preserve">
+    <value>Export Package List</value>
+  </data>
+  <data name="ExportPackagesHeader.Text" xml:space="preserve">
+    <value>Export Package List</value>
+  </data>
+  <data name="ExportSourceSelector.PrimaryText" xml:space="preserve">
+    <value>Export packages from source</value>
+  </data>
+  <data name="ExportSourceSelector.SecondaryText" xml:space="preserve">
+    <value>Export only packages installed from selected package source</value>
+  </data>
+  <data name="ExportVersionsToggle.PrimaryText" xml:space="preserve">
+    <value>Include Versions</value>
+  </data>
+  <data name="ExportVersionsToggle.SecondaryText" xml:space="preserve">
+    <value>Include the currently installed package version in the exported list</value>
+  </data>
   <data name="FilterExcludable.PlaceholderText" xml:space="preserve">
     <value>Filter packages to exclude</value>
   </data>
@@ -210,8 +240,29 @@
   <data name="GitHubProjectLink.Text" xml:space="preserve">
     <value>Check out the project GitHub</value>
   </data>
+  <data name="IgnoreImportedUnavailableToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Unavailable Packages</value>
+  </data>
+  <data name="IgnoreImportedUnavailableToggle.SecondaryText" xml:space="preserve">
+    <value>Ignore packages present in the packages list that are not available anymore</value>
+  </data>
+  <data name="IgnoreImportedVersionToggle.PrimaryText" xml:space="preserve">
+    <value>Ignore Versions</value>
+  </data>
+  <data name="IgnoreImportedVersionToggle.SecondaryText" xml:space="preserve">
+    <value>Ignore version specification if present in the packages list and install latest available version</value>
+  </data>
   <data name="ImportExportPackagesNavigationItem.Content" xml:space="preserve">
     <value>Import/Export Package List</value>
+  </data>
+  <data name="ImportExportPageTitle.Text" xml:space="preserve">
+    <value>Import/Export Package List</value>
+  </data>
+  <data name="ImportPackageListButton.Content" xml:space="preserve">
+    <value>Import Package List</value>
+  </data>
+  <data name="ImportPackagesHeader.Text" xml:space="preserve">
+    <value>Import Package List</value>
   </data>
   <data name="InstallAll.Content" xml:space="preserve">
     <value>Install all</value>
