@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
@@ -17,20 +18,25 @@ namespace WingetGUIInstaller
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
         private readonly ApplicationDataStorageHelper _applicationDataStorageHelper;
         private readonly ThemeListenerWithWindow _themeListener;
-        private readonly AppWindow _appWindow;
 
         public MainWindow()
         {
             InitializeComponent();
+
             _themeListener = new ThemeListenerWithWindow(this);
-            _appWindow = WindowInteropUtils.GetAppWindowForWindow(this);
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _applicationDataStorageHelper = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
-            _appWindow.Title = Package.Current.DisplayName;
-            _appWindow.SetIcon("icon.ico");
             _navigationService.AddNavigationLevel(RootFrame);
             _navigationService.Navigate(NavigationItemKey.Home, null);
             _themeListener.ThemeChanged += ThemeListener_ThemeChanged;
+
+            AppWindow.Title = Package.Current.DisplayName;
+            AppWindow.SetIcon("icon.ico");
+
+            if (WindowInteropUtils.IsWindowsBuildGreater(22000))
+            {
+                SystemBackdrop = new MicaBackdrop();
+            }
 
             if (UserTheme == ElementTheme.Default)
             {
