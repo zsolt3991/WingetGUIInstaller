@@ -1,6 +1,4 @@
-﻿using Microsoft.UI;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.Win32;
 using System;
 using System.Runtime.InteropServices;
@@ -15,7 +13,6 @@ namespace WingetGUIInstaller.Utils
 
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-        private const int DWMWA_USE_MICA_EFFECT = 1029;
 
 
         [DllImport("dwmapi.dll")]
@@ -28,17 +25,10 @@ namespace WingetGUIInstaller.Utils
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        public static AppWindow GetAppWindowForWindow(Window window)
-        {
-            IntPtr hWnd = WindowNative.GetWindowHandle(window);
-            WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            return AppWindow.GetFromWindowId(wndId);
-        }
-
         public static void ShowWindow(Window window)
         {
             // Bring the window to the foreground... first get the window handle...
-            var hwnd = WindowNative.GetWindowHandle(window);
+            var hwnd = (IntPtr)window.AppWindow.Id.Value;
 
             // Restore window if minimized... requires DLL import above
             ShowWindow(hwnd, 0x00000009);
@@ -49,28 +39,17 @@ namespace WingetGUIInstaller.Utils
 
         public static void SetWin32ApplicationTheme(ApplicationTheme applicationTheme, Window window)
         {
-            var handle = WindowNative.GetWindowHandle(window);
+            var hwnd = (IntPtr)window.AppWindow.Id.Value;
             if (IsWindowsBuildGreater(17763))
             {
-                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
+                int attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
                 if (IsWindowsBuildGreater(18985))
                 {
                     attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
                 }
 
                 int useImmersiveDarkMode = applicationTheme == ApplicationTheme.Dark ? 1 : 0;
-                _ = DwmSetWindowAttribute(handle, (int)attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-        }
-
-        public static void SetWin32MicaEffect(bool enable, Window window)
-        {
-            var handle = WindowNative.GetWindowHandle(window);
-            if (IsWindowsBuildGreater(22000))
-            {
-                var attribute = DWMWA_USE_MICA_EFFECT;
-                int useImmersiveDarkMode = enable ? 1 : 0;
-                _ = DwmSetWindowAttribute(handle, (int)attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+                _ = DwmSetWindowAttribute(hwnd, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
             }
         }
 
@@ -101,12 +80,11 @@ namespace WingetGUIInstaller.Utils
 
         public static TControl InitializeWithAppWindow<TControl>(this TControl targetControl)
         {
-            var hwnd = WindowNative.GetWindowHandle(App.Window);
-            InitializeWithWindow.Initialize(targetControl, hwnd);
+            InitializeWithWindow.Initialize(targetControl, (IntPtr)App.Window.AppWindow.Id.Value);
             return targetControl;
         }
 
-        private static bool IsWindowsBuildGreater(int build = -1)
+        public static bool IsWindowsBuildGreater(int build = -1)
         {
             return Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= build;
         }
