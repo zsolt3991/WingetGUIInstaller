@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.Storage;
 using WingetHelper.Commands;
-using WingetHelper.Models;
+using WingetHelper.Enums;
 using WingetHelper.Services;
 
 namespace WingetGUIInstaller.Services

@@ -18,7 +18,7 @@ using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
-using WingetHelper.Models;
+using WingetHelper.Enums;
 
 namespace WingetGUIInstaller.ViewModels
 {
