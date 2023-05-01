@@ -3,8 +3,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WingetHelper.Commands;
+using WingetHelper.Enums;
 using WingetHelper.Models;
 using WingetHelper.Services;
 
@@ -14,6 +16,7 @@ namespace WingetGUIInstaller.Services
     {
         // Define a Treshold after which data is automatically fetched again
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
+        private const string FilterRegex = @"\[(?<tag>\S+)]\s*(?<value>\S+)\s*";
 
         private readonly ConsoleOutputCache _consoleBuffer;
         private readonly ExclusionsManager _exclusionsManager;
@@ -148,8 +151,9 @@ namespace WingetGUIInstaller.Services
 
         private async Task PerformSearchAsync(string searchQuery)
         {
+            var searchArguments = ParseSearchQuery(searchQuery, out var remainingQuery);
             // Get all search results for the query
-            var command = PackageCommands.SearchPackages(searchQuery)
+            var command = PackageCommands.SearchPackages(remainingQuery.Trim(), searchArguments)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
             var commandResult = await _commandExecutor.ExecuteCommandAsync(command);
 
@@ -184,6 +188,35 @@ namespace WingetGUIInstaller.Services
             }
 
             return packages;
+        }
+
+        private static IDictionary<PackageFilterCriteria, string> ParseSearchQuery(string searchQuery, out string strippedQuery)
+        {
+            var parsedEntries = new Dictionary<PackageFilterCriteria, string>();
+            foreach (var match in Regex.Matches(searchQuery, FilterRegex).Cast<Match>())
+            {
+                var tag = TagToFilterCriteria(match.Groups["tag"].Value);
+                var value = match.Groups["value"].Value;
+                if (tag != PackageFilterCriteria.Default)
+                {
+                    parsedEntries.Add(tag, value);
+                }
+            }
+            strippedQuery = Regex.Replace(searchQuery, FilterRegex, string.Empty);
+            return parsedEntries;
+        }
+
+        private static PackageFilterCriteria TagToFilterCriteria(string tag)
+        {
+            return tag.ToLowerInvariant() switch
+            {
+                "tag" => PackageFilterCriteria.ByTag,
+                "moniker" => PackageFilterCriteria.ByMoniker,
+                "command" => PackageFilterCriteria.ByCommands,
+                "name" => PackageFilterCriteria.ByName,
+                "id" => PackageFilterCriteria.ById,
+                _ => PackageFilterCriteria.Default,
+            };
         }
     }
 }
