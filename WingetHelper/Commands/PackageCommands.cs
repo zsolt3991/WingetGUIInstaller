@@ -1,27 +1,69 @@
 ﻿using System.Collections.Generic;
-using WingetHelper.Models;
 using WingetHelper.Decoders;
+using WingetHelper.Enums;
+using WingetHelper.Models;
+using WingetHelper.Utils;
 
 namespace WingetHelper.Commands
 {
     public static class PackageCommands
     {
-        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> GetInstalledPackages()
+        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> GetInstalledPackages(string filterQuery = default,
+            IDictionary<PackageFilterCriteria, string> packageFilterCriteria = default, bool exactMatch = false)
         {
-            return new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("list")
+            var listCommand = new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("list")
                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
+
+            if (!string.IsNullOrWhiteSpace(filterQuery))
+            {
+                listCommand.AddExtraArguments("--query", filterQuery);
+            }
+
+            listCommand.AddFilteringArguments(packageFilterCriteria);
+
+            if (exactMatch != false)
+            {
+                listCommand.AddExtraArguments("--exact");
+            }
+
+            return listCommand;
         }
 
-        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> GetUpgradablePackages()
+        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> GetUpgradablePackages(string filterQuery = default,
+            IDictionary<PackageFilterCriteria, string> packageFilterCriteria = default, bool exactMatch = false)
         {
-            return new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("upgrade")
+            var upgradeCommand = new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("upgrade")
                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
+
+            if (!string.IsNullOrWhiteSpace(filterQuery))
+            {
+                upgradeCommand.AddExtraArguments("--query", filterQuery);
+            }
+
+            upgradeCommand.AddFilteringArguments(packageFilterCriteria);
+
+            if (exactMatch != false)
+            {
+                upgradeCommand.AddExtraArguments("--exact");
+            }
+
+            return upgradeCommand;
         }
 
-        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> SearchPackages(string searchQuery)
+        public static WingetCommandMetadata<IEnumerable<WingetPackageEntry>> SearchPackages(string searchQuery,
+            IDictionary<PackageFilterCriteria, string> packageFilterCriteria = default, bool exactMatch = false)
         {
-            return new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("search", searchQuery)
+            var searchCommand = new WingetCommandMetadata<IEnumerable<WingetPackageEntry>>("search", searchQuery)
                 .ConfigureResultDecoder(commandResult => TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandResult));
+
+            searchCommand.AddFilteringArguments(packageFilterCriteria);
+
+            if (exactMatch != false)
+            {
+                searchCommand.AddExtraArguments("--exact");
+            }
+
+            return searchCommand;
         }
 
         public static WingetCommandMetadata<WingetPackageDetails> GetPackageDetails(string packageId)
@@ -46,6 +88,19 @@ namespace WingetHelper.Commands
         {
             return new WingetCommandMetadata<bool>("upgrade", "-e", "-h", "--id", packageId)
                 .ConfigureResultDecoder(commandResult => ExpressionDataDecoder.ParseInstallSuccessResult(commandResult));
+        }
+
+        private static WingetCommandMetadata<TResult> AddFilteringArguments<TResult>(this WingetCommandMetadata<TResult> command,
+            IDictionary<PackageFilterCriteria, string> packageFilterCriteria)
+        {
+            if (packageFilterCriteria != default)
+            {
+                foreach (var filterItem in packageFilterCriteria)
+                {
+                    command.AddExtraArguments(filterItem.Key.ToArgument(), filterItem.Value);
+                }
+            }
+            return command;
         }
     }
 }

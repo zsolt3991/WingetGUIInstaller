@@ -1,4 +1,4 @@
-﻿namespace WingetHelper.Models
+﻿namespace WingetHelper.Enums
 {
     public enum WingetProcessState
     {
