@@ -20,17 +20,13 @@ namespace WingetHelper.Decoders
         private static object DeserializeObject(Type targetType, IEnumerable<string> dataLines, int nestingLevel, out int consumedLines)
         {
             var retVal = Activator.CreateInstance(targetType);
-
             var expectedIndentation = IndentSize * nestingLevel;
-            var fieldValue = new List<string>();
-            var currentProperty = default(PropertyInfo);
             var i = 0;
             var regex = new Regex(LineSplitRegex);
 
             for (i = 0; i < dataLines.Count(); i++)
             {
                 string line = dataLines.ElementAt(i);
-
                 var lineIndent = line.Length - line.TrimStart().Length;
                 var match = regex.Match(line);
 
@@ -46,81 +42,54 @@ namespace WingetHelper.Decoders
                         break;
                     }
 
+                    var currentProperty = GetPropertyForName(targetType, currentKeyword);
                     if (currentProperty != default)
                     {
-                        var nextProperty = GetPropertyForName(targetType, currentKeyword);
-                        if (nextProperty != default)
+                        if (currentProperty.PropertyType == typeof(string))
                         {
-                            currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
-                            currentProperty = nextProperty;
-                            if (currentProperty.PropertyType == typeof(string))
-                            {
-                                fieldValue = new List<string>();
-                                if (!string.IsNullOrEmpty(currentValueText))
-                                {
-                                    fieldValue.Add(currentValueText);
-                                }
-                            }
-                            else
-                            {
-                                currentProperty.SetValue(retVal,
-                                    DeserializeObject(currentProperty.PropertyType, dataLines.Skip(i + 1).ToList(),
-                                    nestingLevel + 1, out var internalConsumed));
-                                i += internalConsumed;
-                                currentProperty = default;
-                            }
+                            var content = dataLines.Skip(i + 1).ToList();
+                            // Append the current line without the property identifier
+                            content.Insert(0, currentValueText);
+                            currentProperty.SetValue(retVal, DeserializeString(
+                                content, nestingLevel + 1, out var internalConsumed));
+                            i += internalConsumed;
                         }
                         else
                         {
-                            // String was matched as a property, however it is not a field in the given type
-                            if (!string.IsNullOrEmpty(line))
-                            {
-                                fieldValue.Add(line);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        currentProperty = GetPropertyForName(targetType, currentKeyword);
-                        if (currentProperty != default)
-                        {
-                            if (currentProperty.PropertyType == typeof(string))
-                            {
-                                fieldValue = new List<string>();
-                                if (!string.IsNullOrEmpty(currentValueText))
-                                {
-                                    fieldValue.Add(currentValueText);
-                                }
-                            }
-                            else
-                            {
-                                currentProperty.SetValue(retVal,
-                                    DeserializeObject(currentProperty.PropertyType, dataLines.Skip(i + 1).ToList(),
-                                    nestingLevel + 1, out var internalConsumed));
-                                i += internalConsumed;
-                                currentProperty = default;
-                            }
+                            currentProperty.SetValue(retVal, DeserializeObject(
+                                currentProperty.PropertyType, dataLines.Skip(i + 1).ToList(),
+                                nestingLevel + 1, out var internalConsumed));
+                            i += internalConsumed;
                         }
                     }
                 }
-
-                //Property value is a string wrapped over multiple lines
-                else
-                {
-                    if (!string.IsNullOrWhiteSpace(line))
-                    {
-                        fieldValue.Add(line);
-                    }
-                }
-            }
-
-            if (currentProperty != default && fieldValue.Count > 0)
-            {
-                currentProperty.SetValue(retVal, string.Join(Environment.NewLine, fieldValue));
             }
 
             consumedLines = i;
             return retVal;
+        }
+
+        private static object DeserializeString(IEnumerable<string> dataLines, int nestingLevel, out int consumedLines)
+        {
+            var accumulator = new List<string>();
+            var expectedIndentation = IndentSize * nestingLevel;
+            var i = 0;
+            accumulator.Add(dataLines.ElementAt(0));
+            for (i = 1; i < dataLines.Count(); i++)
+            {
+                string line = dataLines.ElementAt(i);
+                var lineIndent = line.Length - line.TrimStart().Length;
+
+                // Reached the end of indented value
+                if (lineIndent < expectedIndentation)
+                {
+                    break;
+                }
+
+                accumulator.Add(line);
+            }
+            consumedLines = i - 1;
+            return string.Join(Environment.NewLine, accumulator);
         }
 
         private static PropertyInfo GetPropertyForName(Type type, string name)
