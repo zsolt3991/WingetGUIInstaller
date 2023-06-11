@@ -36,8 +36,8 @@ namespace WingetHelper.Decoders
                     var currentKeyword = match.Groups["key"].Value;
                     var currentValueText = match.Groups["value"].Value;
 
-                    // Reached a line which contains a differently indented property
-                    if (lineIndent != expectedIndentation)
+                    // Reached a line which contains a less indented property
+                    if (lineIndent < expectedIndentation)
                     {
                         break;
                     }
@@ -56,10 +56,33 @@ namespace WingetHelper.Decoders
                         }
                         else
                         {
-                            currentProperty.SetValue(retVal, DeserializeObject(
-                                currentProperty.PropertyType, dataLines.Skip(i + 1).ToList(),
-                                nestingLevel + 1, out var internalConsumed));
-                            i += internalConsumed;
+                            var isCollection = currentProperty.PropertyType.GetInterfaces()
+                                .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
+                            if (isCollection)
+                            {
+                                var collectionType = currentProperty.PropertyType.GetInterfaces()
+                                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>))
+                                    .GetGenericArguments()[0];
+                                if (collectionType == typeof(string))
+                                {
+                                    currentProperty.SetValue(retVal, DeserializeStringList(
+                                        dataLines.Skip(i + 1).ToList(), nestingLevel + 1,
+                                        out var internalConsumed, currentProperty));
+                                }
+                                else
+                                {
+                                    currentProperty.SetValue(retVal, default);
+                                    // Only string lists are supported as of now
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                currentProperty.SetValue(retVal, DeserializeObject(
+                                    currentProperty.PropertyType, dataLines.Skip(i + 1).ToList(),
+                                    nestingLevel + 1, out var internalConsumed));
+                                i += internalConsumed;
+                            }
                         }
                     }
                 }
@@ -67,6 +90,31 @@ namespace WingetHelper.Decoders
 
             consumedLines = i;
             return retVal;
+        }
+
+        private static object DeserializeStringList(IEnumerable<string> dataLines, int nestingLevel,
+            out int consumedLines, PropertyInfo propertyInfo)
+        {
+            var accumulator = new List<string>();
+            var expectedIndentation = IndentSize * nestingLevel;
+            var i = 0;
+            for (i = 0; i < dataLines.Count(); i++)
+            {
+                string line = dataLines.ElementAt(i);
+                var lineIndent = line.Length - line.TrimStart().Length;
+
+                // Reached the end of indented value
+                if (lineIndent < expectedIndentation)
+                {
+                    break;
+                }
+                if (!string.IsNullOrEmpty(line))
+                {
+                    accumulator.Add(line.Trim());
+                }
+            }
+            consumedLines = i;
+            return accumulator;
         }
 
         private static object DeserializeString(IEnumerable<string> dataLines, int nestingLevel, out int consumedLines)
