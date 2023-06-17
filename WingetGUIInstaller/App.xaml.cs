@@ -1,16 +1,22 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.DependencyInjection;
+#if !UNPACKAGED
 using CommunityToolkit.WinUI.Helpers;
+#endif
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Serilog;
-using System.IO;
-using Windows.Storage;
-using WingetGUIInstaller.Constants;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
+using Serilog;
+using System.IO;
+#if !UNPACKAGED
+using Windows.Storage;
+#endif
+using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Services;
@@ -27,7 +33,8 @@ namespace WingetGUIInstaller
     {
         private readonly ToastNotificationManager _notificationManager;
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly ApplicationDataStorageHelper _appDataStorage;
+        private readonly ISettingsStorageHelper<string> _settingsStorage;
+        private readonly IFileStorageHelper _fileStorage;
         private readonly ILogger<App> _logger;
         private static Window _window;
 
@@ -41,10 +48,17 @@ namespace WingetGUIInstaller
         {
             Current.RequestedTheme = ApplicationTheme.Dark;
             InitializeComponent();
-
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            _appDataStorage = ApplicationDataStorageHelper.GetCurrent();
 
+#if UNPACKAGED
+
+            _fileStorage = new UnPackagedFileStorageHelper();
+            _settingsStorage = new UnpackagedSettingStorageHelper(_fileStorage);
+#else
+
+            _settingsStorage = ApplicationDataStorageHelper.GetCurrent();
+            _fileStorage = ApplicationDataStorageHelper.GetCurrent();
+#endif
             ConfigureServices();
 
             _logger = Ioc.Default.GetRequiredService<ILogger<App>>();
@@ -78,7 +92,9 @@ namespace WingetGUIInstaller
                 }
 
                 _logger.LogInformation("Launch Kind: {kind}", args.UWPLaunchActivatedEventArgs.Kind);
+#if !UNPACKAGED
                 _logger.LogInformation("Application Version: {version}", Windows.ApplicationModel.Package.Current.Id.Version.ToFormattedString());
+#endif            
             }
         }
 
@@ -89,7 +105,8 @@ namespace WingetGUIInstaller
                     .SetMinimumLevel(GetLogLevel())
                     .AddSerilog(ConfigureLogging(), true))
                 .AddSingleton(_dispatcherQueue)
-                .AddSingleton(_appDataStorage)
+                .AddSingleton(_fileStorage)
+                .AddSingleton(_settingsStorage)
                 .AddSingleton<ConsoleOutputCache>()
                 .AddSingleton<PackageCache>()
                 .AddSingleton<PackageManager>()
@@ -100,9 +117,9 @@ namespace WingetGUIInstaller
                 .AddSingleton<ExclusionsManager>()
                 .AddSingleton<IPageLocatorService<NavigationItemKey>, PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
-                .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider 
+                .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider
                     => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
-                .AddSingleton<INavigationService<NavigationItemKey>>(provider 
+                .AddSingleton<INavigationService<NavigationItemKey>>(provider
                     => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
                 .AddSingleton<HomePageViewModel>()
                 .AddSingleton<UpgradePageViewModel>()
@@ -128,7 +145,11 @@ namespace WingetGUIInstaller
             return new LoggerConfiguration()
                 .MinimumLevel.Is(GetLogLevel().ToSerilogLevel())
                 .WriteTo.File(
-                    Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.LogFileName),
+#if UNPACKAGED
+                    Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "WingetGuiInstaller", "Logs", LoggingConstants.LogFileName),
+#else
+                     Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.LogFileName),
+#endif
                     outputTemplate: LoggingConstants.LogTemplate,
                     rollingInterval: RollingInterval.Day)
 #if DEBUG
@@ -142,7 +163,7 @@ namespace WingetGUIInstaller
         {
             try
             {
-                return (LogLevel)_appDataStorage.Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+                return (LogLevel)_settingsStorage.GetValueOrDefault(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
             }
             catch
             {

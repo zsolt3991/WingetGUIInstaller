@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Common.Helpers;
+﻿#if UNPACKAGED
+using CommunityToolkit.Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -17,7 +18,7 @@ namespace WingetGUIInstaller.Services
         public UnpackagedSettingStorageHelper(IFileStorageHelper fileStorage)
         {
             _fileStorage = fileStorage;
-            _settings = _fileStorage.ReadFileAsync(SettingsFileName, new Dictionary<string, string>()).GetAwaiter().GetResult();
+            _settings = _fileStorage.ReadFileAsync(SettingsFileName, new Dictionary<string, string>()).ConfigureAwait(false).GetAwaiter().GetResult();
             _fileAccessSemaphore = new SemaphoreSlim(1);
         }
 
@@ -86,3 +87,4 @@ namespace WingetGUIInstaller.Services
         }
     }
 }
+#endif

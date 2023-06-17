@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Common.Helpers;
+﻿#if UNPACKAGED
+using CommunityToolkit.Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +45,7 @@ namespace WingetGUIInstaller.Services
             {
                 using (var fileStream = File.Open(completePath, FileMode.Open))
                 {
-                    return await JsonSerializer.DeserializeAsync<T>(fileStream);
+                    return await JsonSerializer.DeserializeAsync<T>(fileStream).ConfigureAwait(false);
                 }
             }
             catch
@@ -160,3 +161,4 @@ namespace WingetGUIInstaller.Services
         }
     }
 }
+#endif

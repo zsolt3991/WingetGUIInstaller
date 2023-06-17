@@ -30,8 +30,11 @@ namespace WingetGUIInstaller
             _navigationService.AddNavigationLevel(RootFrame);
             _navigationService.Navigate(NavigationItemKey.Home, null);
             _themeListener.ThemeChanged += ThemeListener_ThemeChanged;
-
+#if UNPACKAGED
+            AppWindow.Title = "Winget GUI Installer";
+#else
             AppWindow.Title = Package.Current.DisplayName;
+#endif
             AppWindow.SetIcon("icon.ico");
 
             if (WindowInteropUtils.IsWindowsBuildGreater(22000))

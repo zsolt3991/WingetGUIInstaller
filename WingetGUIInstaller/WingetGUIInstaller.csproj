@@ -12,9 +12,13 @@
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <Nullable>warnings</Nullable>
-    <!--<WindowsPackageType>None</WindowsPackageType>-->
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
