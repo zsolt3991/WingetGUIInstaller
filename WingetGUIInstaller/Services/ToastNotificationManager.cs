@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Windows.AppNotifications;
@@ -12,10 +14,10 @@ namespace WingetGUIInstaller.Services
 {
     public sealed class ToastNotificationManager
     {
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly ILogger<ToastNotificationManager> _logger;
 
-        public ToastNotificationManager(ApplicationDataStorageHelper configurationStore, ILogger<ToastNotificationManager> logger)
+        public ToastNotificationManager(ISettingsStorageHelper<string> configurationStore, ILogger<ToastNotificationManager> logger)
         {
             _configurationStore = configurationStore;
             _logger = logger;
@@ -29,7 +31,7 @@ namespace WingetGUIInstaller.Services
             AppNotificationManager.Default.Unregister();
         }
 
-        private bool NotificationsEnabled => _configurationStore.Read(ConfigurationPropertyKeys.NotificationsEnabled,
+        private bool NotificationsEnabled => _configurationStore.GetValueOrDefault(ConfigurationPropertyKeys.NotificationsEnabled,
             ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
 
         public void ShowGenericNotification(string titleText, string contentText)

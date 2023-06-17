@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Input;
@@ -19,7 +21,7 @@ namespace WingetGUIInstaller.Pages
     [NavigationKey(NavigationItemKey.Home)]
     public sealed partial class HomePage : Page
     {
-        private readonly ApplicationDataStorageHelper _applicationSettings;
+        private readonly ISettingsStorageHelper<string> _applicationSettings;
         private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
         private bool _pageLoaded = false;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
@@ -32,9 +34,9 @@ namespace WingetGUIInstaller.Pages
             Unloaded += MainPage_Unloaded;
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _navigationService.AddNavigationLevel(ContentFrame);
-            _applicationSettings = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
+            _applicationSettings = Ioc.Default.GetRequiredService<ISettingsStorageHelper<string>>();
             _defaultPage = (NavigationItemKey)_applicationSettings
-                .Read(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
 
             DataContext = ViewModel = Ioc.Default.GetRequiredService<HomePageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;

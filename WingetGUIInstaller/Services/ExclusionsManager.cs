@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.Helpers;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -8,25 +9,25 @@ namespace WingetGUIInstaller.Services
 {
     public class ExclusionsManager
     {
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly ILogger<ExclusionsManager> _logger;
         private List<string> _excludedPackageIds;
         private List<string> _excludedPackageSources;
 
-        public ExclusionsManager(ApplicationDataStorageHelper configurationStore, ILogger<ExclusionsManager> logger)
+        public ExclusionsManager(ISettingsStorageHelper<string> configurationStore, ILogger<ExclusionsManager> logger)
         {
             _configurationStore = configurationStore;
             _logger = logger;
         }
 
         public bool ExcludedPackagesEnabled => _configurationStore
-            .Read(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
+            .GetValueOrDefault(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
 
         public bool IgnoreEmptyPackageSourcesEnabled => _configurationStore
-           .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+            .GetValueOrDefault(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
 
         public bool ExcludedPackageSourcesEnabled => _configurationStore
-            .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
+            .GetValueOrDefault(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
 
         public bool AddPackageExclusion(string exclusionId)
         {
@@ -121,7 +122,7 @@ namespace WingetGUIInstaller.Services
 
         private List<string> LoadPackageExclusionList()
         {
-            var storedIds = _configurationStore.Read(ConfigurationPropertyKeys.ExcludedPackageIds,
+            var storedIds = _configurationStore.GetValueOrDefault(ConfigurationPropertyKeys.ExcludedPackageIds,
                 ConfigurationPropertyKeys.ExcludedPackageIdsDefaultValue);
 
             if (string.IsNullOrEmpty(storedIds))
@@ -140,7 +141,7 @@ namespace WingetGUIInstaller.Services
 
         private List<string> LoadPackageSourceExclusionList()
         {
-            var storedSources = _configurationStore.Read(ConfigurationPropertyKeys.DisabledPackageSources,
+            var storedSources = _configurationStore.GetValueOrDefault(ConfigurationPropertyKeys.DisabledPackageSources,
                 ConfigurationPropertyKeys.DisabledPackageSourcesDefaultValue);
 
             if (string.IsNullOrEmpty(storedSources))
