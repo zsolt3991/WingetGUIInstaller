@@ -32,7 +32,14 @@ namespace WingetGUIInstaller.Services
 
         public void Save<TValue>(string key, TValue value)
         {
-            _settings.TryAdd(key, JsonSerializer.Serialize(value));
+            if (_settings.ContainsKey(key))
+            {
+                _settings[key] = JsonSerializer.Serialize(value);
+            }
+            else
+            {
+                _settings.TryAdd(key, JsonSerializer.Serialize(value));
+            }
             SyncSettingsFile();
         }
 
