@@ -1,7 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using System;
@@ -17,7 +18,7 @@ namespace WingetGUIInstaller.ViewModels
 {
     public sealed partial class ExcludedPackagesViewModel : ObservableObject
     {
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly PackageCache _packageCache;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ExclusionsManager _exclusionsManager;
@@ -43,7 +44,7 @@ namespace WingetGUIInstaller.ViewModels
         [ObservableProperty]
         private AdvancedCollectionView _excludablePackagesCollection;
 
-        public ExcludedPackagesViewModel(ApplicationDataStorageHelper configurationStore,
+        public ExcludedPackagesViewModel(ISettingsStorageHelper<string> configurationStore,
             PackageCache packageCache, DispatcherQueue dispatcherQueue, ExclusionsManager exclusionsManager)
         {
             _configurationStore = configurationStore;
@@ -61,7 +62,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool ExcludedPackagesEnabled
         {
             get => _excludedPackagesEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.ExcludedPackagesEnabled, ConfigurationPropertyKeys.ExcludedPackagesEnabledDefaultValue);
             set
             {
                 if (SetProperty(ref _excludedPackagesEnabled, value))
