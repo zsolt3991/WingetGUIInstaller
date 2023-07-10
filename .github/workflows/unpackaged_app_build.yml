@@ -43,16 +43,11 @@ jobs:
 
     # Restore the application
     - name: Restore the application
-      run: dotnet restore $env:Project_Path -r win-$env:Platform
-      env:
-        Configuration: ${{ matrix.configuration }}
+      run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
 
     # Build the project 
     - name: Build the Windows Application
-      run: dotnet build $env:Project_Path -c $env:Configuration -r win-$env:Platform --self-contained
-      env:
-        Configuration: ${{ matrix.configuration }}
-        Platform: ${{ matrix.platform }}
+      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained
 
     - name: Zip the Application
       uses: montudor/action-zip@v1
