@@ -50,7 +50,7 @@ jobs:
 
     # Build the project 
     - name: Build the Windows Application
-      run: msbuild $env:Solution_Path /p:Configuration=$env:Configuration /p:Platform=$env:Platform --self-contained
+      run: dotnet build $env:Solution_Path /p:Configuration=$env:Configuration /p:Platform=$env:Platform --self-contained
       env:
         Configuration: ${{ matrix.configuration }}
         Platform: ${{ matrix.platform }}
