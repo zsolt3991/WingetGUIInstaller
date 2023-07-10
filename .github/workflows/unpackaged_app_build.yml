@@ -52,6 +52,9 @@ jobs:
     
     - name: Zip the build Output
       run: Compress-Archive -Path $env:Project_Directory\bin\${{ matrix.configuration }}\net6.0-$env:SDK_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+    
+    - name: ShowFiles
+      run: dir
 
     # Create the release:  
     - name: Create Release
