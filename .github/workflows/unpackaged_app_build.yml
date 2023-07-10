@@ -1,0 +1,80 @@
+
+name: Build Application
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    strategy:
+      matrix:
+        configuration: [Release_Unpackaged]
+        platform: [x64, x86]
+
+    runs-on: windows-latest
+
+    env:
+      App_Project_Directory: WingetGUIInstaller
+      Solution_Path: WingetGUIInstaller.sln
+      SDK_Version: "windows10.0.19041.0"
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1 
+
+    # Install the .NET 6
+    - name: Install .NET 6
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.*'
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.1  
+
+    # Restore the application
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Build the project 
+    - name: Build the Windows Application
+      run: msbuild $env:Solution_Path /p:Configuration=$env:Configuration /p:Platform=$env:Platform --self-contained
+      env:
+        Configuration: ${{ matrix.configuration }}
+        Platform: ${{ matrix.platform }}
+
+    - name: Zip the Application
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r ${{ github.workspace }}/Application_${{ matrix.platform }}.zip $env:App_Project_Directory/bin/${{ matrix.configuration }}/net6.0${{SDK_Version}}/
+
+    # Create the release:  
+    - name: Create Release
+      uses: ncipollo/release-action@v1.10.0
+      continue-on-error: true
+      with:
+        tag: ${{ steps.tag.outputs.tag }}
+        name:  ${{ steps.tag.outputs.tag }}
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # Upload release asset:  
+    - name: Update release asset
+      id: upload-release-asset
+      uses: AButler/upload-release-assets@v2.0
+      with: 
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ steps.tag.outputs.tag }}
+        files: "${{ github.workspace }}/Application_${{ matrix.platform }}.zip"
