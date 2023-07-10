@@ -15,6 +15,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ICommandExecutor _commandExecutor;
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(WingetInstalled))]
         private Version _installedWingetVersion;
@@ -24,6 +25,7 @@ namespace WingetGUIInstaller.ViewModels
 #if UNPACKAGED
             var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly().GetName();
             var resourceMap = new ResourceManager(ResourceLoader.GetDefaultResourceFilePath()).MainResourceMap;
+
             ApplicationName = executingAssembly.Name;
             ApplicationVersion = executingAssembly.Version;
             ApplicationPlatform = executingAssembly.ProcessorArchitecture.ToString();
@@ -34,7 +36,6 @@ namespace WingetGUIInstaller.ViewModels
             ApplicationPlatform = Package.Current.Id.Architecture.ToString();
             ApplicationIcon = new BitmapImage(Package.Current.Logo);
 #endif
-
             ApplicationRepositoryUrl = new Uri("https://github.com/zsolt3991/WingetGUIInstaller");
             ApplicationReportUrl = new Uri("https://github.com/zsolt3991/WingetGUIInstaller/issues/new/choose");
 
@@ -64,6 +65,7 @@ namespace WingetGUIInstaller.ViewModels
         }
     }
 
+#if !UNPACKAGED
     internal static class VersionExtensions
     {
         public static Version ToVersion(this PackageVersion packageVersion)
@@ -71,4 +73,5 @@ namespace WingetGUIInstaller.ViewModels
             return new Version(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
         }
     }
+#endif
 }
