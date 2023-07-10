@@ -43,7 +43,7 @@ jobs:
 
     # Restore the application
     - name: Restore the application
-      run: dotnet restore $env:Project_Path -c $env:Configuration
+      run: dotnet restore $env:Project_Path -r win-$env:Platform
       env:
         Configuration: ${{ matrix.configuration }}
 
