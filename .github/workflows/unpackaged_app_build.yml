@@ -2,6 +2,7 @@
 name: Build Application
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
