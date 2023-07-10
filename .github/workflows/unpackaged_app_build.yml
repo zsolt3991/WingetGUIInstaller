@@ -51,7 +51,7 @@ jobs:
       run: dotnet build $env:Project_Path -c ${{ matrix.configuration }}_Unpackaged -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }}
     
     - name: Zip the build Output
-      run: Compress-Archive -Path  $env:App_Project_Directory/bin/${{ matrix.configuration }}/net6.0$env:SDK_Version/* -Destination ${{ github.workspace }}/Application_${{ matrix.platform }}.zip
+      run: Compress-Archive -Path  $env:Project_Directory/bin/${{ matrix.configuration }}/net6.0$env:SDK_Version/* -Destination ${{ github.workspace }}/Application_${{ matrix.platform }}.zip
 
     # Create the release:  
     - name: Create Release
