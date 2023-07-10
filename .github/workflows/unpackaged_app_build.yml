@@ -20,6 +20,7 @@ jobs:
     env:
       Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
       SDK_Version: "windows10.0.19041.0"
+      Project_Directory: WingetGUIInstaller
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
