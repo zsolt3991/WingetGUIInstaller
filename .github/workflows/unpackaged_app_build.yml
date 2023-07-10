@@ -48,11 +48,9 @@ jobs:
     # Build the project 
     - name: Build the Windows Application
       run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }}
-
-    - name: Zip the Application
-      uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r ${{ github.workspace }}/Application_${{ matrix.platform }}.zip $env:App_Project_Directory/bin/${{ matrix.configuration }}/net6.0$env:SDK_Version/
+    
+    - name: Zip the build Output
+      run: Compress-Archive -Path  $env:App_Project_Directory/bin/${{ matrix.configuration }}/net6.0$env:SDK_Version/* -Destination ${{ github.workspace }}/Application_${{ matrix.platform }}.zip
 
     # Create the release:  
     - name: Create Release
