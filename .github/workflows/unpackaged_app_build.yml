@@ -74,4 +74,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "*/*.zip"
+        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
