@@ -47,7 +47,7 @@ jobs:
 
     # Build the project 
     - name: Build the Windows Application
-      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained
+      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }}
 
     - name: Zip the Application
       uses: montudor/action-zip@v1
