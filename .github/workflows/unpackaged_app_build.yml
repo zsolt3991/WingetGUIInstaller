@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        configuration: [Release_Unpackaged]
+        configuration: [Release]
         platform: [x64, x86]
 
     runs-on: windows-latest
@@ -47,7 +47,7 @@ jobs:
 
     # Build the project 
     - name: Build the Windows Application
-      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }}
+      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }}_Unpackaged -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }}
     
     - name: Zip the build Output
       run: Compress-Archive -Path  $env:App_Project_Directory/bin/${{ matrix.configuration }}/net6.0$env:SDK_Version/* -Destination ${{ github.workspace }}/Application_${{ matrix.platform }}.zip
