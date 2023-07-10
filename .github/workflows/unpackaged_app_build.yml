@@ -29,9 +29,9 @@ jobs:
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
-    - name: Get tag
-      id: tag
-      uses: dawidd6/action-get-tag@v1 
+#    - name: Get tag
+#      id: tag
+#      uses: dawidd6/action-get-tag@v1 
 
     # Install the .NET 6
     - name: Install .NET 6
