@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using WingetGUIInstaller.Contracts;
-using WingetGUIInstaller.Enums;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -88,8 +85,10 @@ namespace WingetGUIInstaller.ViewModels
             _releaseNotes = wingetPackageDetails.Release_Notes;
             _releaseNotesUrl = !string.IsNullOrEmpty(wingetPackageDetails.Release_Notes_Url) ? new Uri(wingetPackageDetails.Release_Notes_Url) : default;
 
-            _tags = new ObservableCollection<PackageTagViewModel>(
-                wingetPackageDetails.Tags.Select(tag => new PackageTagViewModel(tag)));
+            _tags = wingetPackageDetails.Tags?.Count > 0
+                ? new ObservableCollection<PackageTagViewModel>(
+                    wingetPackageDetails.Tags.Select(tag => new PackageTagViewModel(tag)))
+                : new ObservableCollection<PackageTagViewModel>();
         }
     }
 }
