@@ -29,7 +29,7 @@ namespace WingetHelper.Decoders
         private static string ConvertAsciiTableToCsv(IEnumerable<string> output)
         {
             // Find header
-            var separatorIndex = output.ToList().FindLastIndex(line =>
+            var separatorIndex = output.ToList().FindIndex(line =>
                 !string.IsNullOrWhiteSpace(line) && line.Trim().All(c => c == '-'));
 
             // Detect column names from line above separator

@@ -121,11 +121,8 @@ namespace WingetHelper.Decoders
         {
             var accumulator = new List<string>();
             var expectedIndentation = IndentSize * nestingLevel;
-            var i = 0; 
-            if (!string.IsNullOrWhiteSpace(dataLines.ElementAt(0)))
-            {
-                accumulator.Add(dataLines.ElementAt(0).TrimEnd());
-            }
+            var i = 0;
+            accumulator.Add(dataLines.ElementAt(0));
             for (i = 1; i < dataLines.Count(); i++)
             {
                 string line = dataLines.ElementAt(i);
@@ -136,13 +133,11 @@ namespace WingetHelper.Decoders
                 {
                     break;
                 }
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    accumulator.Add(line[(nestingLevel  * IndentSize)..].TrimEnd());
-                }
+
+                accumulator.Add(line);
             }
             consumedLines = i - 1;
-            return string.Join(Environment.NewLine, accumulator).Trim();
+            return string.Join(Environment.NewLine, accumulator);
         }
 
         private static PropertyInfo GetPropertyForName(Type type, string name)
