@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
@@ -26,7 +28,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageSourceCache _packageSourceCache;
         private readonly ILogger<PackageSourcePageViewModel> _logger;
         private readonly ExclusionsManager _exclusionsManager;
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly ObservableCollection<WingetPackageSourceViewModel> _packageSources;
         private bool? _ignoreEmptyPackageSourceEnabled;
         private bool? _packageSourceFilteringEnabled;
@@ -54,7 +56,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public PackageSourcePageViewModel(DispatcherQueue dispatcherQueue, PackageSourceManager packageSourceManager,
             PackageSourceCache packageSourceCache, ExclusionsManager exclusionsManager,
-            ApplicationDataStorageHelper configurationStore, ILogger<PackageSourcePageViewModel> logger)
+            ISettingsStorageHelper<string> configurationStore, ILogger<PackageSourcePageViewModel> logger)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageSourceManager = packageSourceManager;
@@ -72,7 +74,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool PackageSourceFilteringEnabled
         {
             get => _packageSourceFilteringEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.PackageSourceFilteringEnabled, ConfigurationPropertyKeys.PackageSourceFilteringEnabledDefaultValue);
             set
             {
                 if (SetProperty(ref _packageSourceFilteringEnabled, value))
@@ -86,7 +88,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool IgnoreEmptyPackageSourceEnabled
         {
             get => _ignoreEmptyPackageSourceEnabled ??= _configurationStore
-               .Read(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
+               .GetValueOrDefault(ConfigurationPropertyKeys.IgnoreEmptyPackageSources, ConfigurationPropertyKeys.IgnoreEmptyPackageSourcesDefaultValue);
             set
             {
                 if (SetProperty(ref _ignoreEmptyPackageSourceEnabled, value))

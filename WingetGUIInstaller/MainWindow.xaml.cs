@@ -1,6 +1,7 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -16,7 +17,7 @@ namespace WingetGUIInstaller
     public sealed partial class MainWindow : Window
     {
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
-        private readonly ApplicationDataStorageHelper _applicationDataStorageHelper;
+        private readonly ISettingsStorageHelper<string> _applicationDataStorageHelper;
         private readonly ThemeListenerWithWindow _themeListener;
 
         public MainWindow()
@@ -25,12 +26,15 @@ namespace WingetGUIInstaller
 
             _themeListener = new ThemeListenerWithWindow(this);
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
-            _applicationDataStorageHelper = Ioc.Default.GetRequiredService<ApplicationDataStorageHelper>();
+            _applicationDataStorageHelper = Ioc.Default.GetRequiredService<ISettingsStorageHelper<string>>();
             _navigationService.AddNavigationLevel(RootFrame);
             _navigationService.Navigate(NavigationItemKey.Home, null);
             _themeListener.ThemeChanged += ThemeListener_ThemeChanged;
-
+#if UNPACKAGED
+            AppWindow.Title = "Winget GUI Installer";
+#else
             AppWindow.Title = Package.Current.DisplayName;
+#endif
             AppWindow.SetIcon("icon.ico");
 
             if (WindowInteropUtils.IsWindowsBuildGreater(22000))
@@ -61,7 +65,7 @@ namespace WingetGUIInstaller
         }
 
         private ElementTheme UserTheme => (ElementTheme)_applicationDataStorageHelper
-            .Read(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
+            .GetValueOrDefault(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
 
         private void OnThemeChangeRequestedByUser(object recipient, ThemeChangedMessage message)
         {

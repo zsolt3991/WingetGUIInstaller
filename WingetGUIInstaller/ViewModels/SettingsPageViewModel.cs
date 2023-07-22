@@ -1,3 +1,5 @@
+using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -21,7 +23,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly NavigationItemKey[] _disallowedKeys = new NavigationItemKey[] {
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly ILogger<SettingsPageViewModel> _logger;
         private bool? _advancedFunctionalityEnabled;
@@ -31,7 +33,7 @@ namespace WingetGUIInstaller.ViewModels
         private NavigationItemKey? _selectedPage;
         private DisplayTheme? _selectedTheme;
 
-        public SettingsPageViewModel(ApplicationDataStorageHelper configurationStore,
+        public SettingsPageViewModel(ISettingsStorageHelper<string> configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce, ILogger<SettingsPageViewModel> logger)
         {
             _configurationStore = configurationStore;
@@ -42,7 +44,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool AdvancedFunctionalityEnabled
         {
             get => _advancedFunctionalityEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
             set
             {
                 if (SetProperty(ref _advancedFunctionalityEnabled, value))
@@ -56,7 +58,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool NotificationsEnabled
         {
             get => _notificationsEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.NotificationsEnabled, ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.NotificationsEnabled, ConfigurationPropertyKeys.NotificationsEnabledDefaultValue);
             set
             {
                 if (SetProperty(ref _notificationsEnabled, value))
@@ -69,7 +71,7 @@ namespace WingetGUIInstaller.ViewModels
         public bool AutomaticUpdatesEnabled
         {
             get => _automaticUpdatesEnabled ??= _configurationStore
-                .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
             set
             {
                 if (SetProperty(ref _automaticUpdatesEnabled, value))
@@ -82,7 +84,7 @@ namespace WingetGUIInstaller.ViewModels
         public NavigationItemKey SelectedPage
         {
             get => _selectedPage ??= (NavigationItemKey)_configurationStore
-                .Read(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
             set
             {
                 if (SetProperty(ref _selectedPage, value))
@@ -95,7 +97,7 @@ namespace WingetGUIInstaller.ViewModels
         public DisplayTheme SelectedTheme
         {
             get => _selectedTheme ??= (DisplayTheme)_configurationStore
-                .Read(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.SelectedTheme, ConfigurationPropertyKeys.SelectedThemeDefaultValue);
             set
             {
                 if (SetProperty(ref _selectedTheme, value))
@@ -113,7 +115,7 @@ namespace WingetGUIInstaller.ViewModels
                 if (_selectedLogLevel == null)
                 {
                     _selectedLogLevel = (LogLevel)_configurationStore
-                        .Read(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
+                        .GetValueOrDefault(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
                 }
                 return _selectedLogLevel.Value;
             }
@@ -136,7 +138,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task OpenLogsFolder()
         {
-            await Launcher.LaunchFolderAsync(_configurationStore.Folder);
+            //await Launcher.LaunchFolderAsync(_configurationStore.Folder);
         }
 
         [RelayCommand]

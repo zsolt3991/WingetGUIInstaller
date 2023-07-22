@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
@@ -16,7 +18,7 @@ namespace WingetGUIInstaller.ViewModels
 {
     public sealed partial class HomePageViewModel : ObservableObject
     {
-        private readonly ApplicationDataStorageHelper _configurationStore;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly ILogger<HomePageViewModel> _logger;
@@ -33,7 +35,7 @@ namespace WingetGUIInstaller.ViewModels
         [NotifyPropertyChangedFor(nameof(UpdateVersion))]
         private PackageUpdateResponse _update;
 
-        public HomePageViewModel(ApplicationDataStorageHelper configurationStore, DispatcherQueue dispatcherQueue,
+        public HomePageViewModel(ISettingsStorageHelper<string> configurationStore, DispatcherQueue dispatcherQueue,
             GithubPackageUpdaterSerivce updaterSerivce, ILogger<HomePageViewModel> logger)
         {
             _configurationStore = configurationStore;
@@ -58,7 +60,7 @@ namespace WingetGUIInstaller.ViewModels
             });
 
             IsAdvancedModeEnabled = _configurationStore
-                .Read(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
+                .GetValueOrDefault(ConfigurationPropertyKeys.AdvancedFunctionalityEnabled, ConfigurationPropertyKeys.AdvancedFunctionalityEnabledDefaultValue);
 
             if (CheckForUpdate)
             {
@@ -73,7 +75,7 @@ namespace WingetGUIInstaller.ViewModels
         public string UpdateChangeLog => Update?.ChangeLog ?? string.Empty;
 
         public bool CheckForUpdate => _configurationStore
-            .Read(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
+            .GetValueOrDefault(ConfigurationPropertyKeys.AutomaticUpdates, ConfigurationPropertyKeys.AutomaticUpdatesDefaultValue);
 
         [RelayCommand]
         private async Task InstallUpdateAsync()

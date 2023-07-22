@@ -1,0 +1,30 @@
+<Project>
+
+  <PropertyGroup>
+    <Configurations>Debug;Debug_Unpackaged;Release;Release_Unpackaged</Configurations>
+  </PropertyGroup>
+  
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Debug_Unpackaged' ">
+	  <DebugSymbols>true</DebugSymbols>
+	  <DebugType>full</DebugType>
+	  <Optimize>false</Optimize>
+	  <OutputPath>bin\Debug\</OutputPath>
+	  <DefineConstants>DEBUG;TRACE</DefineConstants>
+	  <ErrorReport>prompt</ErrorReport>
+	  <WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Release_Unpackaged' ">
+	  <DebugType>pdbonly</DebugType>
+	  <Optimize>true</Optimize>
+	  <OutputPath>bin\Release\</OutputPath>
+	  <DefineConstants>TRACE</DefineConstants>
+	  <ErrorReport>prompt</ErrorReport>
+	  <WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
+    <DefineConstants>UNPACKAGED</DefineConstants>
+  </PropertyGroup>
+  
+</Project>

@@ -1,10 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace WingetHelper.Models
 {
     public sealed class WingetPackageDetails
     {
-        public string Id { get; set; } 
+        public string Id { get; set; }
 
         public string Name { get; set; }
 
@@ -45,7 +46,11 @@ namespace WingetHelper.Models
         [DataMember(Name = "Release Notes Url")]
         public string Release_Notes_Url { get; set; }
 
+        public string Documentation { get; set; }
+
         public WingetPackageInstaller Installer { get; set; }
+
+        public List<string> Tags { get; set; }
     }
 
     public class WingetPackageInstaller
