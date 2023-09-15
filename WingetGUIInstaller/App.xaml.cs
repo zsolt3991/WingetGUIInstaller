@@ -13,9 +13,6 @@ using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using Serilog;
 using System.IO;
-#if !UNPACKAGED
-using Windows.Storage;
-#endif
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
@@ -146,12 +143,7 @@ namespace WingetGUIInstaller
         {
             return new LoggerConfiguration()
                 .MinimumLevel.Is(GetLogLevel().ToSerilogLevel())
-                .WriteTo.File(
-#if UNPACKAGED
-                    Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "WingetGuiInstaller", "Logs", LoggingConstants.LogFileName),
-#else
-                     Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.LogFileName),
-#endif
+                .WriteTo.File(Path.Combine(LogStorageHelper.GetLogFileDirectory(), LoggingConstants.LogFileName),
                     outputTemplate: LoggingConstants.LogTemplate,
                     rollingInterval: RollingInterval.Day)
 #if DEBUG
