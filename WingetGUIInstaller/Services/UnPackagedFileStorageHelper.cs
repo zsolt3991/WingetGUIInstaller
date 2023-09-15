@@ -5,17 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
     internal sealed class UnPackagedFileStorageHelper : IFileStorageHelper
     {
-        private const string ApplicationFolderName = "WingetGuiInstaller";
         private readonly string _basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
         public async Task CreateFileAsync<T>(string filePath, T value)
         {
-            var completePath = Path.Combine(_basePath, ApplicationFolderName, filePath);
+            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, filePath);
             ValidatePath(completePath);
 
             var fileContent = JsonSerializer.Serialize<T>(value);
@@ -24,7 +24,7 @@ namespace WingetGUIInstaller.Services
 
         public Task CreateFolderAsync(string folderPath)
         {
-            var completePath = Path.Combine(_basePath, ApplicationFolderName, folderPath);
+            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, folderPath);
             ValidatePath(completePath);
 
             Directory.CreateDirectory(completePath);
@@ -33,7 +33,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task<T> ReadFileAsync<T>(string filePath, T defaultValue = default)
         {
-            var completePath = Path.Combine(_basePath, ApplicationFolderName, filePath);
+            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, filePath);
             ValidatePath(completePath);
 
             if (!File.Exists(completePath))
@@ -56,7 +56,7 @@ namespace WingetGUIInstaller.Services
 
         public Task<IEnumerable<(DirectoryItemType ItemType, string Name)>> ReadFolderAsync(string folderPath)
         {
-            var completePath = Path.Combine(_basePath, ApplicationFolderName, folderPath);
+            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, folderPath);
             ValidatePath(completePath);
 
             var resultSet = new List<(DirectoryItemType, string)>();
@@ -81,7 +81,7 @@ namespace WingetGUIInstaller.Services
 
         public Task<bool> TryDeleteItemAsync(string itemPath)
         {
-            var completePath = Path.Combine(_basePath, ApplicationFolderName, itemPath);
+            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, itemPath);
             ValidatePath(completePath);
 
             if (Directory.Exists(completePath))
@@ -115,8 +115,8 @@ namespace WingetGUIInstaller.Services
 
         public Task<bool> TryRenameItemAsync(string itemPath, string newName)
         {
-            var oldPath = Path.Combine(_basePath, ApplicationFolderName, itemPath);
-            var newPath = Path.Combine(_basePath, ApplicationFolderName, newName);
+            var oldPath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, itemPath);
+            var newPath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, newName);
             ValidatePath(oldPath);
             ValidatePath(newPath);
 
@@ -151,7 +151,7 @@ namespace WingetGUIInstaller.Services
 
         private void ValidatePath(string path)
         {
-            var basePath = Path.Combine(_basePath, ApplicationFolderName);
+            var basePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName);
             var completePath = Path.GetFullPath(path);
 
             if (!completePath.StartsWith(basePath))

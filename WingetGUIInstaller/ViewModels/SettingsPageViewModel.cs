@@ -3,7 +3,6 @@ using CommunityToolkit.Common.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
@@ -12,10 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.System;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
+using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -138,7 +137,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task OpenLogsFolder()
         {
-            //await Launcher.LaunchFolderAsync(_configurationStore.Folder);
+            await LogStorageHelper.OpenLogFileDirectory();
         }
 
         [RelayCommand]
