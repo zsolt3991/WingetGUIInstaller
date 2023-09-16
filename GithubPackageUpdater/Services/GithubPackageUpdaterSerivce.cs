@@ -1,4 +1,5 @@
 ﻿using GithubPackageUpdater.Models;
+using GithubPackageUpdater.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -6,8 +7,6 @@ using Octokit;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Management.Deployment;
-using MsixPackage = Windows.ApplicationModel.Package;
 
 namespace GithubPackageUpdater.Services
 {
@@ -16,14 +15,12 @@ namespace GithubPackageUpdater.Services
         private readonly PackageUpdaterOptions _options;
         private readonly ILogger _logger;
         private readonly GitHubClient _client;
-        private readonly PackageManager _packageManager;
 
         public GithubPackageUpdaterSerivce(IOptions<PackageUpdaterOptions> options, ILogger<GithubPackageUpdaterSerivce> logger = default)
         {
             _options = options.Value ?? throw new ArgumentNullException(nameof(options));
             _logger = logger ?? NullLogger<GithubPackageUpdaterSerivce>.Instance;
-            _client = new GitHubClient(new ProductHeaderValue("msixpackageupdater"));
-            _packageManager = new();
+            _client = new GitHubClient(new ProductHeaderValue("githubpackageupdater"));
 
             if (!string.IsNullOrEmpty(_options.AccessToken))
             {
@@ -31,20 +28,15 @@ namespace GithubPackageUpdater.Services
             }
         }
 
-        public async Task<PackageUpdateResponse> CheckForUpdates(MsixPackage installedPackage)
+        public async Task<PackageUpdateResponse> CheckForUpdates(PackageUpdateRequest packageUpdateRequest)
         {
-            if (installedPackage == default)
+            if (packageUpdateRequest == default)
             {
-                throw new ArgumentNullException(nameof(installedPackage));
+                throw new ArgumentNullException(nameof(packageUpdateRequest));
             }
 
-            var packageName = installedPackage.Id.Name;
-            var packageVersion = new Version(installedPackage.Id.Version.Major, installedPackage.Id.Version.Minor,
-                installedPackage.Id.Version.Build, installedPackage.Id.Version.Revision);
-            var packagePlatform = installedPackage.Id.Architecture.ToString();
-
             _logger.LogInformation("Checking for updates for: {packageName} architecture: {packagePlatform} version: {packageVersion}",
-                packageName, packagePlatform, packageVersion);
+                packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture, packageUpdateRequest.PackageVersion);
 
             var repository = await GetRepositoryAsync();
             if (repository != default)
@@ -62,11 +54,12 @@ namespace GithubPackageUpdater.Services
                         }
                     }
 
-                    if (releaseVersion > packageVersion)
+                    if (releaseVersion > packageUpdateRequest.PackageVersion)
                     {
                         var packageAsset = lastRelease.Assets.FirstOrDefault(asset =>
-                            asset.Name.Contains(packageName, StringComparison.InvariantCulture) &&
-                            asset.Name.Contains(packagePlatform, StringComparison.InvariantCultureIgnoreCase));
+                            asset.Name.StartsWith(packageUpdateRequest.PackageName, StringComparison.InvariantCulture) &&
+                            asset.Name.Contains(packageUpdateRequest.PackageArchitecture.ToString(), StringComparison.InvariantCultureIgnoreCase) &&
+                            asset.Name.EndsWith(packageUpdateRequest.PackageType.ToFileExtension(), StringComparison.OrdinalIgnoreCase));
 
                         if (packageAsset != default)
                         {
@@ -83,7 +76,7 @@ namespace GithubPackageUpdater.Services
                         else
                         {
                             _logger.LogWarning("Failed to find package named: {releaseName} architecture: {releasePlatform} in the github release",
-                                packageName, packagePlatform);
+                                packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture);
                             throw new Exception("Could not find package matching the required identifier in the latest release");
                         }
                     }
@@ -107,18 +100,6 @@ namespace GithubPackageUpdater.Services
                 _logger.LogError("Username or Repository invalid");
                 throw new Exception("Invalid Account or Repository specified");
             }
-
-        }
-
-        public async Task TriggerUpdate(Uri updateUrl)
-        {
-            if (updateUrl == default)
-            {
-                throw new ArgumentNullException(nameof(updateUrl));
-            }
-
-            _logger.LogInformation("Installing package from: {url}", updateUrl);
-            await _packageManager.UpdatePackageAsync(updateUrl, null, DeploymentOptions.ForceApplicationShutdown);
         }
 
         private async Task<Repository> GetRepositoryAsync() => await _client.Repository.Get(_options.AccountName, _options.RepositoryName);

@@ -120,6 +120,7 @@ namespace WingetGUIInstaller
                 .AddSingleton<PackageSourceCache>()
                 .AddSingleton<PackageSourceManager>()
                 .AddSingleton<ExclusionsManager>()
+                .AddSingleton<ApplicationUpdateManager>()
                 .AddSingleton<IPageLocatorService<NavigationItemKey>, PageLocatorService<NavigationItemKey>>()
                 .AddSingleton<NavigationService<NavigationItemKey>>()
                 .AddSingleton<IMultiLevelNavigationService<NavigationItemKey>>(provider

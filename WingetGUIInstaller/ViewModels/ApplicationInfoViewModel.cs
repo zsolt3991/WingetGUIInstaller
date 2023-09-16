@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 #if !UNPACKAGED
 using Windows.ApplicationModel;
 #endif
+using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Services;
 
@@ -68,14 +69,4 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() => InstalledWingetVersion = installedVersion);
         }
     }
-
-#if !UNPACKAGED
-    internal static class VersionExtensions
-    {
-        public static Version ToVersion(this PackageVersion packageVersion)
-        {
-            return new Version(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
-        }
-    }
-#endif
 }

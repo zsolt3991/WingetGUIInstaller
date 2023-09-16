@@ -4,14 +4,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using GithubPackageUpdater.Models;
-using GithubPackageUpdater.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
+using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -19,7 +18,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly GithubPackageUpdaterSerivce _updaterSerivce;
+        private readonly ApplicationUpdateManager _updaterSerivce;
         private readonly ILogger<HomePageViewModel> _logger;
 
         [ObservableProperty]
@@ -35,7 +34,7 @@ namespace WingetGUIInstaller.ViewModels
         private PackageUpdateResponse _update;
 
         public HomePageViewModel(ISettingsStorageHelper<string> configurationStore, DispatcherQueue dispatcherQueue,
-            GithubPackageUpdaterSerivce updaterSerivce, ILogger<HomePageViewModel> logger)
+            ApplicationUpdateManager updaterSerivce, ILogger<HomePageViewModel> logger)
         {
             _configurationStore = configurationStore;
             _dispatcherQueue = dispatcherQueue;
@@ -81,23 +80,16 @@ namespace WingetGUIInstaller.ViewModels
         {
             if (Update != default)
             {
-                await _updaterSerivce.TriggerUpdate(Update.PackageUri);
+                await _updaterSerivce.ApplyApplicationUpdate(Update);
             }
         }
 
         private async Task CheckForUpdatesAsync()
         {
-            try
+            var checkResult = await _updaterSerivce.CheckForApplicationUpdate();
+            if (checkResult != default && !checkResult.IsPackageUpToDate)
             {
-                var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
-                if (checkResult != default && !checkResult.IsPackageUpToDate)
-                {
-                    _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
-                }
-            }
-            catch (Exception updateException)
-            {
-                _logger.LogError(updateException, "Checking for updates failed with error:");
+                _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
             }
         }
     }
