@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
@@ -19,6 +20,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _toastNotificationManager;
         private readonly PackageDetailsCache _packageDetailsCache;
+        private readonly INavigationService<NavigationItemKey> _navigationService;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsInstallSupported))]
         [NotifyPropertyChangedFor(nameof(IsUpdateSupported))]
@@ -35,12 +37,14 @@ namespace WingetGUIInstaller.ViewModels
         private PackageDetailsViewModel _packageDetails;
 
         public PackageDetailsPageViewModel(PackageManager packageManager, DispatcherQueue dispatcherQueue,
-            ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache)
+            ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache,
+            INavigationService<NavigationItemKey> navigationService)
         {
             _packageManager = packageManager;
             _dispatcherQueue = dispatcherQueue;
             _toastNotificationManager = toastNotificationManager;
             _packageDetailsCache = packageDetailsCache;
+            _navigationService = navigationService;
         }
 
         public bool IsInstallSupported => AvailableOperation.HasFlag(AvailableOperation.Install);
@@ -123,6 +127,7 @@ namespace WingetGUIInstaller.ViewModels
             WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
 
+
         private async Task FetchPackageDetailsAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -135,7 +140,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _dispatcherQueue.TryEnqueue(() =>
             {
-                PackageDetails = new PackageDetailsViewModel(details);
+                PackageDetails = new PackageDetailsViewModel(details, _navigationService);
                 IsLoading = false;
             });
         }

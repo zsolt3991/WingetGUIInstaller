@@ -53,6 +53,7 @@
                     </ItemsRepeater.Layout>
                     <DataTemplate x:DataType="viewmodels:PackageTagViewModel">
                         <Button Margin="5"
+                                Command="{x:Bind GoToTagSearchCommand}"
                                 CommandParameter="{x:Bind TagName, Mode=OneWay}"
                                 Content="{x:Bind TagName, Mode=OneWay}" />
                     </DataTemplate>

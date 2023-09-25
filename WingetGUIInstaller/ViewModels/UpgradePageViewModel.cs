@@ -230,7 +230,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
-                    SelectedPackageDetails = new PackageDetailsViewModel(details);
+                    SelectedPackageDetails = new PackageDetailsViewModel(details, _navigationService);
                     DetailsAvailable = true;
                     DetailsLoading = false;
                 });
