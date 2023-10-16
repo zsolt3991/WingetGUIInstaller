@@ -9,7 +9,7 @@ using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
-    internal sealed class UnPackagedFileStorageHelper : IFileStorageHelper
+    internal sealed class UnpackagedFileStorageHelper : IFileStorageHelper
     {
         private readonly string _basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
