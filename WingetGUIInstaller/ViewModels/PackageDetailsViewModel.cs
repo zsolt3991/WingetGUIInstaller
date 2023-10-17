@@ -2,6 +2,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using WingetGUIInstaller.Contracts;
+using WingetGUIInstaller.Enums;
 using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
@@ -62,7 +64,7 @@ namespace WingetGUIInstaller.ViewModels
         [ObservableProperty]
         private ObservableCollection<PackageTagViewModel> _tags;
 
-        public PackageDetailsViewModel(WingetPackageDetails wingetPackageDetails)
+        public PackageDetailsViewModel(WingetPackageDetails wingetPackageDetails, INavigationService<NavigationItemKey> navigationService)
         {
             _packageName = wingetPackageDetails.Name;
             _packageId = wingetPackageDetails.Id;
@@ -87,7 +89,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _tags = wingetPackageDetails.Tags?.Count > 0
                 ? new ObservableCollection<PackageTagViewModel>(
-                    wingetPackageDetails.Tags.Select(tag => new PackageTagViewModel(tag)))
+                    wingetPackageDetails.Tags.Select(tag => new PackageTagViewModel(tag, navigationService)))
                 : new ObservableCollection<PackageTagViewModel>();
         }
     }

@@ -120,6 +120,7 @@ namespace WingetGUIInstaller
                     => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
                 .AddSingleton<INavigationService<NavigationItemKey>>(provider
                     => provider.GetRequiredService<NavigationService<NavigationItemKey>>())
+                .AddSingleton<IPackageDetailsViewModelFactory, PackageDetailsViewModelFactory>()
                 .AddSingleton<HomePageViewModel>()
                 .AddSingleton<UpgradePageViewModel>()
                 .AddSingleton<SearchPageViewModel>()

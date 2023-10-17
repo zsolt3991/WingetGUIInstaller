@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -36,6 +35,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ToastNotificationManager _notificationManager;
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly PackageDetailsCache _packageDetailsCache;
+        private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
 
         [ObservableProperty]
@@ -70,7 +70,8 @@ namespace WingetGUIInstaller.ViewModels
 
         public ListPageViewModel(DispatcherQueue dispatcherQueue,
             PackageCache packageCache, PackageManager packageManager, ToastNotificationManager notificationManager,
-            INavigationService<NavigationItemKey> navigationService, PackageDetailsCache packageDetailsCache)
+            INavigationService<NavigationItemKey> navigationService, PackageDetailsCache packageDetailsCache,
+            IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
@@ -78,6 +79,7 @@ namespace WingetGUIInstaller.ViewModels
             _notificationManager = notificationManager;
             _navigationService = navigationService;
             _packageDetailsCache = packageDetailsCache;
+            _packageDetailsViewModelFactory = packageDetailsViewModelFactory;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
@@ -250,7 +252,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 _dispatcherQueue.TryEnqueue(() =>
                 {
-                    SelectedPackageDetails = new PackageDetailsViewModel(details);
+                    SelectedPackageDetails = _packageDetailsViewModelFactory.GetPackageDetailsViewModel(details);
                     DetailsAvailable = true;
                     DetailsLoading = false;
                 });

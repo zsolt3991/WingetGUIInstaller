@@ -4,12 +4,12 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Enums;
-using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -19,6 +19,8 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _toastNotificationManager;
         private readonly PackageDetailsCache _packageDetailsCache;
+        private readonly INavigationService<NavigationItemKey> _navigationService;
+        private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsInstallSupported))]
         [NotifyPropertyChangedFor(nameof(IsUpdateSupported))]
@@ -35,12 +37,15 @@ namespace WingetGUIInstaller.ViewModels
         private PackageDetailsViewModel _packageDetails;
 
         public PackageDetailsPageViewModel(PackageManager packageManager, DispatcherQueue dispatcherQueue,
-            ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache)
+            ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache,
+            INavigationService<NavigationItemKey> navigationService, IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
         {
             _packageManager = packageManager;
             _dispatcherQueue = dispatcherQueue;
             _toastNotificationManager = toastNotificationManager;
             _packageDetailsCache = packageDetailsCache;
+            _navigationService = navigationService;
+            _packageDetailsViewModelFactory = packageDetailsViewModelFactory;
         }
 
         public bool IsInstallSupported => AvailableOperation.HasFlag(AvailableOperation.Install);
@@ -123,6 +128,7 @@ namespace WingetGUIInstaller.ViewModels
             WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
 
+
         private async Task FetchPackageDetailsAsync(string packageId)
         {
             _dispatcherQueue.TryEnqueue(() =>
@@ -135,7 +141,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _dispatcherQueue.TryEnqueue(() =>
             {
-                PackageDetails = new PackageDetailsViewModel(details);
+                PackageDetails = _packageDetailsViewModelFactory.GetPackageDetailsViewModel(details);
                 IsLoading = false;
             });
         }
