@@ -10,7 +10,6 @@ using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 using WingetHelper.Enums;
-using WingetHelper.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -21,6 +20,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ToastNotificationManager _toastNotificationManager;
         private readonly PackageDetailsCache _packageDetailsCache;
         private readonly INavigationService<NavigationItemKey> _navigationService;
+        private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsInstallSupported))]
         [NotifyPropertyChangedFor(nameof(IsUpdateSupported))]
@@ -38,13 +38,14 @@ namespace WingetGUIInstaller.ViewModels
 
         public PackageDetailsPageViewModel(PackageManager packageManager, DispatcherQueue dispatcherQueue,
             ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache,
-            INavigationService<NavigationItemKey> navigationService)
+            INavigationService<NavigationItemKey> navigationService, IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
         {
             _packageManager = packageManager;
             _dispatcherQueue = dispatcherQueue;
             _toastNotificationManager = toastNotificationManager;
             _packageDetailsCache = packageDetailsCache;
             _navigationService = navigationService;
+            _packageDetailsViewModelFactory = packageDetailsViewModelFactory;
         }
 
         public bool IsInstallSupported => AvailableOperation.HasFlag(AvailableOperation.Install);
@@ -140,7 +141,7 @@ namespace WingetGUIInstaller.ViewModels
 
             _dispatcherQueue.TryEnqueue(() =>
             {
-                PackageDetails = new PackageDetailsViewModel(details, _navigationService);
+                PackageDetails = _packageDetailsViewModelFactory.GetPackageDetailsViewModel(details);
                 IsLoading = false;
             });
         }
