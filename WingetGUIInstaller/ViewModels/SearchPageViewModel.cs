@@ -304,7 +304,14 @@ namespace WingetGUIInstaller.ViewModels
 
         public void OnNavigatedTo(object parameter)
         {
-            _ = SearchPackagesAsync();
+            if (parameter is SearchArguments searchArguments)
+            {
+                if (!string.IsNullOrEmpty(searchArguments.TagName))
+                {
+                    SearchQuery = string.Format("[tag] {0}", searchArguments.TagName);
+                    _ = SearchPackagesAsync();
+                }
+            }
         }
 
         public void OnNavigatedFrom(NavigationMode navigationMode)

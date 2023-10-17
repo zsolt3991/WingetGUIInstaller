@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
+using WingetGUIInstaller.Models;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -21,7 +22,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private void GoToTagSearch()
         {
-            _navigationService.Navigate(NavigationItemKey.Search);
+            _navigationService.Navigate(NavigationItemKey.Search, args: new SearchArguments(TagName));
         }
     }
 }
