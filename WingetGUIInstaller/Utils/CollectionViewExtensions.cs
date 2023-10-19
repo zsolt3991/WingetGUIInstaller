@@ -1,27 +1,26 @@
 ﻿using CommunityToolkit.WinUI.Collections;
-using CommunityToolkit.WinUI.UI.Controls;
 using System;
 
 namespace WingetGUIInstaller.Utils
 {
     public static class CollectionViewExtensions
     {
-        public static DataGridSortDirection? ApplySorting(this AdvancedCollectionView advancedCollectionView,
-            string propertyName, DataGridSortDirection? currentSorting)
+        public static SortDirection? ApplySorting(this AdvancedCollectionView advancedCollectionView,
+            string propertyName, SortDirection? currentSorting)
         {
             if (!string.IsNullOrEmpty(propertyName))
             {
-                if (currentSorting == null || currentSorting == DataGridSortDirection.Descending)
+                if (currentSorting == null || currentSorting == SortDirection.Descending)
                 {
                     advancedCollectionView.SortDescriptions.Clear();
                     advancedCollectionView.SortDescriptions.Add(new SortDescription(propertyName, SortDirection.Ascending));
-                    return DataGridSortDirection.Ascending;
+                    return SortDirection.Ascending;
                 }
                 else
                 {
                     advancedCollectionView.SortDescriptions.Clear();
                     advancedCollectionView.SortDescriptions.Add(new SortDescription(propertyName, SortDirection.Descending));
-                    return DataGridSortDirection.Descending;
+                    return SortDirection.Descending;
                 }
             }
             return default;
@@ -46,7 +45,7 @@ namespace WingetGUIInstaller.Utils
             {
                 try
                 {
-                    advancedCollectionView.Filter = default;
+                    advancedCollectionView.Filter = p => true;
                 }
                 catch { }
             }

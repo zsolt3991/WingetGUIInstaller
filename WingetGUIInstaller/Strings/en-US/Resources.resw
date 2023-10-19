@@ -201,28 +201,28 @@
   <data name="CopyrightField.Text" xml:space="preserve">
     <value>Copyright:</value>
   </data>
-  <data name="DataGridAvailableVersionColumn.Header" xml:space="preserve">
+  <data name="DataGridAvailableVersionColumn.Content" xml:space="preserve">
     <value>Available Version</value>
   </data>
-  <data name="DataGridEnabledColumn.Header" xml:space="preserve">
+  <data name="DataGridEnabledColumn.Content" xml:space="preserve">
     <value>Enabled</value>
   </data>
-  <data name="DataGridInstalledVersionColumn.Header" xml:space="preserve">
+  <data name="DataGridInstalledVersionColumn.Content" xml:space="preserve">
     <value>Installed Version</value>
   </data>
-  <data name="DataGridPackageIdColumn.Header" xml:space="preserve">
+  <data name="DataGridPackageIdColumn.Content" xml:space="preserve">
     <value>Package Id</value>
   </data>
-  <data name="DataGridPackageNameColumn.Header" xml:space="preserve">
+  <data name="DataGridPackageNameColumn.Content" xml:space="preserve">
     <value>Package Name</value>
   </data>
-  <data name="DataGridPackageSourceArgumentColumn.Header" xml:space="preserve">
+  <data name="DataGridPackageSourceArgumentColumn.Content" xml:space="preserve">
     <value>Source Url</value>
   </data>
-  <data name="DataGridPackageSourceColumn.Header" xml:space="preserve">
+  <data name="DataGridPackageSourceColumn.Content" xml:space="preserve">
     <value>Source</value>
   </data>
-  <data name="DataGridPackageSourceNameColumn.Header" xml:space="preserve">
+  <data name="DataGridPackageSourceNameColumn.Content" xml:space="preserve">
     <value>Soruce Name</value>
   </data>
   <data name="DeleteSelectedPackageSources.Content" xml:space="preserve">

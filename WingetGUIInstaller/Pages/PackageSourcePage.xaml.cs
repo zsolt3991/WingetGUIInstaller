@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.WinUI.UI.Controls;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
 
@@ -10,39 +11,47 @@ namespace WingetGUIInstaller.Pages
     [NavigationKey(Enums.NavigationItemKey.PackageSources)]
     public sealed partial class PackageSourceManagementPage : Page
     {
+        private readonly Dictionary<string, SortDirection?> _sortDirections;
+
+        public PackageSourcePageViewModel ViewModel { get; }
+
         public PackageSourceManagementPage()
         {
             InitializeComponent();
             DataContext = ViewModel = Ioc.Default.GetRequiredService<PackageSourcePageViewModel>();
+            _sortDirections = new Dictionary<string, SortDirection?>
+            {
+                {nameof(WingetPackageSourceViewModel.Name), null },
+                {nameof(WingetPackageSourceViewModel.Argument), null }
+            };
         }
-
-        public PackageSourcePageViewModel ViewModel { get; }
 
         private async void AddSource_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             await AddPackageSourceDialog.ShowAsync().AsTask();
         }
 
-        private void DataGrid_Sorting(object sender, DataGridColumnEventArgs e)
+        private void NameColumnHeader_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            var propertyName = e.Column.Tag.ToString() switch
-            {
-                "SourceSelected" => nameof(WingetPackageSourceViewModel.IsSelected),
-                "SourceName" => nameof(WingetPackageSourceViewModel.Name),
-                "SourceUrl" => nameof(WingetPackageSourceViewModel.Argument),
-                "SourceEnabled" => nameof(WingetPackageSourceViewModel.IsEnabled),
-                _ => string.Empty
-            };
+            CollectionSorting(nameof(WingetPackageSourceViewModel.Name));
+        }
 
-            foreach (var dgColumn in PackageSourcesGrid.Columns)
+        private void ArgumentColumnHeader_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            CollectionSorting(nameof(WingetPackageSourceViewModel.Argument));
+        }
+
+        private void CollectionSorting(string fieldName)
+        {
+            foreach (var sortingField in _sortDirections.Keys)
             {
-                if (dgColumn.Tag.ToString() != e.Column.Tag.ToString())
+                if (sortingField != fieldName)
                 {
-                    dgColumn.SortDirection = null;
+                    _sortDirections[sortingField] = null;
                 }
             }
 
-            e.Column.SortDirection = ViewModel.PackageSourcesView.ApplySorting(propertyName, e.Column.SortDirection);
+            _sortDirections[fieldName] = ViewModel.PackageSourcesView.ApplySorting(fieldName, _sortDirections[fieldName]);
         }
     }
 }

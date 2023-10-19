@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.WinUI.UI.Controls;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
+using System.Collections.Generic;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Utils;
 using WingetGUIInstaller.ViewModels;
@@ -10,33 +11,42 @@ namespace WingetGUIInstaller.Pages
     [NavigationKey(NavigationItemKey.Upgrades)]
     public sealed partial class UpgradePage : Page
     {
+        private readonly Dictionary<string, SortDirection?> _sortDirections;
+
         public UpgradePageViewModel ViewModel { get; }
 
         public UpgradePage()
         {
             InitializeComponent();
-            DataContext = ViewModel = Ioc.Default.GetRequiredService<UpgradePageViewModel>();
+            DataContext = ViewModel = Ioc.Default.GetRequiredService<UpgradePageViewModel>(); 
+            _sortDirections = new Dictionary<string, SortDirection?>
+            {
+                {nameof(WingetPackageViewModel.Name), null },
+                {nameof(WingetPackageViewModel.Source), null }
+            };
         }
 
-        private void DataGrid_Sorting(object sender, DataGridColumnEventArgs e)
+        private void NameColumnHeader_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            var propertyName = e.Column.Tag.ToString() switch
-            {
-                "Selected" => nameof(WingetPackageViewModel.IsSelected),
-                "PackageName" => nameof(WingetPackageViewModel.Name),
-                "Source" => nameof(WingetPackageViewModel.Source),
-                _ => string.Empty
-            };
+            CollectionSorting(nameof(WingetPackageViewModel.Name));
+        }
 
-            foreach (var dgColumn in PackagesGrid.Columns)
+        private void SourceColumnHeader_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            CollectionSorting(nameof(WingetPackageViewModel.Source));
+        }
+
+        private void CollectionSorting(string fieldName)
+        {
+            foreach (var sortingField in _sortDirections.Keys)
             {
-                if (dgColumn.Tag.ToString() != e.Column.Tag.ToString())
+                if (sortingField != fieldName)
                 {
-                    dgColumn.SortDirection = null;
+                    _sortDirections[sortingField] = null;
                 }
             }
 
-            e.Column.SortDirection = ViewModel.PackagesView.ApplySorting(propertyName, e.Column.SortDirection);
+            _sortDirections[fieldName] = ViewModel.PackagesView.ApplySorting(fieldName, _sortDirections[fieldName]);
         }
     }
 }
