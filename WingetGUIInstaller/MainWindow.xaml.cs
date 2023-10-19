@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Common.Extensions;
-using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Windowing;

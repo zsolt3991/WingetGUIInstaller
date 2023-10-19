@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="WingetGUIInstaller.Controls.LoadingIndicator"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters">
+             xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />

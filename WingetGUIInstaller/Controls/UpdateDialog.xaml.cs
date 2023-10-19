@@ -39,9 +39,9 @@ namespace WingetGUIInstaller.Controls
             InitializeComponent();
         }
 
-        private async void MarkdownTextBlock_LinkClicked(object sender, CommunityToolkit.WinUI.UI.Controls.LinkClickedEventArgs e)
-        {
-            await Launcher.LaunchUriAsync(new Uri(e.Link));
-        }
+        //private async void MarkdownTextBlock_LinkClicked(object sender, CommunityToolkit.WinUI.UI.Controls.LinkClickedEventArgs e)
+        //{
+        //    await Launcher.LaunchUriAsync(new Uri(e.Link));
+        //}
     }
 }

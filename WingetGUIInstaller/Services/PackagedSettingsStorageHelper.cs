@@ -1,5 +1,5 @@
 ﻿#if !UNPACKAGED
-using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using System.Collections.Generic;
 using System.Text.Json;
 using Windows.Storage;

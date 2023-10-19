@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Common.Extensions;
-using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
-using CommunityToolkit.WinUI.UI;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System;

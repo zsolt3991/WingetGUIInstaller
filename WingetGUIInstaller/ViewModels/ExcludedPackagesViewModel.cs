@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Common.Extensions;
-using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.UI;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.ObjectModel;

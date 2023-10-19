@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Common.Extensions;
 using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.DependencyInjection;
 #if !UNPACKAGED
-using CommunityToolkit.WinUI.Helpers;
 #endif
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,8 +53,8 @@ namespace WingetGUIInstaller
             _settingsStorage = new UnpackagedSettingStorageHelper(_fileStorage);
 #else
 
-            _settingsStorage = ApplicationDataStorageHelper.GetCurrent();
-            _fileStorage = ApplicationDataStorageHelper.GetCurrent();
+            _fileStorage = new PackagedFileStorageHelper();
+            _settingsStorage = new PackagedSettingsStorageHelper();
 #endif
             ConfigureServices();
 
@@ -90,7 +90,7 @@ namespace WingetGUIInstaller
 
                 _logger.LogInformation("Launch Kind: {kind}", args.UWPLaunchActivatedEventArgs.Kind);
 #if !UNPACKAGED
-                _logger.LogInformation("Application Version: {version}", Windows.ApplicationModel.Package.Current.Id.Version.ToFormattedString());
+                _logger.LogInformation("Application Version: {version}", Windows.ApplicationModel.Package.Current.Id.Version.ToVersion());
 #else
                 _logger.LogInformation("Application Version: {version}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
 #endif            

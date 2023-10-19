@@ -24,7 +24,7 @@ namespace WingetGUIInstaller.Services
             ValidatePath(completePath);
 
             var relativePath = Path.GetRelativePath(Path.GetFullPath(completePath), _rootFolder.Path);
-            var file = await _rootFolder.CreateFileAsync(relativePath);
+            var file = await _rootFolder.CreateFileAsync(relativePath, CreationCollisionOption.ReplaceExisting);
             var fileContent = JsonSerializer.Serialize<T>(value);
 
             using (var stream = await file.OpenStreamForWriteAsync())
@@ -43,7 +43,7 @@ namespace WingetGUIInstaller.Services
             ValidatePath(completePath);
 
             var relativePath = Path.GetRelativePath(Path.GetFullPath(completePath), _rootFolder.Path);
-            await _rootFolder.CreateFolderAsync(relativePath);
+            await _rootFolder.CreateFolderAsync(relativePath, CreationCollisionOption.OpenIfExists);
         }
 
         public async Task<T> ReadFileAsync<T>(string filePath, T @default = default)
