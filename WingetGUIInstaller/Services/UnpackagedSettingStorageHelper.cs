@@ -1,5 +1,6 @@
 ﻿#if UNPACKAGED
 using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
