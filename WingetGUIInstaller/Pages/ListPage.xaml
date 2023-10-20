@@ -57,7 +57,7 @@
                   ItemsSource="{x:Bind ViewModel.PackagesView, Mode=OneWay}"
                   SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}">
             <ListView.Header>
-                <Border Background="Black">
+                <Border Background="{ThemeResource SolidBackgroundFillColorBaseAlt}">
                     <i:Interaction.Behaviors>
                         <behaviors:StickyHeaderBehavior />
                     </i:Interaction.Behaviors>
