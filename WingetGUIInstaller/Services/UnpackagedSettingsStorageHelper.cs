@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace WingetGUIInstaller.Services
 {
-    internal sealed class UnpackagedSettingStorageHelper : ISettingsStorageHelper<string>
+    internal sealed class UnpackagedSettingsStorageHelper : ISettingsStorageHelper<string>
     {
         private const string SettingsFileName = "settings.json";
         private readonly IFileStorageHelper _fileStorage;
         private readonly SemaphoreSlim _fileAccessSemaphore;
         private IDictionary<string, string> _settings;
 
-        public UnpackagedSettingStorageHelper(IFileStorageHelper fileStorage)
+        public UnpackagedSettingsStorageHelper(IFileStorageHelper fileStorage)
         {
             _fileStorage = fileStorage;
             _settings = _fileStorage.ReadFileAsync(SettingsFileName, new Dictionary<string, string>()).ConfigureAwait(false).GetAwaiter().GetResult();
