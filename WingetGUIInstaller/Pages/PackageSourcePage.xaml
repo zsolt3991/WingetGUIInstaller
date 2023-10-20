@@ -40,10 +40,12 @@
                                             PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}" />
 
         <StackPanel Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" ScrollViewer.VerticalScrollMode="Enabled">
-            <customControls:ToggleButtonSettingsControl x:Uid="IgnoreEmptyPackageSourceToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                        IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
-            <customControls:ToggleButtonSettingsControl x:Uid="FilterEnabledPackageSourcesToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                        IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
+            <toolkit:SettingsCard x:Uid="IgnoreEmptyPackageSourceToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
+            </toolkit:SettingsCard>
+            <toolkit:SettingsCard x:Uid="FilterEnabledPackageSourcesToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
+            </toolkit:SettingsCard>
         </StackPanel>
 
         <toolkit:HeaderedContentControl Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
