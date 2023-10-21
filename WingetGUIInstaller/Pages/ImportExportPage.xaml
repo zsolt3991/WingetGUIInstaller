@@ -11,55 +11,62 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
                 <RowDefinition />
-                <RowDefinition />
             </Grid.RowDefinitions>
 
             <TextBlock Name="PageTitle" x:Uid="ImportExportPageTitle" Grid.Row="0" Margin="5"
                        Style="{ThemeResource TitleTextBlockStyle}" />
 
-            <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                <controls:HeaderedContentControl.Header>
-                    <TextBlock x:Uid="ImportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                </controls:HeaderedContentControl.Header>
-                <StackPanel Margin="0,10" Orientation="Vertical">
-                    <controls:SettingsCard x:Uid="BrowseImportFile" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           Description="{x:Bind ViewModel.ImportFileText, Mode=OneWay}">
-                        <Button x:Uid="BrowseButton" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                Command="{x:Bind ViewModel.BrowseImportFileCommand, Mode=OneWay}" />
-                    </controls:SettingsCard>
-                    <controls:SettingsCard x:Uid="IgnoreImportedVersionToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.ImportVersions, Mode=TwoWay}" />
-                    </controls:SettingsCard>
-                    <controls:SettingsCard x:Uid="IgnoreImportedUnavailableToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.IgnoreMissing, Mode=TwoWay}" />
-                    </controls:SettingsCard>
-                    <Button x:Uid="ImportPackageListButton" Margin="0,1" HorizontalAlignment="Stretch"
-                            Command="{x:Bind ViewModel.ImportPackageListCommand}" />
-                </StackPanel>
-            </controls:HeaderedContentControl>
+            <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollMode="Enabled">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <controls:HeaderedContentControl Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <controls:HeaderedContentControl.Header>
+                            <TextBlock x:Uid="ImportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                        </controls:HeaderedContentControl.Header>
+                        <StackPanel Margin="0,10" Orientation="Vertical">
+                            <controls:SettingsCard x:Uid="BrowseImportFile" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                   Description="{x:Bind ViewModel.ImportFileText, Mode=OneWay}">
+                                <Button x:Uid="BrowseButton" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                        Command="{x:Bind ViewModel.BrowseImportFileCommand, Mode=OneWay}" />
+                            </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="IgnoreImportedVersionToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.ImportVersions, Mode=TwoWay}" />
+                            </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="IgnoreImportedUnavailableToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.IgnoreMissing, Mode=TwoWay}" />
+                            </controls:SettingsCard>
+                            <Button x:Uid="ImportPackageListButton" Margin="0,1" HorizontalAlignment="Stretch"
+                                    Command="{x:Bind ViewModel.ImportPackageListCommand}" />
+                        </StackPanel>
+                    </controls:HeaderedContentControl>
 
-            <controls:HeaderedContentControl Grid.Row="2" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                <controls:HeaderedContentControl.Header>
-                    <TextBlock x:Uid="ExportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                </controls:HeaderedContentControl.Header>
-                <StackPanel Margin="0,10" Orientation="Vertical">
-                    <controls:SettingsCard x:Uid="BrowseExportFile" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           Description="{x:Bind ViewModel.ExportFileText, Mode=OneWay}">
-                        <Button x:Uid="BrowseButton" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                Command="{x:Bind ViewModel.BrowseExportFileCommand, Mode=OneWay}" />
-                    </controls:SettingsCard>
-                    <controls:SettingsCard x:Uid="ExportVersionsToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.ExportVersions, Mode=TwoWay}" />
-                    </controls:SettingsCard>
-                    <controls:SettingsCard x:Uid="ExportSourceSelector" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                                  ItemsSource="{x:Bind ViewModel.PackageSources, Mode=OneWay}"
-                                  SelectedItem="{x:Bind ViewModel.SelectedSourceName, Mode=TwoWay}" />
-                    </controls:SettingsCard>
-                    <Button x:Uid="ExportPackageListButton" Margin="0,1" HorizontalAlignment="Stretch"
-                            Command="{x:Bind ViewModel.ExportPackageListCommand}" />
-                </StackPanel>
-            </controls:HeaderedContentControl>
+                    <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <controls:HeaderedContentControl.Header>
+                            <TextBlock x:Uid="ExportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                        </controls:HeaderedContentControl.Header>
+                        <StackPanel Margin="0,10" Orientation="Vertical">
+                            <controls:SettingsCard x:Uid="BrowseExportFile" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                   Description="{x:Bind ViewModel.ExportFileText, Mode=OneWay}">
+                                <Button x:Uid="BrowseButton" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                        Command="{x:Bind ViewModel.BrowseExportFileCommand, Mode=OneWay}" />
+                            </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="ExportVersionsToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.ExportVersions, Mode=TwoWay}" />
+                            </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="ExportSourceSelector" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                          ItemsSource="{x:Bind ViewModel.PackageSources, Mode=OneWay}"
+                                          SelectedItem="{x:Bind ViewModel.SelectedSourceName, Mode=TwoWay}" />
+                            </controls:SettingsCard>
+                            <Button x:Uid="ExportPackageListButton" Margin="0,1" HorizontalAlignment="Stretch"
+                                    Command="{x:Bind ViewModel.ExportPackageListCommand}" />
+                        </StackPanel>
+                    </controls:HeaderedContentControl>
+                </Grid>
+            </ScrollViewer>
         </Grid>
 
         <customControls:LoadingIndicator Name="LoadingWidget" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
