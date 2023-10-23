@@ -2,10 +2,14 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+#if UNPACKAGED
 using Microsoft.Windows.ApplicationModel.Resources;
+#endif
 using System;
 using System.Threading.Tasks;
+#if !UNPACKAGED
 using Windows.ApplicationModel;
+#endif
 using WingetHelper.Commands;
 using WingetHelper.Services;
 
