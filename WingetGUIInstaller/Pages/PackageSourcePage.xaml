@@ -1,144 +1,117 @@
 ﻿<Page x:Class="WingetGUIInstaller.Pages.PackageSourceManagementPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
       xmlns:customControls="using:WingetGUIInstaller.Controls"
-      xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
-      xmlns:utils="using:WingetGUIInstaller.Utils" xmlns:viewmodels="using:WingetGUIInstaller.ViewModels"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:viewmodels="using:WingetGUIInstaller.ViewModels"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <converters:BoolNegationConverter x:Key="negator" />
-        <converters:BoolToObjectConverter x:Key="opacityConverter" FalseValue="1" TrueValue="0.5" />
-        <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
-        <utils:NegatedBoolToVisibilityConverter x:Key="negatedVisibilityConverter" />
-    </Page.Resources>
-
     <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+        <controls:HeaderedContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <controls:HeaderedContentControl.Header>
+                <TextBlock Name="PageTitle" x:Uid="PackageSourcesPageTitle" Height="50" Margin="5" HorizontalAlignment="Left"
+                           Style="{ThemeResource TitleTextBlockStyle}" />
+            </controls:HeaderedContentControl.Header>
 
-        <RelativePanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock Name="PageTitle"
-                       x:Uid="PackageSourcesPageTitle" Margin="5" HorizontalAlignment="Left"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       Style="{ThemeResource TitleTextBlockStyle}" />
-        </RelativePanel>
+            <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollMode="Enabled">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
 
-        <customControls:LoadingIndicator Name="LoadingWidget"
-                                         Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                         Canvas.ZIndex="99"
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" ScrollViewer.VerticalScrollMode="Enabled">
+                        <controls:SettingsCard x:Uid="IgnoreEmptyPackageSourceToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="FilterEnabledPackageSourcesToggle" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
+                        </controls:SettingsCard>
+                    </StackPanel>
+
+                    <controls:HeaderedContentControl Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                     VerticalContentAlignment="Stretch">
+                        <controls:HeaderedContentControl.Header>
+                            <RelativePanel Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TextBlock Name="ManageLabel" x:Uid="ManagePackageSourcesHeader " Margin="0,5" RelativePanel.AlignLeftWithPanel="True"
+                                           Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                <TextBox Name="FilterText" x:Uid="FilterPackageSources" Width="200" Margin="5" RelativePanel.LeftOf="RefreshContent"
+                                         Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Name="RefreshContent" Margin="5" HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.RefreshPackageSourceListCommand}"
+                                        Content="&#xE149;"
+                                        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        Style="{ThemeResource ButtonGlyphIconStyle}">
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip x:Uid="RefreshGlyphButtonTooltip" />
+                                    </ToolTipService.ToolTip>
+                                    <Button.KeyboardAccelerators>
+                                        <KeyboardAccelerator Key="F5" />
+                                    </Button.KeyboardAccelerators>
+                                </Button>
+                            </RelativePanel>
+                        </controls:HeaderedContentControl.Header>
+
+                        <ListView Name="PackageSourcesGrid" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  ItemsSource="{x:Bind ViewModel.PackageSourcesView, Mode=OneWay}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedSource, Mode=TwoWay}">
+                            <ListView.Header>
+                                <Border Background="{ThemeResource SolidBackgroundFillColorBaseAlt}" CornerRadius="5">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:StickyHeaderBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <controls:DataTable Height="32" Margin="12,0,0,0" ColumnSpacing="8">
+                                        <controls:DataColumn DesiredWidth="32" />
+                                        <controls:DataColumn x:Uid="DataGridPackageSourceNameColumn" DesiredWidth="2*" FontWeight="SemiBold" Tag="PackageName" Tapped="NameColumnHeader_Tapped" />
+                                        <controls:DataColumn x:Uid="DataGridPackageSourceArgumentColumn" DesiredWidth="2*" FontWeight="SemiBold" Tag="PackageVersion"
+                                                             Tapped="ArgumentColumnHeader_Tapped" />
+                                        <controls:DataColumn x:Uid="DataGridEnabledColumn" DesiredWidth="100" FontWeight="SemiBold" />
+                                    </controls:DataTable>
+                                </Border>
+                            </ListView.Header>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
+                                    <controls:DataRow>
+                                        <CheckBox MinWidth="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
+                                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Argument}" TextTrimming="CharacterEllipsis" />
+                                        <CheckBox MinWidth="20" VerticalAlignment="Center" IsChecked="{x:Bind IsEnabled, Mode=TwoWay}" />
+                                    </controls:DataRow>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </controls:HeaderedContentControl>
+
+                    <RelativePanel Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <TextBlock Name="SelectedText" Margin="10" VerticalAlignment="Center" RelativePanel.AlignLeftWithPanel="True"
+                                   Style="{ThemeResource BodyLargeTextBlockStyle}">
+                            <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
+                            <Run x:Uid="PackageSourcesSelectedCount" />
+                        </TextBlock>
+                        <Button Name="AddSource" x:Uid="AddPackageSource" MinWidth="160" Margin="5" Click="AddSource_Click"
+                                RelativePanel.AlignRightWithPanel="True"
+                                Style="{ThemeResource ButtonLargeTextStyle}" />
+                        <Button Name="DeleteSelected" x:Uid="DeleteSelectedPackageSources" MinWidth="160" Margin="5"
+                                Command="{x:Bind ViewModel.RemoveSelectedPackageSourcesCommand}"
+                                RelativePanel.LeftOf="AddSource"
+                                Style="{ThemeResource ButtonLargeTextStyle}" />
+                    </RelativePanel>
+                </Grid>
+            </ScrollViewer>
+        </controls:HeaderedContentControl>
+
+        <customControls:LoadingIndicator Name="LoadingWidget" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Canvas.ZIndex="99"
                                          IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                          Message="Loading" />
 
         <customControls:PackageSourceDialog x:Name="AddPackageSourceDialog"
-                                            Grid.Row="0" Grid.RowSpan="4"
                                             PackageSourceName="{x:Bind ViewModel.NewPackageSourceName, Mode=TwoWay}"
                                             PackageSourceUrl="{x:Bind ViewModel.NewPackageSourceUrl, Mode=TwoWay}"
                                             PrimaryButtonCommand="{x:Bind ViewModel.AddPackageSourceCommand}" />
-
-        <StackPanel Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical"
-                    ScrollViewer.VerticalScrollMode="Enabled">
-            <customControls:ToggleButtonSettingsControl x:Uid="IgnoreEmptyPackageSourceToggle" Margin="0,1" HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch"
-                                                        IsOn="{x:Bind ViewModel.IgnoreEmptyPackageSourceEnabled, Mode=TwoWay}" />
-            <customControls:ToggleButtonSettingsControl x:Uid="FilterEnabledPackageSourcesToggle" Margin="0,1" HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch"
-                                                        IsOn="{x:Bind ViewModel.PackageSourceFilteringEnabled, Mode=TwoWay}" />
-        </StackPanel>
-
-        <toolkit:HeaderedContentControl Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-            <toolkit:HeaderedContentControl.Header>
-                <RelativePanel Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TextBlock Name="ManageLabel"
-                               x:Uid="ManagePackageSourcesHeader " Margin="0,5" RelativePanel.AlignLeftWithPanel="True"
-                               Style="{ThemeResource SubtitleTextBlockStyle}" />
-                    <TextBox Name="FilterText" Width="200"
-                             x:Uid="FilterPackageSources" Margin="5" RelativePanel.LeftOf="RefreshContent"
-                             Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button Name="RefreshContent"
-                            Margin="5" HorizontalAlignment="Right"
-                            Command="{x:Bind ViewModel.RefreshPackageSourceListCommand}"
-                            Content="&#xE149;"
-                            FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                            RelativePanel.AlignRightWithPanel="True"
-                            Style="{ThemeResource ButtonGlyphIconStyle}">
-                        <ToolTipService.ToolTip>
-                            <ToolTip x:Uid="RefreshGlyphButtonTooltip" />
-                        </ToolTipService.ToolTip>
-                        <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="F5" />
-                        </Button.KeyboardAccelerators>
-                    </Button>
-                </RelativePanel>
-            </toolkit:HeaderedContentControl.Header>
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="50" />
-                </Grid.RowDefinitions>
-                <toolkit:DataGrid Name="PackageSourcesGrid"
-                                  Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                  AutoGenerateColumns="False" BorderBrush="DarkGray" BorderThickness="1" CanUserReorderColumns="False"
-                                  CanUserResizeColumns="False" GridLinesVisibility="None" IsReadOnly="True"
-                                  ItemsSource="{x:Bind ViewModel.PackageSourcesView, Mode=OneWay}"
-                                  SelectedItem="{x:Bind ViewModel.SelectedSource, Mode=TwoWay}"
-                                  Sorting="DataGrid_Sorting">
-                    <toolkit:DataGrid.Resources>
-                        <SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent" />
-                        <SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="Transparent" />
-                    </toolkit:DataGrid.Resources>
-                    <toolkit:DataGrid.Columns>
-                        <toolkit:DataGridTemplateColumn Width="32"
-                                                        CanUserSort="True" Tag="SourceSelected">
-                            <toolkit:DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
-                                    <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
-                                </DataTemplate>
-                            </toolkit:DataGridTemplateColumn.CellTemplate>
-                        </toolkit:DataGridTemplateColumn>
-                        <toolkit:DataGridTextColumn Width="2*"
-                                                    x:Uid="DataGridPackageSourceNameColumn"
-                                                    Binding="{Binding Name}"
-                                                    CanUserSort="True" Tag="SourceName" />
-                        <toolkit:DataGridTextColumn Width="2*"
-                                                    x:Uid="DataGridPackageSourceArgumentColumn"
-                                                    Binding="{Binding Argument}"
-                                                    CanUserSort="True" Tag="SourceUrl" />
-                        <toolkit:DataGridTemplateColumn Width="100"
-                                                        x:Uid="DataGridEnabledColumn" CanUserSort="True" Tag="SourceEnabled">
-                            <toolkit:DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="viewmodels:WingetPackageSourceViewModel">
-                                    <CheckBox MinWidth="20" Margin="6,0" HorizontalAlignment="Center"
-                                              IsChecked="{x:Bind IsEnabled, Mode=TwoWay}" />
-                                </DataTemplate>
-                            </toolkit:DataGridTemplateColumn.CellTemplate>
-                        </toolkit:DataGridTemplateColumn>
-                    </toolkit:DataGrid.Columns>
-                </toolkit:DataGrid>
-                <RelativePanel Grid.Row="1" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TextBlock Name="SelectedText"
-                               Margin="10" VerticalAlignment="Center" RelativePanel.AlignLeftWithPanel="True"
-                               Style="{ThemeResource BodyLargeTextBlockStyle}">
-                        <Run Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay}" />
-                        <Run x:Uid="PackageSourcesSelectedCount" />
-                    </TextBlock>
-                    <Button Name="AddSource"
-                            x:Uid="AddPackageSource" MinWidth="160" Margin="5" Click="AddSource_Click"
-                            RelativePanel.AlignRightWithPanel="True"
-                            Style="{ThemeResource ButtonLargeTextStyle}" />
-                    <Button Name="DeleteSelected"
-                            x:Uid="DeleteSelectedPackageSources" MinWidth="160" Margin="5"
-                            Command="{x:Bind ViewModel.RemoveSelectedPackageSourcesCommand}"
-                            RelativePanel.LeftOf="AddSource"
-                            Style="{ThemeResource ButtonLargeTextStyle}" />
-                </RelativePanel>
-            </Grid>
-        </toolkit:HeaderedContentControl>
     </Grid>
 </Page>

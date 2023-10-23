@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.Common.Extensions;
-using CommunityToolkit.Common.Helpers;
+using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
-using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
