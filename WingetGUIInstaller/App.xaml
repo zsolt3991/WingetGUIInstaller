@@ -25,6 +25,7 @@
             <!--  Common Converter Resources  -->
             <converters:BoolNegationConverter x:Key="boolNegationConverter" />
             <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
+            <converters:StringVisibilityConverter x:Key="stringVisibilityConverter" />
             <utils:NegatedBoolToVisibilityConverter x:Key="negatedVisibilityConverter" />
 
         </ResourceDictionary>

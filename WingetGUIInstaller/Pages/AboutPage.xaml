@@ -9,28 +9,23 @@
         <converters:BoolToObjectConverter x:Key="installedStatusConverter" FalseValue="Not Installed" TrueValue="Installed" />
     </Page.Resources>
 
-    <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <controls:HeaderedContentControl Margin="5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <controls:HeaderedContentControl.Header>
+            <TextBlock Name="PageTitle" x:Uid="AboutPageTitle" Height="50" Margin="5"
+                       Style="{ThemeResource TitleTextBlockStyle}" />
+        </controls:HeaderedContentControl.Header>
 
-        <TextBlock Name="PageTitle" x:Uid="AboutPageTitle" Grid.Row="0" Margin="5"
-                   Style="{ThemeResource TitleTextBlockStyle}" />
-
-        <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                                         VerticalContentAlignment="Stretch">
+        <controls:HeaderedContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
             <controls:HeaderedContentControl.Header>
                 <StackPanel Orientation="Horizontal">
-                    <Image Grid.Row="0" Grid.Column="0" Width="48" Height="48" Margin="5"
-                           HorizontalAlignment="Left" VerticalAlignment="Center"
+                    <Image Width="48" Height="48" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                            Source="{x:Bind ViewModel.ApplicationIcon}" />
-
-                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
+                    <TextBlock Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                                Style="{ThemeResource SubtitleTextBlockStyle}"
                                Text="{x:Bind ViewModel.ApplicationName}" />
                 </StackPanel>
             </controls:HeaderedContentControl.Header>
+
             <StackPanel Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
 
                 <TextBlock Margin="5" Style="{ThemeResource BodyTextBlockStyle}">
@@ -66,5 +61,5 @@
                 </TextBlock>
             </StackPanel>
         </controls:HeaderedContentControl>
-    </Grid>
+    </controls:HeaderedContentControl>
 </Page>

@@ -7,22 +7,15 @@
 
     <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
+        <controls:HeaderedContentControl HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <controls:HeaderedContentControl.Header>
+                <TextBlock Name="PageTitle" x:Uid="ImportExportPageTitle" Height="50" Margin="5"
+                           Style="{ThemeResource TitleTextBlockStyle}" />
+            </controls:HeaderedContentControl.Header>
 
-            <TextBlock Name="PageTitle" x:Uid="ImportExportPageTitle" Grid.Row="0" Margin="5"
-                       Style="{ThemeResource TitleTextBlockStyle}" />
-
-            <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollMode="Enabled">
-                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <controls:HeaderedContentControl Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+            <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollMode="Enabled">
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical">
+                    <controls:HeaderedContentControl Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <controls:HeaderedContentControl.Header>
                             <TextBlock x:Uid="ImportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
                         </controls:HeaderedContentControl.Header>
@@ -43,7 +36,7 @@
                         </StackPanel>
                     </controls:HeaderedContentControl>
 
-                    <controls:HeaderedContentControl Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <controls:HeaderedContentControl Margin="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <controls:HeaderedContentControl.Header>
                             <TextBlock x:Uid="ExportPackagesHeader" Style="{ThemeResource SubtitleTextBlockStyle}" />
                         </controls:HeaderedContentControl.Header>
@@ -65,12 +58,11 @@
                                     Command="{x:Bind ViewModel.ExportPackageListCommand}" />
                         </StackPanel>
                     </controls:HeaderedContentControl>
-                </Grid>
+                </StackPanel>
             </ScrollViewer>
-        </Grid>
+        </controls:HeaderedContentControl>
 
-        <customControls:LoadingIndicator Name="LoadingWidget" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                         Canvas.ZIndex="99"
+        <customControls:LoadingIndicator Name="LoadingWidget" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Canvas.ZIndex="99"
                                          IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                          Message="{x:Bind ViewModel.LoadingText, Mode=OneWay}" />
     </Grid>
