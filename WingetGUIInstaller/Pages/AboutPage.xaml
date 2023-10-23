@@ -7,7 +7,6 @@
 
     <Page.Resources>
         <converters:BoolToObjectConverter x:Key="installedStatusConverter" FalseValue="Not Installed" TrueValue="Installed" />
-        <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
     </Page.Resources>
 
     <Grid Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Top">
