@@ -5,9 +5,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using System;
+using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
+using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.Services
 {
@@ -15,6 +17,7 @@ namespace WingetGUIInstaller.Services
     {
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly ILogger<ToastNotificationManager> _logger;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
         public ToastNotificationManager(ISettingsStorageHelper<string> configurationStore, ILogger<ToastNotificationManager> logger)
         {
@@ -53,9 +56,9 @@ namespace WingetGUIInstaller.Services
 
             var notificationBuilder = new AppNotificationBuilder()
               .AddText(packageName)
-                .AddText(installComplete ?
-                    string.Format("Package {0} successful", installOperation.ToString()) :
-                    string.Format("Package {0} failed", installOperation.ToString()));
+              .AddText(installComplete ?
+                string.Format(_resourceLoader.GetString("PackageOperationSuccessfulFormat"), _resourceLoader.GetString(installOperation.GetResourceKey())) :
+                string.Format(_resourceLoader.GetString("PackageOperationFailedFormat"), _resourceLoader.GetString(installOperation.GetResourceKey())));
 
             _logger.LogDebug("Showing Status Notification for package: {name}", packageName);
             AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
@@ -67,12 +70,12 @@ namespace WingetGUIInstaller.Services
                 return;
 
             var notificationBuilder = new AppNotificationBuilder()
-                .AddText(string.Format("Package {0} complete", installOperation.ToString()))
-                .AddText(string.Format("Succesful: {0} packages", completedCount));
+                .AddText(string.Format(_resourceLoader.GetString("PackageOperationCompleteFormat"), _resourceLoader.GetString(installOperation.GetResourceKey())))
+                .AddText(string.Format(_resourceLoader.GetString("SuccessfulPackageCountFormat"), completedCount));
 
             if (attemptedCount != completedCount)
             {
-                notificationBuilder.AddText(string.Format("Failed: {0} packages", attemptedCount - completedCount));
+                notificationBuilder.AddText(string.Format(_resourceLoader.GetString("FailedPackageCountFormat"), attemptedCount - completedCount));
             }
 
             _logger.LogDebug("Showing Batch Status Notification");
@@ -89,11 +92,11 @@ namespace WingetGUIInstaller.Services
             {
                 notificationBuilder
                     .AddArgument("redirect", NavigationItemKey.Upgrades.ToString())
-                    .AddText(string.Format("Found {0} packages that can be upgraded", updateCount));
+                    .AddText(string.Format(_resourceLoader.GetString("FoundPackageUpdatesCountFormat"), updateCount));
             }
             else
             {
-                notificationBuilder.AddText("All packages are up to date");
+                notificationBuilder.AddText(_resourceLoader.GetString("PackagesUpToDateText"));
             }
 
             _logger.LogDebug("Showing Update availability Notification");

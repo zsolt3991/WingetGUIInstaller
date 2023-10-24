@@ -4,11 +4,13 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Enums;
 
 namespace WingetGUIInstaller.ViewModels
@@ -19,8 +21,9 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly ToastNotificationManager _toastNotificationManager;
         private readonly PackageDetailsCache _packageDetailsCache;
-        private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsInstallSupported))]
         [NotifyPropertyChangedFor(nameof(IsUpdateSupported))]
@@ -38,13 +41,12 @@ namespace WingetGUIInstaller.ViewModels
 
         public PackageDetailsPageViewModel(PackageManager packageManager, DispatcherQueue dispatcherQueue,
             ToastNotificationManager toastNotificationManager, PackageDetailsCache packageDetailsCache,
-            INavigationService<NavigationItemKey> navigationService, IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
+           IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
         {
             _packageManager = packageManager;
             _dispatcherQueue = dispatcherQueue;
             _toastNotificationManager = toastNotificationManager;
             _packageDetailsCache = packageDetailsCache;
-            _navigationService = navigationService;
             _packageDetailsViewModelFactory = packageDetailsViewModelFactory;
         }
 
@@ -81,7 +83,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
             });
             WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
@@ -102,7 +104,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
             });
             WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
@@ -123,7 +125,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = false;
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
             });
             WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
@@ -133,7 +135,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
                 IsLoading = true;
             });
 
@@ -148,7 +150,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private void OnPackageInstallProgress(WingetProcessState progess)
         {
-            _dispatcherQueue.TryEnqueue(() => LoadingText = progess.ToString());
+            _dispatcherQueue.TryEnqueue(() => LoadingText = _resourceLoader.GetString(progess.GetResourceKey()));
         }
     }
 }

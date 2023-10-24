@@ -11,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -37,6 +38,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageDetailsCache _packageDetailsCache;
         private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
         [ObservableProperty]
         private bool _isLoading;
@@ -201,7 +203,7 @@ namespace WingetGUIInstaller.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 IsLoading = true;
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
             });
 
             var returnedPackages = await _packageCache.GetInstalledPackages(forceUpdate);
@@ -265,7 +267,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private void OnPackageInstallProgress(WingetProcessState progess)
         {
-            _dispatcherQueue.TryEnqueue(() => LoadingText = progess.ToString());
+            _dispatcherQueue.TryEnqueue(() => LoadingText = _resourceLoader.GetString(progess.GetResourceKey()));
         }
 
         private void Packages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
