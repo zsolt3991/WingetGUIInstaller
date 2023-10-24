@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -29,6 +30,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly PackageManager _packageManager;
         private readonly ToastNotificationManager _notificationManager;
         private readonly IReadOnlyList<RecommendedItem> _recommendedItemList;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
         [ObservableProperty]
         private string _loadingText;
@@ -74,7 +76,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                LoadingText = "Loading";
+                LoadingText = _resourceLoader.GetString("LoadingText");
                 IsLoading = true;
             });
 

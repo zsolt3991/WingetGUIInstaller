@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -16,6 +17,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageManager _packageManager;
         private readonly PackageSourceCache _packageSourceCache;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
         [ObservableProperty]
         private bool _isLoading;
@@ -64,11 +66,11 @@ namespace WingetGUIInstaller.ViewModels
             _ = LoadPackageSourceListAsync();
         }
 
-        public string ImportFileText => ImportFile != default ? ImportFile.Path : "No file selected";
+        public string ImportFileText => ImportFile != default ? ImportFile.Path : _resourceLoader.GetString("NoFileSelectedText");
 
         public bool CanImport => ImportFile != default;
 
-        public string ExportFileText => ExportFile != default ? ExportFile.Path : "No file selected";
+        public string ExportFileText => ExportFile != default ? ExportFile.Path : _resourceLoader.GetString("NoFileSelectedText");
 
         public bool CanExport => ExportFile != default;
 
@@ -77,12 +79,12 @@ namespace WingetGUIInstaller.ViewModels
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                LoadingText = "Exporting";
+                LoadingText = _resourceLoader.GetString("ExportingText");
                 IsLoading = true;
             });
 
             await _packageManager.ExportPackageList(ExportFile, ExportVersions,
-                SelectedSourceName != "All sources" ? SelectedSourceName : default);
+                SelectedSourceName != _resourceLoader.GetString("AllSourcesText") ? SelectedSourceName : default);
             _dispatcherQueue.TryEnqueue(() => IsLoading = false);
         }
 
@@ -91,7 +93,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                LoadingText = "Importing";
+                LoadingText = _resourceLoader.GetString("ImportingText");
                 IsLoading = true;
             });
 
@@ -129,7 +131,7 @@ namespace WingetGUIInstaller.ViewModels
         {
             var packageSources = await _packageSourceCache.GetAvailablePackageSources();
             PackageSources = packageSources.Select(source => source.Name)
-                .Append("All sources")
+                .Append(_resourceLoader.GetString("AllSourcesText"))
                 .OrderBy(source => source)
                 .ToList();
             SelectedSourceName = PackageSources[0];

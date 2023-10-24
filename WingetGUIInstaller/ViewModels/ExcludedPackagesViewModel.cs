@@ -9,6 +9,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
@@ -24,6 +25,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ExclusionsManager _exclusionsManager;
         private readonly ObservableCollection<WingetPackageViewModel> _exclusions;
         private readonly ObservableCollection<WingetPackageViewModel> _excludables;
+        private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
         private bool? _excludedPackagesEnabled;
 
         [ObservableProperty]
@@ -51,7 +53,7 @@ namespace WingetGUIInstaller.ViewModels
             _packageCache = packageCache;
             _dispatcherQueue = dispatcherQueue;
             _exclusionsManager = exclusionsManager;
-            _loadingText = "Loading";
+            _loadingText = _resourceLoader.GetString("LoadingText");
             _exclusions = new ObservableCollection<WingetPackageViewModel>();
             _excludables = new ObservableCollection<WingetPackageViewModel>();
             _excludablePackagesCollection = new AdvancedCollectionView(_excludables, true);
