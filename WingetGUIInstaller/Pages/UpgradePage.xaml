@@ -71,7 +71,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <customcontrols:PackageDetailsView Grid.Row="2" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <customcontrols:PackageDetailsView Grid.Row="1" Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                    MoreButtonCommand="{x:Bind ViewModel.ViewPackageDetailsCommand}"
                                                    PackageDetails="{x:Bind ViewModel.SelectedPackageDetails, Mode=OneWay}"
                                                    Visibility="{x:Bind ViewModel.DetailsAvailable, Converter={StaticResource visibilityConverter}, Mode=OneWay}" />
