@@ -14,6 +14,7 @@ using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
+using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.ViewModels
@@ -25,12 +26,14 @@ namespace WingetGUIInstaller.ViewModels
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly ILogger<SettingsPageViewModel> _logger;
+        private readonly IReadOnlyList<ApplicationDisplayLanguage> _applicationLanguages;
         private bool? _advancedFunctionalityEnabled;
         private bool? _notificationsEnabled;
         private bool? _automaticUpdatesEnabled;
         private LogLevel? _selectedLogLevel;
         private NavigationItemKey? _selectedPage;
         private DisplayTheme? _selectedTheme;
+        private ApplicationDisplayLanguage _selectedDisplayLanguage;
 
         public SettingsPageViewModel(ISettingsStorageHelper<string> configurationStore,
            GithubPackageUpdaterSerivce updaterSerivce, ILogger<SettingsPageViewModel> logger)
@@ -38,6 +41,11 @@ namespace WingetGUIInstaller.ViewModels
             _configurationStore = configurationStore;
             _updaterSerivce = updaterSerivce;
             _logger = logger;
+            _applicationLanguages = new List<ApplicationDisplayLanguage>
+            {
+                new ApplicationDisplayLanguage{ FriendlyName = "System Default", CultureCode = "default"},
+                new ApplicationDisplayLanguage{ FriendlyName = "English", CultureCode = "en-US"},
+            };
         }
 
         public bool AdvancedFunctionalityEnabled
@@ -127,12 +135,35 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
+        public ApplicationDisplayLanguage SelectedLanguage
+        {
+            get
+            {
+                if (_selectedDisplayLanguage == null)
+                {
+                    var selectedDisplayLanguage = (string)_configurationStore
+                        .GetValueOrDefault(ConfigurationPropertyKeys.ApplicationLanguageOverride, ConfigurationPropertyKeys.ApplicationLanguageOverrideDefaultValue);
+                    _selectedDisplayLanguage = _applicationLanguages.FirstOrDefault(lang => lang.CultureCode == selectedDisplayLanguage) ?? _applicationLanguages[0];
+                }
+                return _selectedDisplayLanguage;
+            }
+            set
+            {
+                if (SetProperty(ref _selectedDisplayLanguage, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.ApplicationLanguageOverride, _selectedDisplayLanguage.CultureCode);
+                }
+            }
+        }
+
         public IReadOnlyList<LogLevel> LogLevels => Enum.GetValues<LogLevel>().Cast<LogLevel>().ToList();
 
         public IReadOnlyList<NavigationItemKey> AvailablePages => Enum.GetValues<NavigationItemKey>().Cast<NavigationItemKey>()
             .Where(key => !_disallowedKeys.Contains(key)).ToList();
 
         public IReadOnlyList<DisplayTheme> ApplicationThemes => Enum.GetValues<DisplayTheme>().Cast<DisplayTheme>().ToList();
+
+        public IReadOnlyList<ApplicationDisplayLanguage> ApplicationLanguages => _applicationLanguages;
 
         [RelayCommand]
         private async Task OpenLogsFolder()

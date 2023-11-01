@@ -16,6 +16,7 @@ namespace WingetGUIInstaller.Constants
         public const string ExcludedPackagesEnabled = "ExcludedPackagesEnabled";
         public const string ExcludedPackageIds = "ExcludedPackageIds";
         public const string LogLevel = "LogLevel";
+        public const string ApplicationLanguageOverride = "ApplicationLanguage";
 
         public const bool AdvancedFunctionalityEnabledDefaultValue = false;
         public const bool NotificationsEnabledDefaultValue = true;
@@ -28,5 +29,6 @@ namespace WingetGUIInstaller.Constants
         public const bool ExcludedPackagesEnabledDefaultValue = false;
         public const string ExcludedPackageIdsDefaultValue = "";
         public const int DefaultLogLevel = 2;
+        public const string ApplicationLanguageOverrideDefaultValue = "default";
     }
 }
