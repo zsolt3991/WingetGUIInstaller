@@ -1,6 +1,6 @@
 ﻿namespace WingetGUIInstaller.Models
 {
-    internal class SearchArguments
+    internal sealed class SearchArguments
     {
         public string TagName { get; private set; }
 
