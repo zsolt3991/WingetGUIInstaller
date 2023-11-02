@@ -49,7 +49,10 @@ namespace WingetHelper.Decoders
                     {
                         csvBuilder.AppendLine(string.Join(',', ParseDataLine(dataLine, columns)));
                     }
-                    catch { }
+                    catch
+                    {
+                        //Skip malformed lines
+                    }
                 }
 
                 return csvBuilder.ToString();

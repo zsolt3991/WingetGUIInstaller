@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Concurrent;
-using System.Security.AccessControl;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 
@@ -30,13 +29,13 @@ namespace WingetGUIInstaller.Services
 
         public bool CanGoForward => _currentFrame?.CanGoForward ?? false;
 
-        public void AddNavigationLevel(Frame frame)
+        public void AddNavigationLevel(Frame containerFrame)
         {
-            if (frame == default)
+            if (containerFrame == default)
             {
-                throw new ArgumentNullException(nameof(frame));
+                throw new ArgumentNullException(nameof(containerFrame));
             }
-            if (_currentFrame == default || _currentFrame.GetHashCode() != frame.GetHashCode())
+            if (_currentFrame == default || _currentFrame.GetHashCode() != containerFrame.GetHashCode())
             {
                 if (_currentFrame != default && _frameStack.TryPeek(out var lastFrame) &&
                     lastFrame.GetHashCode() != _currentFrame.GetHashCode())
@@ -46,7 +45,7 @@ namespace WingetGUIInstaller.Services
                     _frameStack.Push(_currentFrame);
                     _logger.LogDebug("Added new level to navigation stack");
                 }
-                _currentFrame = frame;
+                _currentFrame = containerFrame;
                 _currentFrame.Navigated += ActiveFrameNavigated;
                 _currentFrame.Navigating += ActiveFrameNavigating;
             }
@@ -75,16 +74,16 @@ namespace WingetGUIInstaller.Services
             DispatchNavigatedFrom(frame, e.NavigationMode);
         }
 
-        public void RemoveNavigationLevel(Frame frame)
+        public void RemoveNavigationLevel(Frame containerFrame)
         {
-            if (frame == default)
+            if (containerFrame == default)
             {
-                throw new ArgumentNullException(nameof(frame));
+                throw new ArgumentNullException(nameof(containerFrame));
             }
 
             if (NavigationDepth >= 1)
             {
-                if (_currentFrame.GetHashCode() == frame.GetHashCode())
+                if (_currentFrame.GetHashCode() == containerFrame.GetHashCode())
                 {
                     _logger.LogDebug("Removing a level from navigation stack");
                     _currentFrame.Navigated -= ActiveFrameNavigated;

@@ -5,7 +5,6 @@ using Microsoft.UI.Dispatching;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetHelper.Commands;

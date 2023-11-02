@@ -18,7 +18,7 @@ namespace WingetGUIInstaller.Pages
         public UpgradePage()
         {
             InitializeComponent();
-            DataContext = ViewModel = Ioc.Default.GetRequiredService<UpgradePageViewModel>(); 
+            DataContext = ViewModel = Ioc.Default.GetRequiredService<UpgradePageViewModel>();
             _sortDirections = new Dictionary<string, SortDirection?>
             {
                 {nameof(WingetPackageViewModel.Name), null },

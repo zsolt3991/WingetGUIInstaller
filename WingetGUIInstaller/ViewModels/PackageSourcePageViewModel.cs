@@ -219,16 +219,16 @@ namespace WingetGUIInstaller.ViewModels
         private void UpdateEnabledPackageList()
         {
             var listChanged = false;
-            foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled))
+            foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled).Select(p => p.Name))
             {
-                listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource.Name);
-                _logger.LogInformation("Adding {name} from package source filter blacklist", packageSource.Name);
+                listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource);
+                _logger.LogInformation("Adding {name} from package source filter blacklist", packageSource);
             }
 
-            foreach (var packageSource in _packageSources.Where(p => p.IsEnabled))
+            foreach (var packageSource in _packageSources.Where(p => p.IsEnabled).Select(p => p.Name))
             {
-                listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource.Name);
-                _logger.LogInformation("Removing {name} from package source filter blacklist", packageSource.Name);
+                listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource);
+                _logger.LogInformation("Removing {name} from package source filter blacklist", packageSource);
             }
 
             if (listChanged)

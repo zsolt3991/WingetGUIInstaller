@@ -1,6 +1,6 @@
 ﻿namespace WingetHelper.Models
 {
-    internal struct ColumnSpec
+    internal readonly struct ColumnSpec
     {
         public ColumnSpec(string headerName, int dataLength, bool isLastColumn = false)
         {

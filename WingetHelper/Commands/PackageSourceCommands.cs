@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using WingetHelper.Models;
 using WingetHelper.Decoders;
+using WingetHelper.Models;
 
 namespace WingetHelper.Commands
 {

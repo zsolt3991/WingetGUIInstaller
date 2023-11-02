@@ -86,7 +86,8 @@ namespace WingetGUIInstaller.ViewModels
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
-        public int SelectedCount => _packages.Any(p => p.IsSelected) ? _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
+        public int SelectedCount => _packages.Any(p => p.IsSelected) ?
+            _packages.Count(p => p.IsSelected) : SelectedPackage != default ? 1 : 0;
 
         public bool CanInstallAll => _packages.Any();
 
@@ -131,22 +132,20 @@ namespace WingetGUIInstaller.ViewModels
         {
             if (SearchQueryValid)
             {
+                _dispatcherQueue.TryEnqueue(() =>
                 {
-                    _dispatcherQueue.TryEnqueue(() =>
-                    {
-                        _packages.Clear();
-                        LoadingText = _resourceLoader.GetString("LoadingText");
-                        IsLoading = true;
-                    });
+                    _packages.Clear();
+                    LoadingText = _resourceLoader.GetString("LoadingText");
+                    IsLoading = true;
+                });
 
-                    var searchResults = await _packageCache.GetSearchResults(searchQuery, refreshInstalled);
+                var searchResults = await _packageCache.GetSearchResults(searchQuery, refreshInstalled);
 
-                    foreach (var entry in searchResults)
-                    {
-                        _dispatcherQueue.TryEnqueue(() => _packages.Add(new WingetPackageViewModel(entry)));
-                    }
-                    _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                foreach (var entry in searchResults)
+                {
+                    _dispatcherQueue.TryEnqueue(() => _packages.Add(new WingetPackageViewModel(entry)));
                 }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
             }
         }
 
@@ -309,13 +308,10 @@ namespace WingetGUIInstaller.ViewModels
 
         public void OnNavigatedTo(object parameter)
         {
-            if (parameter is SearchArguments searchArguments)
+            if (parameter is SearchArguments searchArguments && !string.IsNullOrEmpty(searchArguments.TagName))
             {
-                if (!string.IsNullOrEmpty(searchArguments.TagName))
-                {
-                    SearchQuery = string.Format("[tag] {0}", searchArguments.TagName);
-                    _ = SearchPackagesAsync();
-                }
+                SearchQuery = string.Format("[tag] {0}", searchArguments.TagName);
+                _ = SearchPackagesAsync();
             }
         }
 

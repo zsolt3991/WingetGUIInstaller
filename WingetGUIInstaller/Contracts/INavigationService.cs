@@ -4,7 +4,7 @@ using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.Contracts
 {
-    public interface INavigationService<TNavigationKey> where TNavigationKey : Enum
+    public interface INavigationService<in TNavigationKey> where TNavigationKey : Enum
     {
         public void GoBack();
         void GoForward();
