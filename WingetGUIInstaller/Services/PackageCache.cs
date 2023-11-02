@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -115,7 +114,7 @@ namespace WingetGUIInstaller.Services
 
             // Ignore Packages already installed
             var searchResults = _searchResults
-                .Where(r => !_installedPackages?.Any(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
+                .Where(r => !_installedPackages?.Exists(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
 
             searchResults = ApplyExclusions(searchResults, ignoreSourceExclusion, ignorePackageExclusion);
             return searchResults.ToList();
@@ -193,10 +192,10 @@ namespace WingetGUIInstaller.Services
         private static IDictionary<PackageFilterCriteria, string> ParseSearchQuery(string searchQuery, out string strippedQuery)
         {
             var parsedEntries = new Dictionary<PackageFilterCriteria, string>();
-            foreach (var match in Regex.Matches(searchQuery, FilterRegex).Cast<Match>())
+            foreach (var matchGroups in Regex.Matches(searchQuery, FilterRegex).Select(m => m.Groups))
             {
-                var tag = TagToFilterCriteria(match.Groups["tag"].Value);
-                var value = match.Groups["value"].Value;
+                var tag = TagToFilterCriteria(matchGroups["tag"].Value);
+                var value = matchGroups["value"].Value;
                 if (tag != PackageFilterCriteria.Default)
                 {
                     parsedEntries.Add(tag, value);

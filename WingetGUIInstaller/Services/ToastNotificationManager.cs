@@ -106,13 +106,11 @@ namespace WingetGUIInstaller.Services
         internal void HandleToastActivation(AppNotificationActivatedEventArgs notificationArgs)
         {
             _logger.LogDebug("Handling Toast Activation");
-            if (notificationArgs.Arguments.TryGetValue("redirect", out var redirectLocationString))
+            if (notificationArgs.Arguments.TryGetValue("redirect", out var redirectLocationString)
+                && Enum.TryParse<NavigationItemKey>(redirectLocationString, false, out var redirectLocation))
             {
-                if (Enum.TryParse<NavigationItemKey>(redirectLocationString, false, out var redirectLocation))
-                {
-                    _logger.LogInformation("Handling Toast Activation: Redirect: {key}", redirectLocation);
-                    WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
-                }
+                _logger.LogInformation("Handling Toast Activation: Redirect: {key}", redirectLocation);
+                WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
             }
         }
 

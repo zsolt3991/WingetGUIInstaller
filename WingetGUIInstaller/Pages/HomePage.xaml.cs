@@ -20,9 +20,10 @@ namespace WingetGUIInstaller.Pages
     public sealed partial class HomePage : Page
     {
         private readonly ISettingsStorageHelper<string> _applicationSettings;
-        private NavigationItemKey _defaultPage = NavigationItemKey.Recommendations;
-        private bool _pageLoaded = false;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
+        private bool _pageLoaded = false;
+        private NavigationItemKey _defaultPage;
+
         public HomePageViewModel ViewModel { get; }
 
         public HomePage()

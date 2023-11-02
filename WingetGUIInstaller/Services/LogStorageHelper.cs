@@ -1,5 +1,7 @@
 ﻿using System;
+#if UNPACKAGED
 using System.Diagnostics;
+#endif
 using System.IO;
 using System.Threading.Tasks;
 #if !UNPACKAGED
@@ -10,7 +12,7 @@ using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
-    internal sealed class LogStorageHelper
+    internal static class LogStorageHelper
     {
 
         public static string GetLogFileDirectory()

@@ -33,9 +33,12 @@ namespace WingetGUIInstaller.Utils
             {
                 try
                 {
-                    advancedCollectionView.Filter = p => filterExpression.Invoke(p as TElement);
+                    advancedCollectionView.Filter = p => filterExpression(p as TElement);
                 }
-                catch { }
+                catch
+                {
+                    // Ignore exceptions during filter as this runs on UI thread
+                }
             }
         }
 
@@ -47,7 +50,10 @@ namespace WingetGUIInstaller.Utils
                 {
                     advancedCollectionView.Filter = p => true;
                 }
-                catch { }
+                catch
+                {
+                    // Ignore exceptions during filter as this runs on UI thread
+                }
             }
         }
     }

@@ -56,13 +56,13 @@ namespace WingetHelper.Decoders
                         }
                         else
                         {
-                            var isCollection = currentProperty.PropertyType.GetInterfaces()
-                                .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
+                            var propertyTypeInterfaces = currentProperty.PropertyType.GetInterfaces();
+                            var isCollection = Array.Exists(propertyTypeInterfaces, x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
                             if (isCollection)
                             {
-                                var collectionType = currentProperty.PropertyType.GetInterfaces()
-                                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>))
+                                var collectionType = Array.Find(propertyTypeInterfaces, x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>))
                                     .GetGenericArguments()[0];
+
                                 if (collectionType == typeof(string))
                                 {
                                     currentProperty.SetValue(retVal, DeserializeStringList(

@@ -36,7 +36,7 @@ namespace WingetHelper.Services
             if (commandMetadata.OutputListener != default)
             {
                 var argumentsString = string.Join(" ", processStartInfo.ArgumentList.Skip(1));
-                commandMetadata.OutputListener.Invoke(">>" + argumentsString); ;
+                commandMetadata.OutputListener.Invoke(">>" + argumentsString);
                 _logger.LogInformation("[{commandId}] Executing command with arguments: {arguments}", commandId, argumentsString);
             }
 
@@ -127,8 +127,8 @@ namespace WingetHelper.Services
             var processStartInfo = new ProcessStartInfo(ProcessConstants.ShellName)
             {
                 CreateNoWindow = true,
-                UseShellExecute = commandMetadata.AsAdministrator ? true : false,
-                RedirectStandardOutput = commandMetadata.AsAdministrator ? false : true,
+                UseShellExecute = commandMetadata.AsAdministrator,
+                RedirectStandardOutput = !commandMetadata.AsAdministrator,
                 StandardOutputEncoding = commandMetadata.AsAdministrator ? default : Encoding.Default,
                 Verb = commandMetadata.AsAdministrator ? ProcessConstants.RunAsUserCommand : string.Empty
             };
