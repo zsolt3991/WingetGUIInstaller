@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using WingetHelper.Enums;
-using WingetHelper.Models;
 
 namespace WingetHelper.Constants
 {

@@ -14,6 +14,6 @@ namespace WingetGUIInstaller.Pages
         {
             InitializeComponent();
             DataContext = ViewModel = Ioc.Default.GetRequiredService<SettingsPageViewModel>();
-        }      
+        }
     }
 }

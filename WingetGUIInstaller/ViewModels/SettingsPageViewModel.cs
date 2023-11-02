@@ -27,6 +27,9 @@ namespace WingetGUIInstaller.ViewModels
         private readonly GithubPackageUpdaterSerivce _updaterSerivce;
         private readonly ILogger<SettingsPageViewModel> _logger;
         private readonly IReadOnlyList<ApplicationDisplayLanguage> _applicationLanguages;
+        private readonly IReadOnlyList<DisplayTheme> _availableThemes;
+        private readonly IReadOnlyList<LogLevel> _availableLogLevels;
+        private readonly IReadOnlyList<NavigationItemKey> _availablePages;
         private bool? _advancedFunctionalityEnabled;
         private bool? _notificationsEnabled;
         private bool? _automaticUpdatesEnabled;
@@ -46,6 +49,9 @@ namespace WingetGUIInstaller.ViewModels
                 new ApplicationDisplayLanguage{ FriendlyName = "System Default", CultureCode = "default"},
                 new ApplicationDisplayLanguage{ FriendlyName = "English", CultureCode = "en-US"},
             };
+            _availableThemes = Enum.GetValues<DisplayTheme>();
+            _availableLogLevels = Enum.GetValues<LogLevel>();
+            _availablePages = Enum.GetValues<NavigationItemKey>().Where(key => !_disallowedKeys.Contains(key)).ToList();
         }
 
         public bool AdvancedFunctionalityEnabled
@@ -119,11 +125,8 @@ namespace WingetGUIInstaller.ViewModels
         {
             get
             {
-                if (_selectedLogLevel == null)
-                {
-                    _selectedLogLevel = (LogLevel)_configurationStore
-                        .GetValueOrDefault(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
-                }
+                _selectedLogLevel ??= (LogLevel)_configurationStore
+                    .GetValueOrDefault(ConfigurationPropertyKeys.LogLevel, ConfigurationPropertyKeys.DefaultLogLevel);
                 return _selectedLogLevel.Value;
             }
             set
@@ -156,12 +159,11 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public IReadOnlyList<LogLevel> LogLevels => Enum.GetValues<LogLevel>().Cast<LogLevel>().ToList();
+        public IReadOnlyList<LogLevel> LogLevels => _availableLogLevels;
 
-        public IReadOnlyList<NavigationItemKey> AvailablePages => Enum.GetValues<NavigationItemKey>().Cast<NavigationItemKey>()
-            .Where(key => !_disallowedKeys.Contains(key)).ToList();
+        public IReadOnlyList<NavigationItemKey> AvailablePages => _availablePages;
 
-        public IReadOnlyList<DisplayTheme> ApplicationThemes => Enum.GetValues<DisplayTheme>().Cast<DisplayTheme>().ToList();
+        public IReadOnlyList<DisplayTheme> ApplicationThemes => _availableThemes;
 
         public IReadOnlyList<ApplicationDisplayLanguage> ApplicationLanguages => _applicationLanguages;
 

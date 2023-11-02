@@ -21,7 +21,7 @@ namespace WingetHelper.Commands
 
             listCommand.AddFilteringArguments(packageFilterCriteria);
 
-            if (exactMatch != false)
+            if (exactMatch)
             {
                 listCommand.AddExtraArguments("--exact");
             }
@@ -42,7 +42,7 @@ namespace WingetHelper.Commands
 
             upgradeCommand.AddFilteringArguments(packageFilterCriteria);
 
-            if (exactMatch != false)
+            if (exactMatch)
             {
                 upgradeCommand.AddExtraArguments("--exact");
             }
@@ -58,7 +58,7 @@ namespace WingetHelper.Commands
 
             searchCommand.AddFilteringArguments(packageFilterCriteria);
 
-            if (exactMatch != false)
+            if (exactMatch)
             {
                 searchCommand.AddExtraArguments("--exact");
             }

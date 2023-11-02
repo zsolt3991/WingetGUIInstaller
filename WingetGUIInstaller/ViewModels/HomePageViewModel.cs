@@ -3,7 +3,6 @@ using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
 using GithubPackageUpdater.Models;
 using GithubPackageUpdater.Services;
 using Microsoft.Extensions.Logging;

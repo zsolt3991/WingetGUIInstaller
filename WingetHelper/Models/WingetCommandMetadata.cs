@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using WingetHelper.Enums;
-using WingetHelper.Models;
 
 namespace WingetHelper.Commands
 {

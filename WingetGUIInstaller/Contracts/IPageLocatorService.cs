@@ -2,7 +2,7 @@
 
 namespace WingetGUIInstaller.Contracts
 {
-    public interface IPageLocatorService<TNavigationKey> where TNavigationKey : Enum
+    public interface IPageLocatorService<in TNavigationKey> where TNavigationKey : Enum
     {
         Type GetPageTypeForKey(TNavigationKey key);
     }
