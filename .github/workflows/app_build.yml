@@ -1,5 +1,5 @@
 
-name: Build Application
+name: Build Application Packaged
 
 on:
   push:
