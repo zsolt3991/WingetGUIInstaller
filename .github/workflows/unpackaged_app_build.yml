@@ -33,11 +33,11 @@ jobs:
       id: tag
       uses: dawidd6/action-get-tag@v1 
 
-    # Install the .NET 6
-    - name: Install .NET 6
+    # Install the .NET 8
+    - name: Install .NET 8
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.*'
+        dotnet-version: '8.*'
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.1  
@@ -51,7 +51,7 @@ jobs:
       run: dotnet build $env:Project_Path -c ${{ matrix.configuration }}_Unpackaged -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
     
     - name: Zip the build Output
-      run: Compress-Archive -Path $env:Project_Directory\bin\${{ matrix.configuration }}\net6.0-$env:SDK_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+      run: Compress-Archive -Path $env:Project_Directory\bin\${{ matrix.configuration }}\net8.0-$env:SDK_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
     
     - name: ShowFiles
       run: dir
