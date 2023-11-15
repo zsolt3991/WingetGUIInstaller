@@ -14,7 +14,7 @@ namespace WingetGUIInstaller.Services
         private const string SettingsFileName = "settings.json";
         private readonly IFileStorageHelper _fileStorage;
         private readonly SemaphoreSlim _fileAccessSemaphore;
-        private IDictionary<string, string> _settings;
+        private readonly IDictionary<string, string> _settings;
 
         public UnpackagedSettingsStorageHelper(IFileStorageHelper fileStorage)
         {
@@ -28,7 +28,7 @@ namespace WingetGUIInstaller.Services
             if (!_fileStorage.TryDeleteItemAsync(SettingsFileName).GetAwaiter().GetResult())
             {
                 throw new InvalidOperationException("Failed to clear application settings");
-            };
+            }
         }
 
         public void Save<TValue>(string key, TValue value)
@@ -61,7 +61,7 @@ namespace WingetGUIInstaller.Services
             {
                 value = default;
                 return false;
-            };
+            }
 
             value = JsonSerializer.Deserialize<TValue>(serializedValue);
             return true;

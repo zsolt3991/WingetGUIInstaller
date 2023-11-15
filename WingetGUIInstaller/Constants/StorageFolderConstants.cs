@@ -1,7 +1,7 @@
 ﻿#if UNPACKAGED
 namespace WingetGUIInstaller.Constants
 {
-    internal sealed class StorageFolderConstants
+    internal static class StorageFolderConstants
     {
         public const string ApplicationFolderName = "WingetGuiInstaller";
     }
