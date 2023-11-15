@@ -40,7 +40,7 @@ namespace WingetGUIInstaller.Pages
             DataContext = ViewModel = Ioc.Default.GetRequiredService<HomePageViewModel>();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
-            WeakReferenceMessenger.Default.Register(this, (MessageHandler<object, NavigationRequestedMessage>)((r, m) =>
+            WeakReferenceMessenger.Default.Register<NavigationRequestedMessage>(this, (r, m) =>
             {
                 DispatcherQueue.TryEnqueue(() =>
                 {
@@ -53,7 +53,7 @@ namespace WingetGUIInstaller.Pages
                         ChangeSelectedItem(m.Value);
                     }
                 });
-            }));
+            });
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
