@@ -351,6 +351,9 @@
   <data name="InstalledPackagesPageTitle.Text" xml:space="preserve">
     <value>Installed Packages</value>
   </data>
+  <data name="InstallOperationText" xml:space="preserve">
+    <value>Install</value>
+  </data>
   <data name="InstallSelected.Content" xml:space="preserve">
     <value>Install selected</value>
   </data>
@@ -498,6 +501,9 @@
   <data name="Uninstall.Content" xml:space="preserve">
     <value>Uninstall</value>
   </data>
+  <data name="UninstallOperationText" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
   <data name="UninstallSelected.Content" xml:space="preserve">
     <value>Uninstall selected</value>
   </data>
@@ -521,6 +527,9 @@
   </data>
   <data name="UpgradeAll.Content" xml:space="preserve">
     <value>Upgrade all</value>
+  </data>
+  <data name="UpgradeOperationText" xml:space="preserve">
+    <value>Upgrade</value>
   </data>
   <data name="UpgradePackagesPageTitle.Text" xml:space="preserve">
     <value>Upgrade Packages</value>
