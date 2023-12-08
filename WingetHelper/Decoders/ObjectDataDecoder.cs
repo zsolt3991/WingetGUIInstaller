@@ -7,11 +7,17 @@ using System.Text.RegularExpressions;
 
 namespace WingetHelper.Decoders
 {
-    internal static class ObjectDataDecoder
+    internal static partial class ObjectDataDecoder
     {
-        private const string LineSplitRegex = @"^\s*(?<key>[a-zA-z|\d].+?)(\:{1}){1}\s*(?<value>.*?)$";
+        private const string LineSplitRegexFormat = @"^\s*(?<key>[a-zA-z|\d].+?)(\:{1}){1}\s*(?<value>.*?)$";
         private const int IndentSize = 2;
 
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(LineSplitRegexFormat)]
+        private static partial Regex LineSplitRegex();
+#else
+        private static readonly Regex LineSplitRegex = new Regex(LineSplitRegexFormat, RegexOptions.Compiled);
+#endif
         internal static TObject DeserializeObject<TObject>(IEnumerable<string> dataLines) where TObject : class
         {
             return DeserializeObject(typeof(TObject), dataLines, 0, out var _) as TObject;
@@ -22,13 +28,16 @@ namespace WingetHelper.Decoders
             var retVal = Activator.CreateInstance(targetType);
             var expectedIndentation = IndentSize * nestingLevel;
             var i = 0;
-            var regex = new Regex(LineSplitRegex);
 
             for (i = 0; i < dataLines.Count(); i++)
             {
                 string line = dataLines.ElementAt(i);
                 var lineIndent = line.Length - line.TrimStart().Length;
-                var match = regex.Match(line);
+#if NET7_0_OR_GREATER
+                var match = LineSplitRegex().Match(line);
+#else
+                var match = LineSplitRegex.Match(line);
+#endif
 
                 // Reached a line containing a property
                 if (match.Success)
@@ -60,7 +69,7 @@ namespace WingetHelper.Decoders
                             var isCollection = Array.Exists(propertyTypeInterfaces, x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
                             if (isCollection)
                             {
-                                var collectionType = Array.Find(propertyTypeInterfaces, x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>))
+                                var collectionType = Array.Find(propertyTypeInterfaces, x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>))?
                                     .GetGenericArguments()[0];
 
                                 if (collectionType == typeof(string))
@@ -92,7 +101,7 @@ namespace WingetHelper.Decoders
             return retVal;
         }
 
-        private static object DeserializeStringList(IEnumerable<string> dataLines, int nestingLevel,
+        private static List<string> DeserializeStringList(IEnumerable<string> dataLines, int nestingLevel,
             out int consumedLines, PropertyInfo propertyInfo)
         {
             var accumulator = new List<string>();
@@ -117,7 +126,7 @@ namespace WingetHelper.Decoders
             return accumulator;
         }
 
-        private static object DeserializeString(IEnumerable<string> dataLines, int nestingLevel, out int consumedLines)
+        private static string DeserializeString(IEnumerable<string> dataLines, int nestingLevel, out int consumedLines)
         {
             var accumulator = new List<string>();
             var expectedIndentation = IndentSize * nestingLevel;
