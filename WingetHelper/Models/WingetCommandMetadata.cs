@@ -43,7 +43,7 @@ namespace WingetHelper.Commands
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            if (!arguments.Any())
+            if (arguments.Length == 0)
             {
                 throw new ArgumentException("Arguments list empty", nameof(arguments));
             }

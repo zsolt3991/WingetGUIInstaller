@@ -6,9 +6,16 @@ using WingetHelper.Models;
 
 namespace WingetHelper.Decoders
 {
-    internal static class ExpressionDataDecoder
+    internal static partial class ExpressionDataDecoder
     {
-        private const string FoundResultRegex = @"^Found\s*?(?<packageName>.*)\s*?\[(?<packageId>.*)\]$";
+        private const string FoundResultRegexFormat = @"^Found\s*?(?<packageName>.*)\s*?\[(?<packageId>.*)\]$";
+
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(FoundResultRegexFormat)]
+        private static partial Regex FoundResultRegex();
+#else
+        private static readonly Regex FoundResultRegex = new Regex(FoundResultRegexFormat, RegexOptions.Compiled);
+#endif
 
         internal static bool ParseInstallSuccessResult(IEnumerable<string> commandResult)
         {
@@ -37,7 +44,6 @@ namespace WingetHelper.Decoders
         internal static WingetPackageDetails ParseDetailsResponse(IEnumerable<string> output)
         {
             output = output.Where(line => !string.IsNullOrEmpty(line));
-            var regex = new Regex(FoundResultRegex);
             var currentIndex = 0;
 
             foreach (var line in output)
@@ -47,8 +53,11 @@ namespace WingetHelper.Decoders
                 {
                     return default;
                 }
-
-                var match = regex.Match(line);
+# if NET7_0_OR_GREATER
+                var match = FoundResultRegex().Match(line);
+#else
+                var match = FoundResultRegex.Match(line);
+#endif
                 // Reached results found line
                 if (match.Success)
                 {
