@@ -39,7 +39,7 @@ namespace WingetGUIInstaller.ViewModels
                 return;
             }
 
-            var arguments = Regex.Split(CommandLine, RegexPattern);
+            var arguments = ArgumentsSplitRegex().Split(CommandLine);
             var command = GeneralCommands.CustomWingetCommand(arguments)
                 .ConfigureOutputListener(_cache.IngestMessage);
             await _commandExecutor.ExecuteCommandAsync(command);
@@ -56,5 +56,8 @@ namespace WingetGUIInstaller.ViewModels
                 _dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(ComposedMessage)));
             }
         }
+
+        [GeneratedRegex(RegexPattern)]
+        private static partial Regex ArgumentsSplitRegex();
     }
 }

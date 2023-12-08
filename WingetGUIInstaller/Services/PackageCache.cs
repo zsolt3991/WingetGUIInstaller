@@ -11,7 +11,7 @@ using WingetHelper.Services;
 
 namespace WingetGUIInstaller.Services
 {
-    public sealed class PackageCache
+    public sealed partial class PackageCache
     {
         // Define a Treshold after which data is automatically fetched again
         private static readonly TimeSpan CacheValidityTreshold = TimeSpan.FromMinutes(5);
@@ -59,7 +59,7 @@ namespace WingetGUIInstaller.Services
                 await LoadInstalledPackageList();
             }
 
-            if (_installedPackages == default || !_installedPackages.Any())
+            if (_installedPackages == default || _installedPackages.Count == 0)
             {
                 _logger.LogWarning("No installed packages available");
                 return new List<WingetPackageEntry>();
@@ -79,7 +79,7 @@ namespace WingetGUIInstaller.Services
                 await LoadUpgradablePackages();
             }
 
-            if (_upgradablePackages == default || !_upgradablePackages.Any())
+            if (_upgradablePackages == default || _upgradablePackages.Count == 0)
             {
                 _logger.LogWarning("No upgragadable packages available");
                 return new List<WingetPackageEntry>();
@@ -105,7 +105,7 @@ namespace WingetGUIInstaller.Services
                 await PerformSearchAsync(searchQuery);
             }
 
-            if (_searchResults == default || !_searchResults.Any())
+            if (_searchResults == default || _searchResults.Count == 0)
             {
                 // Return empty result set
                 _logger.LogWarning("No search results for query: {query}", searchQuery);
@@ -192,7 +192,7 @@ namespace WingetGUIInstaller.Services
         private static IDictionary<PackageFilterCriteria, string> ParseSearchQuery(string searchQuery, out string strippedQuery)
         {
             var parsedEntries = new Dictionary<PackageFilterCriteria, string>();
-            foreach (var matchGroups in Regex.Matches(searchQuery, FilterRegex).Select(m => m.Groups))
+            foreach (var matchGroups in SearchQueryRegex().Matches(searchQuery).Select(m => m.Groups))
             {
                 var tag = TagToFilterCriteria(matchGroups["tag"].Value);
                 var value = matchGroups["value"].Value;
@@ -201,7 +201,7 @@ namespace WingetGUIInstaller.Services
                     parsedEntries.Add(tag, value);
                 }
             }
-            strippedQuery = Regex.Replace(searchQuery, FilterRegex, string.Empty);
+            strippedQuery = SearchQueryRegex().Replace(searchQuery, string.Empty);
             return parsedEntries;
         }
 
@@ -217,5 +217,8 @@ namespace WingetGUIInstaller.Services
                 _ => PackageFilterCriteria.Default,
             };
         }
+
+        [GeneratedRegex(FilterRegex)]
+        private static partial Regex SearchQueryRegex();
     }
 }
