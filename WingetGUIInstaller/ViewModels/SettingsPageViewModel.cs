@@ -144,7 +144,7 @@ namespace WingetGUIInstaller.ViewModels
             {
                 if (_selectedDisplayLanguage == null)
                 {
-                    var selectedDisplayLanguage = (string)_configurationStore
+                    var selectedDisplayLanguage = _configurationStore
                         .GetValueOrDefault(ConfigurationPropertyKeys.ApplicationLanguageOverride, ConfigurationPropertyKeys.ApplicationLanguageOverrideDefaultValue);
                     _selectedDisplayLanguage = _applicationLanguages.FirstOrDefault(lang => lang.CultureCode == selectedDisplayLanguage) ?? _applicationLanguages[0];
                 }
