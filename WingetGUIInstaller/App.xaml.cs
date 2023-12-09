@@ -2,8 +2,6 @@
 using CommunityToolkit.Common.Helpers;
 using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.DependencyInjection;
-#if !UNPACKAGED
-#endif
 using GithubPackageUpdater.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,6 +11,7 @@ using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using Serilog;
 using System.IO;
+using Windows.Globalization;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
@@ -60,6 +59,13 @@ namespace WingetGUIInstaller
 
             _logger = Ioc.Default.GetRequiredService<ILogger<App>>();
             _notificationManager = Ioc.Default.GetRequiredService<ToastNotificationManager>();
+
+            var languageCode = _settingsStorage.GetValueOrDefault(ConfigurationPropertyKeys.ApplicationLanguageOverride, ConfigurationPropertyKeys.ApplicationLanguageOverrideDefaultValue);
+            if (languageCode != ConfigurationPropertyKeys.ApplicationLanguageOverrideDefaultValue)
+            {
+                ApplicationLanguages.PrimaryLanguageOverride = languageCode;
+                _logger.LogInformation("Setting application language to: {languageCode}", languageCode);
+            }
 
             UnhandledException += App_UnhandledException;
         }

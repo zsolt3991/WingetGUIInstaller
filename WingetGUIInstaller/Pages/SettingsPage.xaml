@@ -34,6 +34,11 @@
                                       ItemsSource="{x:Bind ViewModel.ApplicationThemes, Mode=OneTime}"
                                       SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}" />
                         </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="ApplicationLanguageSelection" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" DisplayMemberPath="FriendlyName"
+                                      ItemsSource="{x:Bind ViewModel.ApplicationLanguages, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay}" />
+                        </controls:SettingsCard>
                         <controls:SettingsCard x:Uid="LogLevelSelection" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                       ItemsSource="{x:Bind ViewModel.LogLevels, Mode=OneWay}"

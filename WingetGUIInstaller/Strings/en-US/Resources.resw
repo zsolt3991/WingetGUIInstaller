@@ -153,6 +153,12 @@
   <data name="AlreadyOnLatestVersion.Text" xml:space="preserve">
     <value>You are already on the latest version</value>
   </data>
+  <data name="ApplicationLanguageSelection.Description" xml:space="preserve">
+    <value>Change the application display language manually or follow system default. Application restart is necessary after change.</value>
+  </data>
+  <data name="ApplicationLanguageSelection.Header" xml:space="preserve">
+    <value>Application Language</value>
+  </data>
   <data name="ApplicationThemeSelection.Description" xml:space="preserve">
     <value>Change the application theme manually or follow system default</value>
   </data>
