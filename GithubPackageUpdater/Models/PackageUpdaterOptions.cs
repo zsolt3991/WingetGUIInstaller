@@ -4,18 +4,24 @@ namespace GithubPackageUpdater.Models
 {
     public class PackageUpdaterOptions
     {
-        public string RepositoryName { get; private set; }
-        public string AccountName { get; private set; }
-        public string AccessToken { get; private set; }
+        public string? RepositoryName { get; private set; }
+        public string? AccountName { get; private set; }
+        public string? AccessToken { get; private set; }
 
         public PackageUpdaterOptions()
         { }
 
-        public PackageUpdaterOptions(string accountName, string repositoryName, string accessToken = default)
+        public PackageUpdaterOptions(string accountName, string repositoryName)
         {
             AccountName = accountName ?? throw new ArgumentNullException(nameof(accountName));
             RepositoryName = repositoryName ?? throw new ArgumentNullException(nameof(repositoryName));
-            AccessToken = accessToken;
+        }
+
+        public PackageUpdaterOptions(string accountName, string repositoryName, string accessToken)
+        {
+            AccountName = accountName ?? throw new ArgumentNullException(nameof(accountName));
+            RepositoryName = repositoryName ?? throw new ArgumentNullException(nameof(repositoryName));
+            AccessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
         }
 
         public PackageUpdaterOptions ConfigureAccountName(string accountName)

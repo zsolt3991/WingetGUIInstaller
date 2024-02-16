@@ -5,9 +5,9 @@ namespace GithubPackageUpdater.Models
 {
     public class PackageUpdateRequest
     {
-        public string PackageName { get; set; }
-        public Version PackageVersion { get; set; }
-        public ProcessorArchitecture PackageArchitecture { get; set; }
-        public UpdatePackageType PackageType { get; set; }
+        public required string PackageName { get; init; }
+        public required Version PackageVersion { get; init; }
+        public required ProcessorArchitecture PackageArchitecture { get; init; }
+        public required UpdatePackageType PackageType { get; init; }
     }
 }

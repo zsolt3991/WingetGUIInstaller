@@ -16,7 +16,7 @@ namespace GithubPackageUpdater.Services
         private readonly ILogger _logger;
         private readonly GitHubClient _client;
 
-        public GithubPackageUpdaterSerivce(IOptions<PackageUpdaterOptions> options, ILogger<GithubPackageUpdaterSerivce> logger = default)
+        public GithubPackageUpdaterSerivce(IOptions<PackageUpdaterOptions> options, ILogger<GithubPackageUpdaterSerivce>? logger = default)
         {
             _options = options.Value ?? throw new ArgumentNullException(nameof(options));
             _logger = logger ?? NullLogger<GithubPackageUpdaterSerivce>.Instance;
@@ -30,10 +30,7 @@ namespace GithubPackageUpdater.Services
 
         public async Task<PackageUpdateResponse> CheckForUpdates(PackageUpdateRequest packageUpdateRequest)
         {
-            if (packageUpdateRequest == default)
-            {
-                throw new ArgumentNullException(nameof(packageUpdateRequest));
-            }
+            ArgumentNullException.ThrowIfNull(packageUpdateRequest);
 
             _logger.LogInformation("Checking for updates for: {packageName} architecture: {packagePlatform} version: {packageVersion}",
                 packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture, packageUpdateRequest.PackageVersion);
@@ -50,7 +47,7 @@ namespace GithubPackageUpdater.Services
                         if (!Version.TryParse(lastRelease.TagName, out releaseVersion))
                         {
                             _logger.LogWarning("Failed to parse github release version from tag: {tagName}", lastRelease.TagName);
-                            throw new Exception("Could not find version information in Release Name or Tag");
+                            throw new PackageUpdateException("Could not find version information in Release Name or Tag");
                         }
                     }
 
@@ -77,7 +74,7 @@ namespace GithubPackageUpdater.Services
                         {
                             _logger.LogWarning("Failed to find package named: {releaseName} architecture: {releasePlatform} in the github release",
                                 packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture);
-                            throw new Exception("Could not find package matching the required identifier in the latest release");
+                            throw new PackageUpdateException("Could not find package matching the required identifier in the latest release");
                         }
                     }
                     else
@@ -92,13 +89,13 @@ namespace GithubPackageUpdater.Services
                 else
                 {
                     _logger.LogError("No releases found in the repository {repositoryName}", repository.Name);
-                    throw new Exception("Repository has no releases published");
+                    throw new PackageUpdateException("Repository has no releases published");
                 }
             }
             else
             {
                 _logger.LogError("Username or Repository invalid");
-                throw new Exception("Invalid Account or Repository specified");
+                throw new PackageUpdateException("Invalid Account or Repository specified");
             }
         }
 
