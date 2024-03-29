@@ -21,6 +21,6 @@ jobs:
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2023.3
         with:
-          args: --linter,jetbrains/qodana-cdnet:2023.3-eap
+          args: --linter,jetbrains/qodana-cdnet:2023.3-eap,--solution,WingetGUIInstaller.sln
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
