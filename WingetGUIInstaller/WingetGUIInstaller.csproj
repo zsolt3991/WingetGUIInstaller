@@ -23,7 +23,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' ">
     <XamlDebuggingInformation>True</XamlDebuggingInformation>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -52,10 +52,10 @@
     <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.230830" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.240211001" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.1</TargetFrameworks>
     <PackageId>zsolt3991.WingetHelper</PackageId>
     <Authors>zsolt9331</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -11,8 +11,8 @@
     <Nullable>warnings</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="31.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageReference Include="CsvHelper" Version="32.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
   </ItemGroup>
 </Project>
