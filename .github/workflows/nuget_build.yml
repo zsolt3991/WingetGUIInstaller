@@ -1,10 +1,10 @@
 name: Build nuGet Package
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
-  workflow_dispatch:
 
 jobs:
   publish-nuget:

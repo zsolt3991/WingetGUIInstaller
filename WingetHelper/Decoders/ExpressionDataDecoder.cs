@@ -10,7 +10,7 @@ namespace WingetHelper.Decoders
     {
         private const string FoundResultRegexFormat = @"^Found\s*?(?<packageName>.*)\s*?\[(?<packageId>.*)\]$";
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [GeneratedRegex(FoundResultRegexFormat)]
         private static partial Regex FoundResultRegex();
 #else
