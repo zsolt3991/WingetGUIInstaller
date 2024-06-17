@@ -12,7 +12,7 @@ namespace WingetHelper.Decoders
         private const string LineSplitRegexFormat = @"^\s*(?<key>[a-zA-z|\d].+?)(\:{1}){1}\s*(?<value>.*?)$";
         private const int IndentSize = 2;
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [GeneratedRegex(LineSplitRegexFormat)]
         private static partial Regex LineSplitRegex();
 #else
@@ -33,7 +33,7 @@ namespace WingetHelper.Decoders
             {
                 string line = dataLines.ElementAt(i);
                 var lineIndent = line.Length - line.TrimStart().Length;
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 var match = LineSplitRegex().Match(line);
 #else
                 var match = LineSplitRegex.Match(line);
