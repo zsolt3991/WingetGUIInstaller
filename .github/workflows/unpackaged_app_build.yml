@@ -51,7 +51,7 @@ jobs:
       run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
     
     - name: Zip the build Output
-      run: Compress-Archive -Path $env:Project_Directory\bin\${{ matrix.configuration }}\$env:Project_Sdk_Version\win-${{ matrix.platform }}\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+      run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
     
     - name: ShowFiles
       run: dir
