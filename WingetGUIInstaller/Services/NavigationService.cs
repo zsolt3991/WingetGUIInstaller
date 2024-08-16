@@ -16,7 +16,7 @@ namespace WingetGUIInstaller.Services
         private Frame _currentFrame;
         private readonly ILogger _logger;
 
-        public NavigationService(IPageLocatorService<TNavigationKey> pageLocator, ILogger<NavigationService<NavigationItemKey>> logger)
+        public NavigationService(IPageLocatorService<TNavigationKey> pageLocator, ILogger<NavigationService<TNavigationKey>> logger)
         {
             _frameStack = new ConcurrentStack<Frame>();
             _pageLocator = pageLocator;
@@ -31,10 +31,7 @@ namespace WingetGUIInstaller.Services
 
         public void AddNavigationLevel(Frame containerFrame)
         {
-            if (containerFrame == default)
-            {
-                throw new ArgumentNullException(nameof(containerFrame));
-            }
+            ArgumentNullException.ThrowIfNull(containerFrame);
             if (_currentFrame == default || _currentFrame.GetHashCode() != containerFrame.GetHashCode())
             {
                 if (_currentFrame != default && _frameStack.TryPeek(out var lastFrame) &&
@@ -76,10 +73,7 @@ namespace WingetGUIInstaller.Services
 
         public void RemoveNavigationLevel(Frame containerFrame)
         {
-            if (containerFrame == default)
-            {
-                throw new ArgumentNullException(nameof(containerFrame));
-            }
+            ArgumentNullException.ThrowIfNull(containerFrame);
 
             if (NavigationDepth >= 1)
             {

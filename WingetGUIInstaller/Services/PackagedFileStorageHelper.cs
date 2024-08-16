@@ -31,7 +31,7 @@ namespace WingetGUIInstaller.Services
             {
                 using (var writer = new StreamWriter(stream))
                 {
-                    writer.Write(fileContent);
+                    await writer.WriteAsync(fileContent);
                     await writer.FlushAsync();
                 }
             }
@@ -54,7 +54,7 @@ namespace WingetGUIInstaller.Services
             var relativePath = Path.GetRelativePath(Path.GetFullPath(completePath), _rootFolder.Path);
             using (var fileStream = await _rootFolder.OpenStreamForReadAsync(relativePath))
             {
-                return JsonSerializer.Deserialize<T>(fileStream);
+                return await JsonSerializer.DeserializeAsync<T>(fileStream);
             }
         }
 

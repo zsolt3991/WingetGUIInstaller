@@ -18,10 +18,5 @@ namespace WingetGUIInstaller.Utils
                 _ => LogEventLevel.Information,
             };
         }
-
-        public static ILogger GetWingetCommandLogger(this ILoggerFactory loggerFactory)
-        {
-            return loggerFactory.CreateLogger("WingetCommand");
-        }
     }
 }
