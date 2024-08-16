@@ -40,7 +40,7 @@ namespace WingetGUIInstaller.Utils
                 {
                     break;
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(500);
             }
             SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
         }
@@ -67,6 +67,7 @@ namespace WingetGUIInstaller.Utils
         {
             _cancellationTokenSource.Cancel();
             _watchthread.Join();
+            _cancellationTokenSource.Dispose();
         }
     }
 }

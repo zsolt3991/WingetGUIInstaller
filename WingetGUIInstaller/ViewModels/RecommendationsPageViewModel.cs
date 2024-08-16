@@ -25,6 +25,14 @@ namespace WingetGUIInstaller.ViewModels
 {
     public sealed partial class RecommendationsPageViewModel : ObservableObject, INavigationAware
     {
+        private static readonly JsonSerializerOptions _jsonDeserializerOptions = new JsonSerializerOptions
+        {
+            Converters =
+                    {
+                        new JsonStringEnumConverter()
+                    }
+        };
+
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly PackageCache _packageCache;
         private readonly PackageManager _packageManager;
@@ -183,17 +191,10 @@ namespace WingetGUIInstaller.ViewModels
             InstallAllPackagesCommand.NotifyCanExecuteChanged();
         }
 
-        private IReadOnlyList<RecommendedItem> LoadRecommendationsFile()
+        private static IReadOnlyList<RecommendedItem> LoadRecommendationsFile()
         {
-            return JsonSerializer.Deserialize<List<RecommendedItem>>(
-                File.ReadAllText(Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty, "recommended.json")),
-                new JsonSerializerOptions
-                {
-                    Converters =
-                    {
-                        new JsonStringEnumConverter()
-                    }
-                });
+            return JsonSerializer.Deserialize<List<RecommendedItem>>(File.ReadAllText(
+                Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty, "recommended.json")), _jsonDeserializerOptions);
         }
 
         private void OnPackagePropertyChanged(object sender, PropertyChangedEventArgs e)
