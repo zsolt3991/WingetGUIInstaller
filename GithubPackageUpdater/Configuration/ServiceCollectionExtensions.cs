@@ -10,10 +10,7 @@ namespace GithubPackageUpdater.Configuration
         public static IServiceCollection AddGithubUpdater(
             this IServiceCollection services, Action<PackageUpdaterOptions> configureOptions)
         {
-            if (configureOptions == default)
-            {
-                throw new ArgumentNullException(nameof(configureOptions));
-            }
+            ArgumentNullException.ThrowIfNull(configureOptions);
 
             services.AddLogging();
             services.AddOptions<PackageUpdaterOptions>().Configure(configureOptions);

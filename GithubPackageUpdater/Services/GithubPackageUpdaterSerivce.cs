@@ -33,17 +33,14 @@ namespace GithubPackageUpdater.Services
 
         public async Task<PackageUpdateResponse> CheckForUpdates(MsixPackage installedPackage)
         {
-            if (installedPackage == default)
-            {
-                throw new ArgumentNullException(nameof(installedPackage));
-            }
+            ArgumentNullException.ThrowIfNull(installedPackage);
 
             var packageName = installedPackage.Id.Name;
             var packageVersion = new Version(installedPackage.Id.Version.Major, installedPackage.Id.Version.Minor,
                 installedPackage.Id.Version.Build, installedPackage.Id.Version.Revision);
             var packagePlatform = installedPackage.Id.Architecture.ToString();
 
-            _logger.LogInformation("Checking for updates for: {packageName} architecture: {packagePlatform} version: {packageVersion}",
+            _logger.LogInformation("Checking for updates for: {PackageName} architecture: {PackagePlatform} version: {PackageVersion}",
                 packageName, packagePlatform, packageVersion);
 
             var repository = await GetRepositoryAsync();
@@ -54,11 +51,11 @@ namespace GithubPackageUpdater.Services
                 {
                     if (!Version.TryParse(lastRelease.Name, out var releaseVersion))
                     {
-                        _logger.LogWarning("Failed to parse github release version from release: {releaseName}", lastRelease.TagName);
+                        _logger.LogWarning("Failed to parse github release version from release: {ReleaseName}", lastRelease.TagName);
                         if (!Version.TryParse(lastRelease.TagName, out releaseVersion))
                         {
-                            _logger.LogWarning("Failed to parse github release version from tag: {tagName}", lastRelease.TagName);
-                            throw new Exception("Could not find version information in Release Name or Tag");
+                            _logger.LogWarning("Failed to parse github release version from tag: {TagName}", lastRelease.TagName);
+                            throw new PackageUpdateException("Could not find version information in Release Name or Tag");
                         }
                     }
 
@@ -70,7 +67,7 @@ namespace GithubPackageUpdater.Services
 
                         if (packageAsset != default)
                         {
-                            _logger.LogInformation("Found new version of package: {newVersion}", releaseVersion);
+                            _logger.LogInformation("Found new version of package: {NewVersion}", releaseVersion);
 
                             return new PackageUpdateResponse
                             {
@@ -82,9 +79,9 @@ namespace GithubPackageUpdater.Services
                         }
                         else
                         {
-                            _logger.LogWarning("Failed to find package named: {releaseName} architecture: {releasePlatform} in the github release",
+                            _logger.LogWarning("Failed to find package named: {ReleaseName} architecture: {ReleasePlatform} in the github release",
                                 packageName, packagePlatform);
-                            throw new Exception("Could not find package matching the required identifier in the latest release");
+                            throw new PackageUpdateException("Could not find package matching the required identifier in the latest release");
                         }
                     }
                     else
@@ -98,26 +95,23 @@ namespace GithubPackageUpdater.Services
                 }
                 else
                 {
-                    _logger.LogError("No releases found in the repository {repositoryName}", repository.Name);
-                    throw new Exception("Repository has no releases published");
+                    _logger.LogError("No releases found in the repository {RepositoryName}", repository.Name);
+                    throw new PackageUpdateException("Repository has no releases published");
                 }
             }
             else
             {
                 _logger.LogError("Username or Repository invalid");
-                throw new Exception("Invalid Account or Repository specified");
+                throw new PackageUpdateException("Invalid Account or Repository specified");
             }
 
         }
 
         public async Task TriggerUpdate(Uri updateUrl)
         {
-            if (updateUrl == default)
-            {
-                throw new ArgumentNullException(nameof(updateUrl));
-            }
+            ArgumentNullException.ThrowIfNull(updateUrl);
 
-            _logger.LogInformation("Installing package from: {url}", updateUrl);
+            _logger.LogInformation("Installing package from: {Url}", updateUrl);
             await _packageManager.UpdatePackageAsync(updateUrl, null, DeploymentOptions.ForceApplicationShutdown);
         }
 
