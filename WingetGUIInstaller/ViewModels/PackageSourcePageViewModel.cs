@@ -209,26 +209,26 @@ namespace WingetGUIInstaller.ViewModels
                     RemoveSelectedPackageSourcesCommand.NotifyCanExecuteChanged();
                     break;
                 case nameof(WingetPackageSourceViewModel.IsEnabled):
-                    UpdateEnabledPackageList();
+                    UpdateEnabledPackageSourceList();
                     break;
                 default:
                     break;
             }
         }
 
-        private void UpdateEnabledPackageList()
+        private void UpdateEnabledPackageSourceList()
         {
             var listChanged = false;
             foreach (var packageSource in _packageSources.Where(p => !p.IsEnabled).Select(p => p.Name))
             {
                 listChanged |= _exclusionsManager.AddPackageSourceExclusion(packageSource);
-                _logger.LogInformation("Adding {name} from package source filter blacklist", packageSource);
+                _logger.LogInformation("Adding {PackageSource} to package source filter blacklist", packageSource);
             }
 
             foreach (var packageSource in _packageSources.Where(p => p.IsEnabled).Select(p => p.Name))
             {
                 listChanged |= _exclusionsManager.RemovePackageExclusion(packageSource);
-                _logger.LogInformation("Removing {name} from package source filter blacklist", packageSource);
+                _logger.LogInformation("Removing {PackageSource} from package source filter blacklist", packageSource);
             }
 
             if (listChanged)

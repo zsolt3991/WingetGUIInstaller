@@ -31,7 +31,7 @@ namespace WingetGUIInstaller.Services
             if (_availablePackageSources == default || forceReload ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastAvailablePackageSourcesRefresh)
             {
-                _logger.LogInformation("Package source cache refresh required. Force: {force}", forceReload);
+                _logger.LogInformation("Package source cache refresh required. Force: {Force}", forceReload);
                 await LoadPackageSourceListAsync();
             }
 
@@ -52,7 +52,7 @@ namespace WingetGUIInstaller.Services
 
             _availablePackageSources = commandResult != default ? commandResult.ToList() : new List<WingetPackageSource>();
             _lastAvailablePackageSourcesRefresh = DateTimeOffset.UtcNow;
-            _logger.LogInformation("Package source cache refreshed at: {time} count: {count}",
+            _logger.LogInformation("Package source cache refreshed at: {RefreshedTime} count: {PackageSoruceCount}",
                 _lastAvailablePackageSourcesRefresh, _availablePackageSources.Count);
         }
     }

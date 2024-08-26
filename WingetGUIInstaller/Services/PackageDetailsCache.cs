@@ -34,7 +34,7 @@ namespace WingetGUIInstaller.Services
             {
                 if (forceReload || DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= cachedPackage.LastUpdated)
                 {
-                    _logger.LogInformation("Package details refresh required. Force: {force}", forceReload);
+                    _logger.LogInformation("Package details refresh required. Force: {Force}", forceReload);
                     return await LoadPackageDetailsAsync(packageId);
                 }
                 else
@@ -54,7 +54,7 @@ namespace WingetGUIInstaller.Services
 
             if (details == default)
             {
-                _logger.LogWarning("No package details for packageId: {packageId}", packageId);
+                _logger.LogWarning("No package details for packageId: {PackageId}", packageId);
                 return default;
             }
 
@@ -63,32 +63,34 @@ namespace WingetGUIInstaller.Services
                 var cachedPackage = _packageDetailsCache.FirstOrDefault(p => p.PackageId == packageId);
                 if (cachedPackage != default)
                 {
-                    _logger.LogInformation("Updating cached package details for packageId: {packageId}", packageId);
+                    _logger.LogInformation("Updating cached package details for packageId: {PackageId}", packageId);
                     cachedPackage.PackageDetails = details;
                     cachedPackage.LastUpdated = DateTimeOffset.UtcNow;
                 }
                 else
                 {
-                    _packageDetailsCache.TryDequeue(out var itemToRemove);
-                    _logger.LogInformation("Removed cached package details for packageId: {packageId}", itemToRemove?.PackageId);
-                    _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
+                    if (_packageDetailsCache.TryDequeue(out var itemToRemove))
+                    {
+                        _logger.LogInformation("Removed cached package details for packageId: {PackageId}", itemToRemove?.PackageId);
+                    }
                     _packageDetailsCache.Enqueue(new QueueElement
                     {
                         PackageId = packageId,
                         PackageDetails = details,
                         LastUpdated = DateTimeOffset.UtcNow
                     });
+                    _logger.LogInformation("Added package details to cache for packageId: {PackageId}", packageId);
                 }
             }
             else
             {
-                _logger.LogInformation("Adding package details to cache for packageId: {packageId}", packageId);
                 _packageDetailsCache.Enqueue(new QueueElement
                 {
                     PackageId = packageId,
                     PackageDetails = details,
                     LastUpdated = DateTimeOffset.UtcNow
                 });
+                _logger.LogInformation("Added package details to cache for packageId: {PackageId}", packageId);
             }
 
             return details;

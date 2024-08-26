@@ -34,7 +34,7 @@ namespace WingetGUIInstaller.Services
                 {
                     var pageKey = keyAttribute.NavigationItemKey;
                     discoveredPages.Add((TNavigationKey)pageKey, type);
-                    _logger.LogInformation("Registering Page: {pageName} for Key: {keyName}", type.Name, pageKey.ToString());
+                    _logger.LogInformation("Registering Page: {PageType} for Key: {Key}", type.Name, pageKey.ToString());
                 }
             }
             _pageMap = discoveredPages;
@@ -44,7 +44,7 @@ namespace WingetGUIInstaller.Services
         {
             if (!_pageMap.ContainsKey(key))
             {
-                _logger.LogError("Unknown Key: {keyName}", key.ToString());
+                _logger.LogError("Unknown Key: {Key}", key.ToString());
                 throw new Exception("No Page registered for the given key");
             }
 

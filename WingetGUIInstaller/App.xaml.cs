@@ -64,7 +64,7 @@ namespace WingetGUIInstaller
             if (languageCode != ConfigurationPropertyKeys.ApplicationLanguageOverrideDefaultValue)
             {
                 ApplicationLanguages.PrimaryLanguageOverride = languageCode;
-                _logger.LogInformation("Setting application language to: {languageCode}", languageCode);
+                _logger.LogInformation("Setting application language to: {LanguageCode}", languageCode);
             }
 
             UnhandledException += App_UnhandledException;
@@ -94,11 +94,11 @@ namespace WingetGUIInstaller
                     _notificationManager.HandleToastActivation(notificationActivatedEventArgs);
                 }
 
-                _logger.LogInformation("Launch Kind: {kind}", args.UWPLaunchActivatedEventArgs.Kind);
+                _logger.LogInformation("Launch Kind: {LaunchKind}", args.UWPLaunchActivatedEventArgs.Kind);
 #if !UNPACKAGED
-                _logger.LogInformation("Application Version: {version}", Windows.ApplicationModel.Package.Current.Id.Version.ToVersion());
+                _logger.LogInformation("Application Version: {Version}", Windows.ApplicationModel.Package.Current.Id.Version.ToVersion());
 #else
-                _logger.LogInformation("Application Version: {version}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+                _logger.LogInformation("Application Version: {Version}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
 #endif            
             }
         }
