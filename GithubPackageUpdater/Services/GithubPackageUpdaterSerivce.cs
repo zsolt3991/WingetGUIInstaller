@@ -32,7 +32,7 @@ namespace GithubPackageUpdater.Services
         {
             ArgumentNullException.ThrowIfNull(packageUpdateRequest);
 
-            _logger.LogInformation("Checking for updates for: {packageName} architecture: {packagePlatform} version: {packageVersion}",
+            _logger.LogInformation("Checking for updates for: {PackageName} architecture: {PackagePlatform} version: {PackageVersion}",
                 packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture, packageUpdateRequest.PackageVersion);
 
             var repository = await GetRepositoryAsync();
@@ -43,10 +43,10 @@ namespace GithubPackageUpdater.Services
                 {
                     if (!Version.TryParse(lastRelease.Name, out var releaseVersion))
                     {
-                        _logger.LogWarning("Failed to parse github release version from release: {releaseName}", lastRelease.TagName);
+                        _logger.LogWarning("Failed to parse github release version from release: {ReleaseName}", lastRelease.TagName);
                         if (!Version.TryParse(lastRelease.TagName, out releaseVersion))
                         {
-                            _logger.LogWarning("Failed to parse github release version from tag: {tagName}", lastRelease.TagName);
+                            _logger.LogWarning("Failed to parse github release version from tag: {TagName}", lastRelease.TagName);
                             throw new PackageUpdateException("Could not find version information in Release Name or Tag");
                         }
                     }
@@ -60,7 +60,7 @@ namespace GithubPackageUpdater.Services
 
                         if (packageAsset != default)
                         {
-                            _logger.LogInformation("Found new version of package: {newVersion}", releaseVersion);
+                            _logger.LogInformation("Found new version of package: {NewVersion}", releaseVersion);
 
                             return new PackageUpdateResponse
                             {
@@ -72,7 +72,7 @@ namespace GithubPackageUpdater.Services
                         }
                         else
                         {
-                            _logger.LogWarning("Failed to find package named: {releaseName} architecture: {releasePlatform} in the github release",
+                            _logger.LogWarning("Failed to find package named: {ReleaseName} architecture: {ReleasePlatform} in the github release",
                                 packageUpdateRequest.PackageName, packageUpdateRequest.PackageArchitecture);
                             throw new PackageUpdateException("Could not find package matching the required identifier in the latest release");
                         }
@@ -88,7 +88,7 @@ namespace GithubPackageUpdater.Services
                 }
                 else
                 {
-                    _logger.LogError("No releases found in the repository {repositoryName}", repository.Name);
+                    _logger.LogError("No releases found in the repository {RepositoryName}", repository.Name);
                     throw new PackageUpdateException("Repository has no releases published");
                 }
             }

@@ -11,6 +11,9 @@ namespace GithubPackageUpdater.Configuration
             this IServiceCollection services, Action<PackageUpdaterOptions> configureOptions)
         {
             ArgumentNullException.ThrowIfNull(configureOptions);
+
+            services.AddLogging();
+            ArgumentNullException.ThrowIfNull(configureOptions);
             services.AddOptions<PackageUpdaterOptions>().Configure(configureOptions);
             services.AddSingleton<GithubPackageUpdaterSerivce>();
             return services;

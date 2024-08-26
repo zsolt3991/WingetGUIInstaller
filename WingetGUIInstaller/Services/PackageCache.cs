@@ -55,7 +55,7 @@ namespace WingetGUIInstaller.Services
             if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
-                _logger.LogInformation("Installed package cache refresh required. Force: {force}", forceReload);
+                _logger.LogInformation("Installed package cache refresh required. Force: {Force}", forceReload);
                 await LoadInstalledPackageList();
             }
 
@@ -65,8 +65,7 @@ namespace WingetGUIInstaller.Services
                 return new List<WingetPackageEntry>();
             }
 
-            var filteredPackages = ApplyExclusions(_installedPackages, ignoreSourceExclusion, ignorePackageExclusion);
-            return filteredPackages.ToList();
+            return _installedPackages.FindAll(package => !IsPackageExcuded(package, ignoreSourceExclusion, ignorePackageExclusion));
         }
 
         public async Task<List<WingetPackageEntry>> GetUpgradablePackages(bool forceReload = false,
@@ -75,7 +74,7 @@ namespace WingetGUIInstaller.Services
             if (_upgradablePackages == default || forceReload || !_updateCacheValidity ||
                  DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastUpgrablePackageRefresh)
             {
-                _logger.LogInformation("Upgradable package cache refresh required. Force: {force}", forceReload);
+                _logger.LogInformation("Upgradable package cache refresh required. Force: {Force}", forceReload);
                 await LoadUpgradablePackages();
             }
 
@@ -85,8 +84,7 @@ namespace WingetGUIInstaller.Services
                 return new List<WingetPackageEntry>();
             }
 
-            var filteredPackages = ApplyExclusions(_upgradablePackages, ignoreSourceExclusion, ignorePackageExclusion);
-            return filteredPackages.ToList();
+            return _upgradablePackages.FindAll(package => !IsPackageExcuded(package, ignoreSourceExclusion, ignorePackageExclusion));
         }
 
         public async Task<List<WingetPackageEntry>> GetSearchResults(string searchQuery, bool forceReload = false,
@@ -95,7 +93,7 @@ namespace WingetGUIInstaller.Services
             if (_installedPackages == default || forceReload || !_installedCacheValidity ||
                 DateTimeOffset.UtcNow.Subtract(CacheValidityTreshold) >= _lastInstalledPackageRefresh)
             {
-                _logger.LogInformation("Installed package cache refresh required. Force: {force}", forceReload);
+                _logger.LogInformation("Installed package cache refresh required. Force: {Force}", forceReload);
                 await LoadInstalledPackageList();
             }
 
@@ -108,16 +106,12 @@ namespace WingetGUIInstaller.Services
             if (_searchResults == default || _searchResults.Count == 0)
             {
                 // Return empty result set
-                _logger.LogWarning("No search results for query: {query}", searchQuery);
+                _logger.LogWarning("No search results for query: {Query}", searchQuery);
                 return new List<WingetPackageEntry>();
             }
 
             // Ignore Packages already installed
-            var searchResults = _searchResults
-                .Where(r => !_installedPackages?.Exists(p => string.Equals(p.Id, r.Id, StringComparison.InvariantCultureIgnoreCase)) ?? false);
-
-            searchResults = ApplyExclusions(searchResults, ignoreSourceExclusion, ignorePackageExclusion);
-            return searchResults.ToList();
+            return _searchResults.FindAll(r => !IsPackageInstalled(r) && !IsPackageExcuded(r, ignoreSourceExclusion, ignorePackageExclusion));
         }
 
         private async Task LoadInstalledPackageList()
@@ -130,7 +124,7 @@ namespace WingetGUIInstaller.Services
             _installedPackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastInstalledPackageRefresh = DateTimeOffset.UtcNow;
             _installedCacheValidity = true;
-            _logger.LogInformation("Installed package cache refreshed at: {time} count: {count}",
+            _logger.LogInformation("Installed package cache refreshed at: {Time} count: {Count}",
                 _lastUpgrablePackageRefresh, _installedPackages.Count);
         }
 
@@ -144,7 +138,7 @@ namespace WingetGUIInstaller.Services
             _upgradablePackages = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastUpgrablePackageRefresh = DateTimeOffset.UtcNow;
             _updateCacheValidity = true;
-            _logger.LogInformation("Upgradable package cache refreshed at: {time} count: {count}",
+            _logger.LogInformation("Upgradable package cache refreshed at: {Time} count: {Count}",
                 _lastUpgrablePackageRefresh, _upgradablePackages.Count);
         }
 
@@ -159,37 +153,48 @@ namespace WingetGUIInstaller.Services
             _searchResults = commandResult != default ? commandResult.ToList() : new List<WingetPackageEntry>();
             _lastSearchTime = DateTimeOffset.UtcNow;
             _lastSerarchQuery = searchQuery;
-            _logger.LogInformation("Installed search result cache refreshed at: {time} count {count}",
+            _logger.LogInformation("Installed search result cache refreshed at: {Time} count {Count}",
                 _lastSearchTime, _searchResults.Count);
         }
 
-        private IEnumerable<WingetPackageEntry> ApplyExclusions(IEnumerable<WingetPackageEntry> packages,
-            bool ignoreSourceExclusion, bool ignorePackageExclusion)
+        private bool IsPackageInstalled(WingetPackageEntry wingetPackageEntry)
         {
-            // Filter packages with no source
-            if (!ignoreSourceExclusion && _exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+            if (_installedPackages == default)
             {
-                packages = packages.Where(p => !string.IsNullOrWhiteSpace(p.Source));
+                return false;
             }
 
-            // Filter Ignored Sources
-            if (!ignoreSourceExclusion && _exclusionsManager.ExcludedPackageSourcesEnabled)
+            return _installedPackages.Exists(p => string.Equals(p.Id, wingetPackageEntry.Id, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private bool IsPackageExcuded(WingetPackageEntry wingetPackageEntry, bool ignoreSourceExclusion, bool ignorePackageExclusion)
+        {
+            if (!ignoreSourceExclusion)
             {
-                packages = packages
-                    .Where(p => !_exclusionsManager.IsPackageSourceExcluded(p.Source));
+                // Filter packages with no source
+                if (_exclusionsManager.IgnoreEmptyPackageSourcesEnabled)
+                {
+                    return string.IsNullOrWhiteSpace(wingetPackageEntry.Source);
+                }
+
+                // Filter Ignored Sources
+                if (_exclusionsManager.ExcludedPackageSourcesEnabled)
+                {
+                    return _exclusionsManager.IsPackageSourceExcluded(wingetPackageEntry.Source);
+                }
             }
 
             // Filter Ignored Packages
-            if (!ignorePackageExclusion && _exclusionsManager.ExcludedPackagesEnabled)
+            if (!ignorePackageExclusion && _exclusionsManager.ExcludedPackagesEnabled &&
+                _exclusionsManager.IsPackageExcluded(wingetPackageEntry.Id))
             {
-                packages = packages
-                    .Where(p => !_exclusionsManager.IsPackageExcluded(p.Id));
+                return true;
             }
 
-            return packages;
+            return false;
         }
 
-        private static IDictionary<PackageFilterCriteria, string> ParseSearchQuery(string searchQuery, out string strippedQuery)
+        private static Dictionary<PackageFilterCriteria, string> ParseSearchQuery(string searchQuery, out string strippedQuery)
         {
             var parsedEntries = new Dictionary<PackageFilterCriteria, string>();
             foreach (var matchGroups in SearchQueryRegex().Matches(searchQuery).Select(m => m.Groups))
