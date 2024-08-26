@@ -37,7 +37,7 @@ namespace WingetGUIInstaller.Services
             }
             if (!_excludedPackageIds.Contains(exclusionId))
             {
-                _logger.LogInformation("Excluding package: {package}", exclusionId);
+                _logger.LogInformation("Excluding package: {PackageId}", exclusionId);
                 _excludedPackageIds.Add(exclusionId);
                 SavePackageExclusionList(_excludedPackageIds);
                 return true;
@@ -53,7 +53,7 @@ namespace WingetGUIInstaller.Services
             }
             if (_excludedPackageIds.Contains(exclusionId))
             {
-                _logger.LogInformation("Removing exclusion for package: {package}", exclusionId);
+                _logger.LogInformation("Removing exclusion for package: {PackageId}", exclusionId);
                 _excludedPackageIds.Remove(exclusionId);
                 SavePackageExclusionList(_excludedPackageIds);
                 return true;
@@ -82,7 +82,7 @@ namespace WingetGUIInstaller.Services
             }
             if (!_excludedPackageSources.Contains(packageSourceName))
             {
-                _logger.LogInformation("Excluding package source: {packageSource}", packageSourceName);
+                _logger.LogInformation("Excluding package source: {PackageSource}", packageSourceName);
                 _excludedPackageSources.Add(packageSourceName);
                 SavePackageSourceExclusionList(_excludedPackageSources);
                 return true;
@@ -99,7 +99,7 @@ namespace WingetGUIInstaller.Services
             if (_excludedPackageSources.Contains(packageSourceName))
             {
 
-                _logger.LogInformation("Removing exclusion for package source: {packageSource}", packageSourceName);
+                _logger.LogInformation("Removing exclusion for package source: {PackageSource}", packageSourceName);
                 _excludedPackageSources.Remove(packageSourceName);
                 SavePackageSourceExclusionList(_excludedPackageIds);
                 return true;
