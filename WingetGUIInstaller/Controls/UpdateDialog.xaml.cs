@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.Labs.WinUI.MarkdownTextBlock;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 
@@ -33,14 +34,11 @@ namespace WingetGUIInstaller.Controls
             set => SetValue(UpdateAvailableProperty, value);
         }
 
+        public MarkdownConfig MarkdownConfig { get; } = new MarkdownConfig();
+
         public UpdateDialog()
         {
             InitializeComponent();
         }
-
-        //private async void MarkdownTextBlock_LinkClicked(object sender, CommunityToolkit.WinUI.UI.Controls.LinkClickedEventArgs e)
-        //{
-        //    await Launcher.LaunchUriAsync(new Uri(e.Link));
-        //}
     }
 }
