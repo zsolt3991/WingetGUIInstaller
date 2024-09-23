@@ -41,18 +41,18 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Common" Version="8.3.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.0" />
-    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.240906-build.1745" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.240906-build.1745" />
-    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240821" />
+    <PackageReference Include="CommunityToolkit.Common" Version="8.3.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.240917-build.1755" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.240917-build.1755" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240916" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
