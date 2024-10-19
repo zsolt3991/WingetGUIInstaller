@@ -49,7 +49,7 @@ namespace WingetGUIInstaller.Services
             else
             {
                 _logger.LogError("Frame is already in the navigation stack");
-                throw new Exception("Frame is already in the navigation stack");
+                throw new InvalidOperationException("Frame is already in the navigation stack");
             }
         }
 
@@ -91,7 +91,7 @@ namespace WingetGUIInstaller.Services
                 else
                 {
                     _logger.LogError("Trying to remove a different frame from navigation stack");
-                    throw new Exception("Trying to remove a different frame from navigation stack");
+                    throw new InvalidOperationException("Trying to remove a different frame from navigation stack");
                 }
             }
             else

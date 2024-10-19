@@ -45,7 +45,7 @@ namespace WingetGUIInstaller.Services
             if (!_pageMap.ContainsKey(key))
             {
                 _logger.LogError("Unknown Key: {keyName}", key.ToString());
-                throw new Exception("No Page registered for the given key");
+                throw new InvalidOperationException("No Page registered for the given key");
             }
 
             return _pageMap[key];
