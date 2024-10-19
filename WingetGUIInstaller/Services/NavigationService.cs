@@ -150,7 +150,7 @@ namespace WingetGUIInstaller.Services
             {
                 return;
             }
-            _logger.LogDebug("Navigating from: {page} Mode: {mode}", sourcePage.GetType().Name, navigationMode);
+            _logger.LogDebug("Navigating from: {Page} Mode: {NavigationMode}", sourcePage.GetType().Name, navigationMode);
             if (sourcePage.DataContext is not INavigationAware navigationAware)
             {
                 return;
@@ -164,7 +164,7 @@ namespace WingetGUIInstaller.Services
             {
                 return;
             }
-            _logger.LogDebug("Navigating to: {page}", targetPage.GetType().Name);
+            _logger.LogDebug("Navigating to: {Page}", targetPage.GetType().Name);
             if (targetPage.DataContext is not INavigationAware navigationAware)
             {
                 return;

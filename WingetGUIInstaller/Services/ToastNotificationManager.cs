@@ -45,7 +45,7 @@ namespace WingetGUIInstaller.Services
                 .AddText(titleText)
                 .AddText(contentText);
 
-            _logger.LogDebug("Showing Notification: {title} Content: {content}", titleText, contentText);
+            _logger.LogDebug("Showing Notification: {Title} Content: {Content}", titleText, contentText);
             AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
@@ -60,7 +60,7 @@ namespace WingetGUIInstaller.Services
                 string.Format(_resourceLoader.GetString("PackageOperationSuccessfulFormat"), _resourceLoader.GetString(installOperation.GetResourceKey())) :
                 string.Format(_resourceLoader.GetString("PackageOperationFailedFormat"), _resourceLoader.GetString(installOperation.GetResourceKey())));
 
-            _logger.LogDebug("Showing Status Notification for package: {name}", packageName);
+            _logger.LogDebug("Showing Status Notification for package: {PackageName}", packageName);
             AppNotificationManager.Default.Show(notificationBuilder.BuildNotification());
         }
 
@@ -109,7 +109,7 @@ namespace WingetGUIInstaller.Services
             if (notificationArgs.Arguments.TryGetValue("redirect", out var redirectLocationString)
                 && Enum.TryParse<NavigationItemKey>(redirectLocationString, false, out var redirectLocation))
             {
-                _logger.LogInformation("Handling Toast Activation: Redirect: {key}", redirectLocation);
+                _logger.LogInformation("Handling Toast Activation: Redirect: {NavigationKey}", redirectLocation);
                 WeakReferenceMessenger.Default.Send(new NavigationRequestedMessage(redirectLocation));
             }
         }

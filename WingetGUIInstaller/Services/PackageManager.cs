@@ -34,7 +34,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            _logger.LogInformation("Installing package: {packageId}", packageId);
+            _logger.LogInformation("Installing package: {PackageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
@@ -53,7 +53,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            _logger.LogInformation("Upgrading package: {packageId}", packageId);
+            _logger.LogInformation("Upgrading package: {PackageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
@@ -72,7 +72,7 @@ namespace WingetGUIInstaller.Services
                 command.ConfigureProgressListener(progressListener);
             }
 
-            _logger.LogInformation("Removing package: {packageId}", packageId);
+            _logger.LogInformation("Removing package: {PackageId}", packageId);
             var result = await _commandExecutor.ExecuteCommandAsync(command);
             if (result)
             {
@@ -83,7 +83,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task ExportPackageList(StorageFile outputFile, bool exportVersions, string packageSourceFilter)
         {
-            _logger.LogInformation("Exporting package list to: {file}", outputFile.Path);
+            _logger.LogInformation("Exporting package list to: {OutputFile}", outputFile.Path);
             var sourceToExport = !string.IsNullOrEmpty(packageSourceFilter) ? packageSourceFilter : null;
             var command = PackageListCommands.ExportPackagesToFile(outputFile.Path, exportVersions, false, sourceToExport)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
@@ -93,7 +93,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task ImportPackageList(StorageFile inputFile, bool importVersions, bool ignoreMissing)
         {
-            _logger.LogInformation("Importing package list from: {file}", inputFile.Path);
+            _logger.LogInformation("Importing package list from: {InputFile}", inputFile.Path);
             var command = PackageListCommands.ImportPackagesFromFile(inputFile.Path, ignoreMissing, importVersions)
                 .ConfigureOutputListener(_consoleBuffer.IngestMessage);
             await _commandExecutor.ExecuteCommandAsync(command);
