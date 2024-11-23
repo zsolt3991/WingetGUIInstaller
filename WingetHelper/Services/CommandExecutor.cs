@@ -16,7 +16,7 @@ namespace WingetHelper.Services
     {
         private readonly ILogger _logger;
 
-        public CommandExecutor(ILogger<CommandExecutor> logger)
+        public CommandExecutor(ILogger<CommandExecutor> logger = default)
         {
             _logger = logger ?? NullLogger<CommandExecutor>.Instance;
         }
