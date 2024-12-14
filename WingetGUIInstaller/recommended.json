@@ -70,13 +70,23 @@
     "Group": "Productivity"
   },
   {
-    "Name": ".NET 6 Runtime",
-    "Id": "Microsoft.DotNet.Runtime.6",
+    "Name": ".NET 8 Runtime (LTS)",
+    "Id": "Microsoft.DotNet.Runtime.8",
     "Group": "BasicUtilities"
   },
   {
-    "Name": ".NET 6 SDK (Stable)",
-    "Id": "Microsoft.DotNet.SDK.6",
+    "Name": ".NET 9 Runtime (Current)",
+    "Id": "Microsoft.DotNet.Runtime.9",
+    "Group": "BasicUtilities"
+  },
+  {
+    "Name": ".NET 8 SDK (LTS)",
+    "Id": "Microsoft.DotNet.SDK.8",
+    "Group": "Development"
+  },
+  {
+    "Name": ".NET 9 SDK (Current)",
+    "Id": "Microsoft.DotNet.SDK.9",
     "Group": "Development"
   }
 ]
