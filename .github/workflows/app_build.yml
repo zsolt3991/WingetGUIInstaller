@@ -72,7 +72,7 @@ jobs:
         Appx_Package_Dir: Packages\
         PackageCertificate: ${{ env.SigningCertificate }} 
         Appx_Bundle: Always 
-        Appx_Package_Build_Mode: StoreUpload
+        Appx_Package_Build_Mode: SideloadOnly
 
    # Remove the pfx
     - name: Remove the pfx
