@@ -19,7 +19,7 @@ jobs:
 
     env:
       Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
-      Project_Sdk_Version: "net8.0-windows10.0.22621.0"
+      Project_Sdk_Version: "net10.0-windows10.0.26100.0"
       Project_Directory: WingetGUIInstaller
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
