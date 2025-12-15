@@ -135,4 +135,34 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+
+  <Target Name="CopyPriFile" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
+    <!-- Define variables for clarity. Adjust as necessary. -->
+    <PropertyGroup>
+      <!-- The default name of the generated .pri file is typically the AssemblyName + .pri -->
+      <OriginalPriFile>$(TargetDir)$(AssemblyName).pri</OriginalPriFile>
+      <!-- The new desired name for your .pri file -->
+      <NewPriFile>$(TargetDir)resources.pri</NewPriFile>
+    </PropertyGroup>
+
+    <!-- Use the "Move" task to rename/move the file -->
+    <Copy SourceFiles="$(OriginalPriFile)"
+          DestinationFiles="$(NewPriFile)"
+          ContinueOnError="false" />
+  </Target>
+  
+  <Target Name="CopyPriFilePublish" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
+    <!-- Define variables for clarity. Adjust as necessary. -->
+    <PropertyGroup>
+      <!-- The default name of the generated .pri file is typically the AssemblyName + .pri -->
+      <OriginalPriFile>$(PublishDir)$(AssemblyName).pri</OriginalPriFile>
+      <!-- The new desired name for your .pri file -->
+      <NewPriFile>$(PublishDir)resources.pri</NewPriFile>
+    </PropertyGroup>
+
+    <!-- Use the "Copy" task to duplicate the file -->
+    <Copy SourceFiles="$(OriginalPriFile)"
+          DestinationFiles="$(NewPriFile)"
+          ContinueOnError="false" />
+  </Target>
 </Project>
