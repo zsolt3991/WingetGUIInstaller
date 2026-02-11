@@ -89,12 +89,15 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Debug: List files in Packages directory
-    - name: List Packages directory
+    # Debug: Find all package files
+    - name: Find package files
       run: |
-        Write-Host "Current directory: $(Get-Location)"
-        Write-Host "Contents of current directory:"
-        Get-ChildItem -Force | Format-Table Name
+        Write-Host "Searching for .msix files:"
+        Get-ChildItem -Path . -Recurse -Filter "*.msix" -Force
+        Write-Host "---"
+        Write-Host "Searching for .msixbundle files:"
+        Get-ChildItem -Path . -Recurse -Filter "*.msixbundle" -Force
+        Write-Host "---"
         Write-Host "Searching for .msixupload files:"
         Get-ChildItem -Path . -Recurse -Filter "*.msixupload" -Force
 
@@ -105,4 +108,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "Packages/*/*.msix;Packages/*/*.msixbundle"
+        files: "**/Packages/*/*.msixupload"
