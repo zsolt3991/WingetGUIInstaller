@@ -56,12 +56,19 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
     <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.1" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
     <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.251221100">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   
   <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
@@ -146,9 +153,7 @@
     </PropertyGroup>
 
     <!-- Use the "Move" task to rename/move the file -->
-    <Copy SourceFiles="$(OriginalPriFile)"
-          DestinationFiles="$(NewPriFile)"
-          ContinueOnError="false" />
+    <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
   </Target>
   
   <Target Name="CopyPriFilePublish" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
@@ -161,8 +166,6 @@
     </PropertyGroup>
 
     <!-- Use the "Copy" task to duplicate the file -->
-    <Copy SourceFiles="$(OriginalPriFile)"
-          DestinationFiles="$(NewPriFile)"
-          ContinueOnError="false" />
+    <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
   </Target>
 </Project>
