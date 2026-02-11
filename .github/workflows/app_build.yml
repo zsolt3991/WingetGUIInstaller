@@ -26,7 +26,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
@@ -41,7 +41,7 @@ jobs:
         dotnet-version: 10.0.x
 
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.1
+      uses: microsoft/setup-msbuild@v2
 
     # Decode the Base64 encoded Pfx
     - name: Decode and Import the Pfx
@@ -80,7 +80,7 @@ jobs:
 
     # Create the release:  
     - name: Create Release
-      uses: ncipollo/release-action@v1.10.0
+      uses: ncipollo/release-action@v1.20.0
       continue-on-error: true
       with:
         tag: ${{ steps.tag.outputs.tag }}
@@ -92,8 +92,8 @@ jobs:
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
-      uses: AButler/upload-release-assets@v2.0
+      uses: AButler/upload-release-assets@v3.0.1
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "*/Packages/*/*.msix;*/Packages/*.msixbundle"
+        files: "WingetGUIInstaller/Packages/*/*.msixbundle"
