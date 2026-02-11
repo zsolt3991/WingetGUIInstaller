@@ -93,8 +93,10 @@ jobs:
     - name: List Packages directory
       run: |
         Write-Host "Current directory: $(Get-Location)"
-        Write-Host "Contents of Packages directory:"
-        Get-ChildItem -Path Packages -Recurse -Force | Format-Table FullName
+        Write-Host "Contents of current directory:"
+        Get-ChildItem -Force | Format-Table Name
+        Write-Host "Searching for .msixupload files:"
+        Get-ChildItem -Path . -Recurse -Filter "*.msixupload" -Force
 
     # Upload release asset:  
     - name: Update release asset
