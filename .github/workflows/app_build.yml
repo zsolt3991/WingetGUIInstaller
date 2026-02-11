@@ -89,18 +89,6 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Debug: Find all package files
-    - name: Find package files
-      run: |
-        Write-Host "Searching for .msix files:"
-        Get-ChildItem -Path . -Recurse -Filter "*.msix" -Force
-        Write-Host "---"
-        Write-Host "Searching for .msixbundle files:"
-        Get-ChildItem -Path . -Recurse -Filter "*.msixbundle" -Force
-        Write-Host "---"
-        Write-Host "Searching for .msixupload files:"
-        Get-ChildItem -Path . -Recurse -Filter "*.msixupload" -Force
-
     # Upload release asset:  
     - name: Update release asset
       id: upload-release-asset
@@ -108,4 +96,4 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "**/Packages/*/*.msixupload"
+        files: "Packages/*/*.msixbundle"
