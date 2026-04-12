@@ -34,6 +34,7 @@
     <Deploy Solution="Debug|*" />
     <Deploy Solution="Release|*" />
   </Project>
+  <Project Path="WingetHelper.Tests/WingetHelper.Tests.csproj" />
   <Project Path="WingetHelper/WingetHelper.csproj">
     <BuildType Solution="Debug_Unpackaged|*" Project="Debug" />
     <BuildType Solution="Release_Unpackaged|*" Project="Release" />
