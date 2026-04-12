@@ -15,19 +15,17 @@ namespace WingetHelper.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void Constructor_RejectsDangerousArgument()
         {
             // Dangerous characters should be rejected via internal validation
-            var meta = new WingetCommandMetadata<object>("list", "> out.txt");
+            Assert.ThrowsException<ArgumentException>(() => new WingetCommandMetadata<object>("list", "> out.txt"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void AddExtraArguments_RejectsDangerousArgument()
         {
             var meta = new WingetCommandMetadata<object>("list");
-            meta.AddExtraArguments("--query", "pkg & calc");
+            Assert.ThrowsException<ArgumentException>(() => meta.AddExtraArguments("--query", "pkg & calc"));
         }
     }
 }

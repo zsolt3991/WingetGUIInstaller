@@ -16,19 +16,17 @@ namespace WingetHelper.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void ValidateMany_RejectsDangerousArgument()
         {
             var args = new[] { "install", "> out.txt" };
-            ArgumentValidator.ValidateMany(args);
+            Assert.ThrowsException<ArgumentException>(() => ArgumentValidator.ValidateMany(args));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ValidateMany_RejectsNullArgumentArrayElement()
         {
             var args = new string[] { null };
-            ArgumentValidator.ValidateMany(args);
+            Assert.ThrowsException<ArgumentNullException>(() => ArgumentValidator.ValidateMany(args));
         }
     }
 }
