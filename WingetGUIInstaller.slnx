@@ -1,0 +1,41 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Debug_Unpackaged" />
+    <BuildType Name="Release" />
+    <BuildType Name="Release_Unpackaged" />
+    <Platform Name="Any CPU" />
+    <Platform Name="arm64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/app_build.yml" />
+    <File Path=".github/workflows/nuget_build.yml" />
+    <File Path=".github/workflows/unpackaged_app_build.yml" />
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE" />
+    <File Path="NuGet.config" />
+  </Folder>
+  <Project Path="GithubPackageUpdater/GithubPackageUpdater.csproj">
+    <BuildType Solution="Debug_Unpackaged|*" Project="Debug" />
+    <BuildType Solution="Release_Unpackaged|*" Project="Release" />
+  </Project>
+  <Project Path="WingetGUIInstaller/WingetGUIInstaller.csproj">
+    <BuildType Solution="Release_Unpackaged|Any CPU" Project="Release" />
+    <BuildType Solution="Release_Unpackaged|arm64" Project="Release" />
+    <BuildType Solution="Release_Unpackaged|x86" Project="Release" />
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Platform Solution="*|arm64" Project="arm64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy Solution="Debug_Unpackaged|*" />
+    <Deploy Solution="Debug|*" />
+    <Deploy Solution="Release|*" />
+  </Project>
+  <Project Path="WingetHelper/WingetHelper.csproj">
+    <BuildType Solution="Debug_Unpackaged|*" Project="Debug" />
+    <BuildType Solution="Release_Unpackaged|*" Project="Release" />
+  </Project>
+</Solution>
