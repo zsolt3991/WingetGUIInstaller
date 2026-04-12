@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using WingetHelper.Enums;
+using WingetHelper.Utils;
 
 namespace WingetHelper.Commands
 {
@@ -15,6 +16,7 @@ namespace WingetHelper.Commands
 
         public WingetCommandMetadata(params string[] arguments)
         {
+            ArgumentValidator.ValidateMany(arguments);
             Arguments = arguments.ToList();
         }
 
@@ -48,6 +50,7 @@ namespace WingetHelper.Commands
                 throw new ArgumentException("Arguments list empty", nameof(arguments));
             }
 
+            ArgumentValidator.ValidateMany(arguments);
             Arguments.AddRange(arguments);
             return this;
         }
