@@ -15,16 +15,16 @@
     <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
     <Nullable>warnings</Nullable>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' ">
     <XamlDebuggingInformation>True</XamlDebuggingInformation>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -33,13 +33,13 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <EmbeddedResource Include="recommended.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -70,25 +70,25 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
        Tools extension to be activated for this project even if the Windows App SDK Nuget
        package has not yet been restored -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\GithubPackageUpdater\GithubPackageUpdater.csproj" />
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Update="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
+
   <ItemGroup Label="Controls">
     <Page Update="Controls\LoadingIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -103,7 +103,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  
+
   <ItemGroup Label="Pages">
     <Page Update="Pages\AboutPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -155,7 +155,7 @@
     <!-- Use the "Move" task to rename/move the file -->
     <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
   </Target>
-  
+
   <Target Name="CopyPriFilePublish" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <!-- Define variables for clarity. Adjust as necessary. -->
     <PropertyGroup>
@@ -167,5 +167,29 @@
 
     <!-- Use the "Copy" task to duplicate the file -->
     <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
+  </Target>
+
+  <!--
+    Workaround for microsoft/WindowsAppSDK#6071: a 2.x unpackaged self-contained build does
+    NOT lay out Microsoft.WindowsAppRuntime.Insights.Resource.dll, so AppNotificationManager
+    .Register throws 0x8007007E (MOD_NOT_FOUND) and toast notifications break. The explicit
+    Microsoft.WindowsAppSDK.Runtime reference alone does not fix it (its targets only do a
+    version-consistency check). The DLL ships inside that package's WindowsAppRuntime MSIX,
+    so extract just that one entry into the build and publish output. Drop once #6071 is fixed.
+    
+    Thanks to @hoobio on GitHub from his fix in hoobio/earmark.
+  -->
+  <PropertyGroup>
+    <_RuntimeMsixArch Condition="('$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged') And '$(Platform)' == 'x32'">win10-x32</_RuntimeMsixArch>
+    <_RuntimeMsixArch Condition="('$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged') And '$(Platform)' == 'x64'">win10-x64</_RuntimeMsixArch>
+    <_RuntimeMsixArch Condition="('$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged') And '$(Platform)' == 'ARM64'">win10-arm64</_RuntimeMsixArch>
+  </PropertyGroup>
+
+  <Target Name="_LayoutInsightsResource" AfterTargets="Build;Publish" Condition="'$(WindowsAppSDKSelfContained)' == 'true' and '$(_RuntimeMsixArch)' != '' and '$(PkgMicrosoft_WindowsAppSDK_Runtime)' != ''">
+    <ItemGroup>
+      <_RuntimeMsix Include="$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\Microsoft.WindowsAppRuntime.*.msix" Exclude="$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.DDLM.*.msix;$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.Main.*.msix;$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.Singleton.*.msix" />
+    </ItemGroup>
+    <Unzip SourceFiles="@(_RuntimeMsix)" DestinationFolder="$(OutDir)" Include="Microsoft.WindowsAppRuntime.Insights.Resource.dll" OverwriteReadOnlyFiles="true" Condition="'@(_RuntimeMsix)' != ''" />
+    <Unzip SourceFiles="@(_RuntimeMsix)" DestinationFolder="$(PublishDir)" Include="Microsoft.WindowsAppRuntime.Insights.Resource.dll" OverwriteReadOnlyFiles="true" Condition="'@(_RuntimeMsix)' != '' and '$(PublishDir)' != '' and Exists('$(PublishDir)')" />
   </Target>
 </Project>
