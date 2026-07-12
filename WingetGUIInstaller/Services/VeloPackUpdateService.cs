@@ -14,6 +14,8 @@ namespace WingetGUIInstaller.Services
     /// VeloPack implementation of IUpdateService for unpackaged builds.
     /// Handles update checking using VeloPack's UpdateManager.
     /// VeloPack itself handles the actual update download and restart via Program.cs bootstrap.
+    /// Supports automatic delta updates for efficient bandwidth usage.
+    /// For more information, see: https://docs.velopack.io/
     /// </summary>
     public sealed class VeloPackUpdateService : IUpdateService
     {
