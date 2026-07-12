@@ -99,19 +99,9 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     # Upload release assets:  
-    - name: Update release asset
-      id: upload-release-asset
-      uses: AButler/upload-release-assets@v2.0
-      with: 
+    - name: Update release assets
+      uses: AButler/upload-release-assets@v4.0
+      with:
+        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip;vpk-release/*.nupkg;vpk-release/RELEASES"
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
-
-    # Upload VeloPack release assets
-    - name: Upload VeloPack release assets
-      id: upload-vpk
-      uses: AButler/upload-release-assets@v2.0
-      with: 
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ steps.tag.outputs.tag }}
-        files: "${{ github.workspace }}/vpk-release/*"
