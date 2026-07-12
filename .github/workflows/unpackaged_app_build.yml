@@ -7,13 +7,17 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
 
   build:
     strategy:
+      max-parallel: 1
       matrix:
         configuration: [Release_Unpackaged]
-        platform: [x64, x86]
+        platform: [x86, x64]
 
     runs-on: windows-latest
 
@@ -22,6 +26,7 @@ jobs:
       Project_Sdk_Version: "net10.0-windows10.0.26100.0"
       Project_Directory: WingetGUIInstaller
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      VELOPACK_CHANNEL: win-${{ matrix.platform }}
 
     steps:
     - name: Checkout
@@ -31,7 +36,22 @@ jobs:
 
     - name: Get tag
       id: tag
-      uses: dawidd6/action-get-tag@v1 
+      uses: dawidd6/action-get-tag@v1
+
+    - name: Extract version for VeloPack
+      id: version
+      run: |
+        $tag = "${{steps.tag.outputs.tag}}"
+        # Remove 'v' prefix if present
+        $version = $tag -replace '^v', ''
+        # VeloPack requires 3-part version, so convert 4-part to 3-part (drop the 4th component)
+        if ($version -match '^\d+\.\d+\.\d+\.\d+$') {
+          $parts = $version -split '\.'
+          $vpkversion = "$($parts[0]).$($parts[1]).$($parts[2])"
+          Write-Output "vpkversion=$vpkversion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        } else {
+          Write-Output "vpkversion=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        }
 
     # Install .NET 10
     - name: Setup .NET
@@ -46,17 +66,27 @@ jobs:
     - name: Restore the application
       run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
 
-    # Build the project 
+    # Build and publish the project 
     - name: Build the Windows Application
-      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
-    
-    - name: Zip the build Output
-      run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
-    
-    - name: ShowFiles
-      run: dir
+      run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
 
-    # Create the release:  
+    - name: Show build output
+      run: dir $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+
+    # Create VeloPack Release
+    - name: Create VeloPack Release
+      run: |
+        dotnet tool install -g vpk
+        vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
+        vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL" --publish --merge --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Show VeloPack output
+      run: dir $env:LOCALAPPDATA\Vpk\releases -Recurse -ErrorAction SilentlyContinue; dir . -Recurse -Include "*.exe", "*.nupkg", "RELEASES"
+
+    # Create the release:
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
       continue-on-error: true
@@ -67,11 +97,3 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Upload release asset:  
-    - name: Update release asset
-      id: upload-release-asset
-      uses: AButler/upload-release-assets@v2.0
-      with: 
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ steps.tag.outputs.tag }}
-        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
