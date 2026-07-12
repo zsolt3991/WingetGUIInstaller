@@ -105,7 +105,7 @@ namespace WingetGUIInstaller
 
         private void ConfigureServices()
         {
-            Ioc.Default.ConfigureServices(new ServiceCollection()
+            var services = new ServiceCollection()
                 .AddLogging(builder => builder
                     .SetMinimumLevel(GetLogLevel())
                     .AddSerilog(ConfigureLogging(), true))
@@ -139,11 +139,21 @@ namespace WingetGUIInstaller
                 .AddSingleton<PackageSourcePageViewModel>()
                 .AddTransient<PackageDetailsPageViewModel>()
                 .AddSingleton<ExcludedPackagesViewModel>()
+                .AddWingetHelper();
+
+#if UNPACKAGED
+            // For unpackaged builds, use VeloPack for automatic updates
+            services.AddSingleton<IUpdateService, VeloPackUpdateService>();
+#else
+            // For packaged builds, use GitHub updater wrapped in adapter
+            services
                 .AddGithubUpdater(options => options
                     .ConfigureAccountName("zsolt3991")
                     .ConfigureRepository("WingetGUIInstaller"))
-                .AddWingetHelper()
-                .BuildServiceProvider());
+                .AddSingleton<IUpdateService, GithubPackageUpdaterAdapter>();
+#endif
+
+            Ioc.Default.ConfigureServices(services.BuildServiceProvider());
         }
 
         private Serilog.ILogger ConfigureLogging()

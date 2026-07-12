@@ -3,15 +3,13 @@ using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using GithubPackageUpdater.Models;
-using GithubPackageUpdater.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Messages;
+using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -19,7 +17,7 @@ namespace WingetGUIInstaller.ViewModels
     {
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly GithubPackageUpdaterSerivce _updaterSerivce;
+        private readonly IUpdateService _updateService;
         private readonly ILogger<HomePageViewModel> _logger;
 
         [ObservableProperty]
@@ -32,14 +30,14 @@ namespace WingetGUIInstaller.ViewModels
         [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
         [NotifyPropertyChangedFor(nameof(UpdateChangeLog))]
         [NotifyPropertyChangedFor(nameof(UpdateVersion))]
-        private PackageUpdateResponse _update;
+        private IUpdateResponse _update;
 
         public HomePageViewModel(ISettingsStorageHelper<string> configurationStore, DispatcherQueue dispatcherQueue,
-            GithubPackageUpdaterSerivce updaterSerivce, ILogger<HomePageViewModel> logger)
+            IUpdateService updateService, ILogger<HomePageViewModel> logger)
         {
             _configurationStore = configurationStore;
             _dispatcherQueue = dispatcherQueue;
-            _updaterSerivce = updaterSerivce;
+            _updateService = updateService ?? throw new ArgumentNullException(nameof(updateService));
             _logger = logger;
             _isNavigationAllowed = true;
 
@@ -67,9 +65,9 @@ namespace WingetGUIInstaller.ViewModels
             }
         }
 
-        public bool IsUpdateAvailable => !Update?.IsPackageUpToDate ?? false;
+        public bool IsUpdateAvailable => Update?.IsUpdateAvailable ?? false;
 
-        public Version UpdateVersion => Update?.AvailableUpdateVersion ?? default;
+        public Version UpdateVersion => Update?.UpdateVersion ?? default;
 
         public string UpdateChangeLog => Update?.ChangeLog ?? string.Empty;
 
@@ -79,9 +77,9 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task InstallUpdateAsync()
         {
-            if (Update != default)
+            if (Update?.IsUpdateAvailable ?? false)
             {
-                await _updaterSerivce.TriggerUpdate(Update.PackageUri);
+                await _updateService.InstallUpdateAsync(Update.UpdateUri);
             }
         }
 
@@ -89,9 +87,12 @@ namespace WingetGUIInstaller.ViewModels
         {
             try
             {
-                var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
-                if (checkResult != default && !checkResult.IsPackageUpToDate)
+                _logger.LogInformation("HomePage checking for updates");
+
+                var checkResult = await _updateService.CheckForUpdatesAsync();
+                if (checkResult?.IsUpdateAvailable ?? false)
                 {
+                    _logger.LogInformation("Update available in HomePage: {Version}", checkResult.UpdateVersion);
                     _dispatcherQueue.TryEnqueue(() => { Update = checkResult; });
                 }
             }

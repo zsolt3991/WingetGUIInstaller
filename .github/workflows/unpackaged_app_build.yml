@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release_Unpackaged]
-        platform: [x64, x86]
+        platform: [x64]
 
     runs-on: windows-latest
 
@@ -46,15 +46,24 @@ jobs:
     - name: Restore the application
       run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
 
-    # Build the project 
+    # Build and publish the project 
     - name: Build the Windows Application
-      run: dotnet build $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
-    
+      run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
+
     - name: Zip the build Output
-      run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
-    
-    - name: ShowFiles
-      run: dir
+      run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+
+    # Install VeloPack CLI tool
+    - name: Install VeloPack
+      run: dotnet tool install --global vpk
+
+    # Create VeloPack release packages (RELEASES manifest and .nupkg files)
+    - name: Pack with VeloPack
+      run: vpk pack -u WingetGUIInstaller -v ${{steps.tag.outputs.tag}} -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish -o ${{ github.workspace }}\vpk-release --noInst
+      continue-on-error: false
+
+    - name: Show VeloPack output
+      run: dir ${{ github.workspace }}\vpk-release
 
     # Create the release:  
     - name: Create Release
@@ -67,11 +76,21 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Upload release asset:  
-    - name: Update release asset
-      id: upload-release-asset
+    # Upload release assets:  
+    - name: Upload release assets (Portable ZIP)
+      id: upload-zip
       uses: AButler/upload-release-assets@v2.0
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
+        files: ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+
+    # Upload VeloPack release assets (RELEASES manifest and .nupkg files)
+    - name: Upload VeloPack release assets
+      id: upload-vpk
+      uses: AButler/upload-release-assets@v2.0
+      with: 
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ steps.tag.outputs.tag }}
+        files: ${{ github.workspace }}\vpk-release\*
         files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"

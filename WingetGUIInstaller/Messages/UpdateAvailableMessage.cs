@@ -1,11 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using GithubPackageUpdater.Models;
+using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.Messages
 {
-    internal sealed class UpdateAvailableMessage : ValueChangedMessage<PackageUpdateResponse>
+    internal sealed class UpdateAvailableMessage : ValueChangedMessage<IUpdateResponse>
     {
-        public UpdateAvailableMessage(PackageUpdateResponse value) : base(value)
+        /// <summary>
+        /// Creates message with unified IUpdateResponse interface.
+        /// Works with both GitHub (via adapter) and VeloPack responses.
+        /// </summary>
+        public UpdateAvailableMessage(IUpdateResponse value) : base(value)
         {
         }
     }

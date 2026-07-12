@@ -19,6 +19,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' ">
@@ -69,6 +70,15 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
+    <PackageReference Include="Velopack" Version="1.2.0" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug_Unpackaged' And '$(Configuration)' != 'Release_Unpackaged'">
+    <Compile Remove="Program.cs" />
   </ItemGroup>
   
   <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging

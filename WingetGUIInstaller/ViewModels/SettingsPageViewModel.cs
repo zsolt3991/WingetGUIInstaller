@@ -3,14 +3,12 @@ using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using GithubPackageUpdater.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -24,7 +22,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly NavigationItemKey[] _disallowedKeys = new NavigationItemKey[] {
             NavigationItemKey.Settings, NavigationItemKey.About, NavigationItemKey.Console, NavigationItemKey.Home };
         private readonly ISettingsStorageHelper<string> _configurationStore;
-        private readonly GithubPackageUpdaterSerivce _updaterSerivce;
+        private readonly IUpdateService _updateService;
         private readonly ILogger<SettingsPageViewModel> _logger;
         private readonly IReadOnlyList<ApplicationDisplayLanguage> _applicationLanguages;
         private readonly IReadOnlyList<DisplayTheme> _availableThemes;
@@ -38,11 +36,15 @@ namespace WingetGUIInstaller.ViewModels
         private DisplayTheme? _selectedTheme;
         private ApplicationDisplayLanguage _selectedDisplayLanguage;
 
+        /// <summary>
+        /// Constructor using unified IUpdateService abstraction.
+        /// Works with both packaged (GitHub via adapter) and unpackaged (VeloPack) builds.
+        /// </summary>
         public SettingsPageViewModel(ISettingsStorageHelper<string> configurationStore,
-           GithubPackageUpdaterSerivce updaterSerivce, ILogger<SettingsPageViewModel> logger)
+           IUpdateService updateService, ILogger<SettingsPageViewModel> logger)
         {
             _configurationStore = configurationStore;
-            _updaterSerivce = updaterSerivce;
+            _updateService = updateService ?? throw new ArgumentNullException(nameof(updateService));
             _logger = logger;
             _applicationLanguages = new List<ApplicationDisplayLanguage>
             {
@@ -178,10 +180,18 @@ namespace WingetGUIInstaller.ViewModels
         {
             try
             {
-                var checkResult = await _updaterSerivce.CheckForUpdates(Package.Current);
-                if (checkResult != default)
+                _logger.LogInformation("Checking for updates");
+
+                var updateResponse = await _updateService.CheckForUpdatesAsync();
+
+                if (updateResponse?.IsUpdateAvailable ?? false)
                 {
-                    WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(checkResult));
+                    _logger.LogInformation("Update available: {Version}", updateResponse.UpdateVersion);
+                    WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(updateResponse));
+                }
+                else
+                {
+                    _logger.LogInformation("No updates available");
                 }
             }
             catch (Exception updateException)
