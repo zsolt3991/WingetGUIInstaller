@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 #if UNPACKAGED
 using Velopack;
+using WingetGUIInstaller.Contracts;
+using WingetGUIInstaller.Models;
 #endif
 
 namespace WingetGUIInstaller.Services
