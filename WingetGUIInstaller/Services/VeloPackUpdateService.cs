@@ -127,6 +127,7 @@ namespace WingetGUIInstaller.Services
 
                 _logger.LogInformation("Applying VeloPack update {Version} and restarting", updateInfo.TargetFullRelease.Version);
                 _updateManager.ApplyUpdatesAndRestart(updateInfo.TargetFullRelease, null);
+                _logger.LogInformation("VeloPack update apply request submitted");
             }
             catch (Exception ex)
             {

@@ -77,9 +77,15 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task InstallUpdateAsync()
         {
-            if (Update?.IsUpdateAvailable ?? false)
+            if (Update?.IsUpdateAvailable == true)
             {
+                _logger.LogInformation("Update Now clicked for version {Version}", Update.UpdateVersion);
                 await _updateService.InstallUpdateAsync(Update.UpdateUri);
+                _logger.LogInformation("Update installation request completed");
+            }
+            else
+            {
+                _logger.LogWarning("Update Now clicked but no update is available");
             }
         }
 
