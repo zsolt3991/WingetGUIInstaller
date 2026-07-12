@@ -18,10 +18,6 @@
     <File Path="LICENSE" />
     <File Path="NuGet.config" />
   </Folder>
-  <Project Path="GithubPackageUpdater/GithubPackageUpdater.csproj">
-    <BuildType Solution="Debug_Unpackaged|*" Project="Debug" />
-    <BuildType Solution="Release_Unpackaged|*" Project="Release" />
-  </Project>
   <Project Path="WingetGUIInstaller/WingetGUIInstaller.csproj">
     <BuildType Solution="Release_Unpackaged|Any CPU" Project="Release" />
     <BuildType Solution="Release_Unpackaged|arm64" Project="Release" />
