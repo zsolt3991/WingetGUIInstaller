@@ -42,8 +42,11 @@ namespace WingetGUIInstaller.Services
 
                 try
                 {
-                    _updateManager = new UpdateManager("https://github.com/zsolt3991/WingetGUIInstaller");
-                    _logger.LogInformation("UpdateManager initialized with GitHub repository");
+                    var channel = Environment.Is64BitProcess ? "win-x64" : "win-x86";
+                    _updateManager = new UpdateManager(
+                        "https://github.com/zsolt3991/WingetGUIInstaller",
+                        new UpdateOptions { ExplicitChannel = channel });
+                    _logger.LogInformation("UpdateManager initialized with GitHub repository and channel {Channel}", channel);
                 }
                 catch (Exception ex)
                 {

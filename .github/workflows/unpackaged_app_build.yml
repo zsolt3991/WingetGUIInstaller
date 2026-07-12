@@ -14,9 +14,10 @@ jobs:
 
   build:
     strategy:
+      max-parallel: 1
       matrix:
         configuration: [Release_Unpackaged]
-        platform: [x64]
+        platform: [x86, x64]
 
     runs-on: windows-latest
 
@@ -25,6 +26,7 @@ jobs:
       Project_Sdk_Version: "net10.0-windows10.0.26100.0"
       Project_Directory: WingetGUIInstaller
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      VELOPACK_CHANNEL: win-${{ matrix.platform }}
 
     steps:
     - name: Checkout
@@ -78,9 +80,9 @@ jobs:
     - name: Create VeloPack Release
       run: |
         dotnet tool install -g vpk
-        vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN"
-        vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
-        vpk upload github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --publish --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
+        vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
+        vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL" --publish --merge --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -103,3 +105,4 @@ jobs:
       with:
         files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ steps.tag.outputs.tag }}
