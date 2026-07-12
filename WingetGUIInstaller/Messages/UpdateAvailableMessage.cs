@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Contracts;
 
 namespace WingetGUIInstaller.Messages
 {

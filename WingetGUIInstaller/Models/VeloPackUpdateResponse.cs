@@ -1,6 +1,7 @@
 using System;
+using WingetGUIInstaller.Contracts;
 
-namespace WingetGUIInstaller.Services
+namespace WingetGUIInstaller.Models
 {
     /// <summary>
     /// VeloPack implementation of IUpdateResponse.

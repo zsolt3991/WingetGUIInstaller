@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace WingetGUIInstaller.Services
+namespace WingetGUIInstaller.Contracts
 {
     /// <summary>
     /// Abstraction for update checking and installation services.

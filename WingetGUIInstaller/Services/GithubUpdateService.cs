@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Management.Deployment;
+using WingetGUIInstaller.Contracts;
+using WingetGUIInstaller.Models;
 using MsixPackage = Windows.ApplicationModel.Package;
 
 #if !UNPACKAGED
@@ -96,25 +98,6 @@ namespace WingetGUIInstaller.Services
 
             _logger.LogInformation("Installing update from {UpdateUri}", updateUri);
             await _packageManager.UpdatePackageAsync(updateUri, null, DeploymentOptions.ForceApplicationShutdown);
-        }
-    }
-
-    internal sealed class GithubUpdateResponse : IUpdateResponse
-    {
-        public Version UpdateVersion { get; }
-        public string ChangeLog { get; }
-        public bool IsUpdateAvailable { get; }
-        public Uri UpdateUri { get; }
-
-        public GithubUpdateResponse(
-            Version updateVersion = null,
-            string changeLog = null,
-            Uri updateUri = null)
-        {
-            UpdateVersion = updateVersion;
-            ChangeLog = changeLog ?? string.Empty;
-            UpdateUri = updateUri;
-            IsUpdateAvailable = updateVersion != null && updateUri != null;
         }
     }
 }

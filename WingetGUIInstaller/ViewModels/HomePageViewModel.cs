@@ -8,8 +8,8 @@ using Microsoft.UI.Dispatching;
 using System;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Messages;
-using WingetGUIInstaller.Services;
 
 namespace WingetGUIInstaller.ViewModels
 {
