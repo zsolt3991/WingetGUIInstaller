@@ -2,10 +2,10 @@
 name: Build Application Packaged
 
 on:
-  workflow_dispatch:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch: # Manually disabled - only unpackaged_app_build.yml is active
+  # push:
+  #   tags:
+  #     - '*'
 
 jobs:
 

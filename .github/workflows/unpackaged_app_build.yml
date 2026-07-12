@@ -80,7 +80,10 @@ jobs:
     - name: Show VeloPack output
       run: dir ${{ github.workspace }}\vpk-release
 
-    # Create the release:  
+    - name: List workspace files for upload
+      run: dir ${{ github.workspace }}\*.zip
+
+    # Create the release:
     - name: Create Release
       uses: ncipollo/release-action@v1.10.0
       continue-on-error: true
@@ -98,7 +101,7 @@ jobs:
       with: 
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.tag.outputs.tag }}
-        files: ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
+        files: ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_*.zip
 
     # Upload VeloPack release assets (RELEASES manifest and .nupkg files)
     - name: Upload VeloPack release assets
