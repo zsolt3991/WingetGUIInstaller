@@ -7,6 +7,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
 
   build:
@@ -75,9 +78,9 @@ jobs:
     - name: Create VeloPack Release
       run: |
         dotnet tool install -g vpk
-        vpk download github --repoUrl https://github.com/${{ github.repository }}
+        vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN"
         vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
-        vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --publish --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
