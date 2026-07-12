@@ -84,7 +84,8 @@ jobs:
       run: dir ${{ github.workspace }}\*.zip
 
     - name: Show workspace path
-      run: Write-Host "Workspace: ${{ github.workspace }}"
+      run: |
+        Write-Host "Workspace: ${{ github.workspace }}"
 
     # Create the release:
     - name: Create Release
