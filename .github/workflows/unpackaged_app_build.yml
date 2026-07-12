@@ -68,24 +68,21 @@ jobs:
     - name: Zip the build Output
       run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
 
-    # Install VeloPack CLI tool
-    - name: Install VeloPack
-      run: dotnet tool install --global vpk
+    - name: Show build output
+      run: dir $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
 
-    # Create VeloPack release packages (RELEASES manifest and .nupkg files)
-    - name: Pack with VeloPack
-      run: vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish -o ${{ github.workspace }}\vpk-release --noInst
-      continue-on-error: false
+    # Create VeloPack Release
+    - name: Create VeloPack Release
+      run: |
+        dotnet tool install -g vpk
+        vpk download github --repoUrl https://github.com/${{ github.repository }}
+        vpk pack -u WingetGUIInstaller -v ${{steps.version.outputs.vpkversion}} -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "WingetGUIInstaller ${{ steps.tag.outputs.tag }}" --tag ${{ steps.tag.outputs.tag }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Show VeloPack output
-      run: dir ${{ github.workspace }}\vpk-release
-
-    - name: List workspace files for upload
-      run: dir ${{ github.workspace }}\*.zip
-
-    - name: Show workspace path
-      run: |
-        Write-Host "Workspace: ${{ github.workspace }}"
+      run: dir $env:LOCALAPPDATA\Vpk\releases -Recurse -ErrorAction SilentlyContinue; dir . -Recurse -Include "*.exe", "*.nupkg", "RELEASES"
 
     # Create the release:
     - name: Create Release
@@ -98,10 +95,8 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Upload release assets:  
-    - name: Update release assets
+    - name: Upload ZIP to Release
       uses: AButler/upload-release-assets@v4.0
       with:
-        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip;vpk-release/*.nupkg;vpk-release/RELEASES"
+        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ steps.tag.outputs.tag }}
