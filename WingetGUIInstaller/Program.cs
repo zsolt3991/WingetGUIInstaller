@@ -16,12 +16,7 @@ namespace WingetGUIInstaller
             // VeloPack must be initialized before anything else.
             // This handles update apply/restart scenarios transparently
             // so the app exits early when an update is being applied.
-            VelopackApp.Build()
-                .WithFirstRun(v =>
-                {
-                    // Optional: show a welcome notification on first install
-                })
-                .Run();
+            VelopackApp.Build().Run();
 #endif
             WinRT.ComWrappersSupport.InitializeComWrappers();
             Application.Start(p =>

@@ -74,7 +74,6 @@
   
   <ItemGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <PackageReference Include="Velopack" Version="1.2.0" />
-    <Compile Include="Program.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' != 'Debug_Unpackaged' And '$(Configuration)' != 'Release_Unpackaged'">
