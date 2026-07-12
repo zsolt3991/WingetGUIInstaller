@@ -11,17 +11,13 @@ namespace WingetGUIInstaller.Services
 {
 #if UNPACKAGED
     /// <summary>
-    /// VeloPack implementation of IUpdateService for unpackaged builds.
-    /// Handles update checking using VeloPack's UpdateManager.
-    /// VeloPack itself handles the actual update download and restart via Program.cs bootstrap.
-    /// Supports automatic delta updates for efficient bandwidth usage.
-    /// For more information, see: https://docs.velopack.io/
+    /// Provides VeloPack update checks and installation for unpackaged builds.
     /// </summary>
     public sealed class VeloPackUpdateService : IUpdateService
     {
         private readonly ILogger<VeloPackUpdateService> _logger;
         private UpdateManager _updateManager;
-        private readonly object _updateManagerLock = new object();
+        private readonly object _updateManagerLock = new();
 
         public VeloPackUpdateService(ILogger<VeloPackUpdateService> logger = null)
         {
@@ -29,9 +25,6 @@ namespace WingetGUIInstaller.Services
             _logger.LogInformation("VeloPackUpdateService initialized");
         }
 
-        /// <summary>
-        /// Ensures UpdateManager is initialized (thread-safe lazy initialization).
-        /// </summary>
         private void EnsureUpdateManager()
         {
             if (_updateManager != null) return;
@@ -55,10 +48,6 @@ namespace WingetGUIInstaller.Services
             }
         }
 
-        /// <summary>
-        /// Checks for available updates from VeloPack sources.
-        /// Uses UpdateManager to query GitHub Releases or configured update source.
-        /// </summary>
         public async Task<IUpdateResponse> CheckForUpdatesAsync()
         {
             try
@@ -73,7 +62,6 @@ namespace WingetGUIInstaller.Services
                     return new VeloPackUpdateResponse { IsUpdateAvailable = false };
                 }
 
-                // Check for available updates
                 var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
                 if (updateInfo == null)
@@ -82,20 +70,18 @@ namespace WingetGUIInstaller.Services
                     return new VeloPackUpdateResponse { IsUpdateAvailable = false };
                 }
 
-                // Check if update is available
                 var targetVersion = updateInfo.TargetFullRelease?.Version;
                 if (targetVersion != null)
                 {
                     _logger.LogInformation("Update available: Version {NewVersion}", targetVersion);
 
-                    // Get release notes from the UpdateInfo
                     var changeLog = updateInfo.TargetFullRelease?.NotesMarkdown ?? 
                                    $"Update available: {targetVersion}";
 
                     return new VeloPackUpdateResponse(
                         updateVersion: targetVersion.Version,
                         changeLog: changeLog,
-                        updateUri: null // VeloPack handles URI internally
+                        updateUri: null
                     )
                     {
                         IsUpdateAvailable = true
@@ -114,11 +100,6 @@ namespace WingetGUIInstaller.Services
             }
         }
 
-        /// <summary>
-        /// Installs an available update.
-        /// This method tells VeloPack to check and apply updates.
-        /// VeloPack handles downloading, staging, and applying the update with a restart.
-        /// </summary>
         public async Task InstallUpdateAsync(Uri updateUri)
         {
             try
@@ -133,7 +114,6 @@ namespace WingetGUIInstaller.Services
                     return;
                 }
 
-                // Check for updates again to ensure we have the latest info
                 var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
                 if (updateInfo?.TargetFullRelease == null)
@@ -142,14 +122,11 @@ namespace WingetGUIInstaller.Services
                     return;
                 }
 
-                _logger.LogInformation("Triggering update check with VeloPack");
+                _logger.LogInformation("Downloading VeloPack update {Version}", updateInfo.TargetFullRelease.Version);
+                await _updateManager.DownloadUpdatesAsync(updateInfo);
 
-                // VeloPack will handle the actual download and restart
-                // Simply calling the update manager triggers the process
-                // The VelopackApp.Build().Run() in Program.cs handles the bootstrap
-                _ = _updateManager.CheckForUpdatesAsync(); // Fire and forget to allow VeloPack to manage the update flow
-
-                _logger.LogInformation("Update installation initiated, VeloPack will handle the restart");
+                _logger.LogInformation("Applying VeloPack update {Version} and restarting", updateInfo.TargetFullRelease.Version);
+                _updateManager.ApplyUpdatesAndRestart(updateInfo.TargetFullRelease, null);
             }
             catch (Exception ex)
             {

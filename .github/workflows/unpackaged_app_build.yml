@@ -70,9 +70,6 @@ jobs:
     - name: Build the Windows Application
       run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{steps.tag.outputs.tag}}
 
-    - name: Zip the build Output
-      run: Compress-Archive -Path $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish\* -Destination ${{ github.workspace }}\WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip
-
     - name: Show build output
       run: dir $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
 
@@ -100,9 +97,3 @@ jobs:
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload ZIP to Release
-      uses: AButler/upload-release-assets@v4.0
-      with:
-        files: "WingetGUIInstaller_${{ matrix.platform }}_${{steps.tag.outputs.tag}}.zip"
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ steps.tag.outputs.tag }}
