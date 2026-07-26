@@ -48,7 +48,7 @@ namespace WingetGUIInstaller
 #if UNPACKAGED
 
             _fileStorage = new UnpackagedFileStorageHelper();
-            _settingsStorage = new UnpackagedSettingsStorageHelper(_fileStorage);
+            _settingsStorage = new UnpackagedSettingsStorageHelper();
 #else
 
             _fileStorage = new PackagedFileStorageHelper();

@@ -1,5 +1,6 @@
 ﻿using System;
 #if UNPACKAGED
+using Microsoft.Windows.Storage;
 using System.Diagnostics;
 #endif
 using System.IO;
@@ -18,8 +19,10 @@ namespace WingetGUIInstaller.Services
         public static string GetLogFileDirectory()
 #if UNPACKAGED
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                StorageFolderConstants.ApplicationFolderName, LoggingConstants.AppLogsFolderName);
+            return Path.Combine(ApplicationData.GetForUnpackaged(
+                    UnpackagedApplicationDataConstants.Publisher,
+                    UnpackagedApplicationDataConstants.Product).LocalPath,
+                LoggingConstants.AppLogsFolderName);
         }
 #else
         {

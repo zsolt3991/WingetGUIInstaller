@@ -1,5 +1,6 @@
 ﻿#if UNPACKAGED
 using CommunityToolkit.Common.Helpers;
+using Microsoft.Windows.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,12 +12,25 @@ namespace WingetGUIInstaller.Services
 {
     internal sealed class UnpackagedFileStorageHelper : IFileStorageHelper
     {
-        private readonly string _basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        private readonly string _basePath;
+
+        public UnpackagedFileStorageHelper()
+        {
+            _basePath = ApplicationData.GetForUnpackaged(
+                UnpackagedApplicationDataConstants.Publisher,
+                UnpackagedApplicationDataConstants.Product).LocalPath;
+            Directory.CreateDirectory(_basePath);
+        }
 
         public async Task CreateFileAsync<T>(string filePath, T value)
         {
-            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, filePath);
+            var completePath = Path.Combine(_basePath, filePath);
             ValidatePath(completePath);
+            var parentDirectory = Path.GetDirectoryName(completePath);
+            if (!string.IsNullOrWhiteSpace(parentDirectory))
+            {
+                Directory.CreateDirectory(parentDirectory);
+            }
 
             var fileContent = JsonSerializer.Serialize<T>(value);
             await File.WriteAllTextAsync(completePath, fileContent);
@@ -24,7 +38,7 @@ namespace WingetGUIInstaller.Services
 
         public Task CreateFolderAsync(string folderPath)
         {
-            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, folderPath);
+            var completePath = Path.Combine(_basePath, folderPath);
             ValidatePath(completePath);
 
             Directory.CreateDirectory(completePath);
@@ -33,7 +47,7 @@ namespace WingetGUIInstaller.Services
 
         public async Task<T> ReadFileAsync<T>(string filePath, T defaultValue = default)
         {
-            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, filePath);
+            var completePath = Path.Combine(_basePath, filePath);
             ValidatePath(completePath);
 
             if (!File.Exists(completePath))
@@ -56,7 +70,7 @@ namespace WingetGUIInstaller.Services
 
         public Task<IEnumerable<(DirectoryItemType ItemType, string Name)>> ReadFolderAsync(string folderPath)
         {
-            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, folderPath);
+            var completePath = Path.Combine(_basePath, folderPath);
             ValidatePath(completePath);
 
             var resultSet = new List<(DirectoryItemType, string)>();
@@ -68,12 +82,12 @@ namespace WingetGUIInstaller.Services
 
             foreach (var subDirectory in Directory.GetDirectories(completePath))
             {
-                resultSet.Add(new(DirectoryItemType.Folder, subDirectory));
+                resultSet.Add(new(DirectoryItemType.Folder, Path.GetFileName(subDirectory)));
             }
 
             foreach (var file in Directory.GetFiles(completePath))
             {
-                resultSet.Add(new(DirectoryItemType.File, file));
+                resultSet.Add(new(DirectoryItemType.File, Path.GetFileName(file)));
             }
 
             return Task.FromResult<IEnumerable<(DirectoryItemType ItemType, string Name)>>(resultSet);
@@ -81,7 +95,7 @@ namespace WingetGUIInstaller.Services
 
         public Task<bool> TryDeleteItemAsync(string itemPath)
         {
-            var completePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, itemPath);
+            var completePath = Path.Combine(_basePath, itemPath);
             ValidatePath(completePath);
 
             if (Directory.Exists(completePath))
@@ -91,20 +105,28 @@ namespace WingetGUIInstaller.Services
                     Directory.Delete(completePath);
                     return Task.FromResult(true);
                 }
-                catch
+                catch (IOException)
+                {
+                    return Task.FromResult(false);
+                }
+                catch (UnauthorizedAccessException)
                 {
                     return Task.FromResult(false);
                 }
             }
 
-            if (Directory.Exists(completePath))
+            if (File.Exists(completePath))
             {
                 try
                 {
                     File.Delete(completePath);
                     return Task.FromResult(true);
                 }
-                catch
+                catch (IOException)
+                {
+                    return Task.FromResult(false);
+                }
+                catch (UnauthorizedAccessException)
                 {
                     return Task.FromResult(false);
                 }
@@ -115,8 +137,9 @@ namespace WingetGUIInstaller.Services
 
         public Task<bool> TryRenameItemAsync(string itemPath, string newName)
         {
-            var oldPath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, itemPath);
-            var newPath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName, newName);
+            var oldPath = Path.Combine(_basePath, itemPath);
+            var parentPath = Path.GetDirectoryName(oldPath) ?? _basePath;
+            var newPath = Path.Combine(parentPath, newName);
             ValidatePath(oldPath);
             ValidatePath(newPath);
 
@@ -127,20 +150,28 @@ namespace WingetGUIInstaller.Services
                     Directory.Move(oldPath, newPath);
                     return Task.FromResult(true);
                 }
-                catch
+                catch (IOException)
+                {
+                    return Task.FromResult(false);
+                }
+                catch (UnauthorizedAccessException)
                 {
                     return Task.FromResult(false);
                 }
             }
 
-            if (Directory.Exists(oldPath))
+            if (File.Exists(oldPath))
             {
                 try
                 {
                     File.Move(oldPath, newPath);
                     return Task.FromResult(true);
                 }
-                catch
+                catch (IOException)
+                {
+                    return Task.FromResult(false);
+                }
+                catch (UnauthorizedAccessException)
                 {
                     return Task.FromResult(false);
                 }
@@ -151,10 +182,10 @@ namespace WingetGUIInstaller.Services
 
         private void ValidatePath(string path)
         {
-            var basePath = Path.Combine(_basePath, StorageFolderConstants.ApplicationFolderName);
+            var basePath = Path.GetFullPath(_basePath);
             var completePath = Path.GetFullPath(path);
 
-            if (!completePath.StartsWith(basePath))
+            if (!completePath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("Accessing a path outside the application directory is forbidden");
             }

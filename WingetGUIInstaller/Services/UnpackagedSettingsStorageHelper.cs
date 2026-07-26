@@ -1,97 +1,61 @@
-﻿#if UNPACKAGED
-using CommunityToolkit.Common.Helpers;
+#if UNPACKAGED
 using CommunityToolkit.Helpers;
+using Microsoft.Windows.Storage;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
+using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
     internal sealed class UnpackagedSettingsStorageHelper : ISettingsStorageHelper<string>
     {
-        private const string SettingsFileName = "settings.json";
-        private readonly IFileStorageHelper _fileStorage;
-        private readonly SemaphoreSlim _fileAccessSemaphore;
-        private readonly IDictionary<string, string> _settings;
+        private readonly ApplicationDataContainer _container;
 
-        public UnpackagedSettingsStorageHelper(IFileStorageHelper fileStorage)
+        public UnpackagedSettingsStorageHelper()
         {
-            _fileStorage = fileStorage;
-            _settings = _fileStorage.ReadFileAsync(SettingsFileName, new Dictionary<string, string>()).ConfigureAwait(false).GetAwaiter().GetResult();
-            _fileAccessSemaphore = new SemaphoreSlim(1);
+            _container = ApplicationData.GetForUnpackaged(
+                UnpackagedApplicationDataConstants.Publisher,
+                UnpackagedApplicationDataConstants.Product).LocalSettings.CreateContainer(
+                "settings",
+                ApplicationDataCreateDisposition.Always);
         }
 
         public void Clear()
         {
-            if (!_fileStorage.TryDeleteItemAsync(SettingsFileName).GetAwaiter().GetResult())
-            {
-                throw new InvalidOperationException("Failed to clear application settings");
-            }
+            _container.Values.Clear();
         }
 
         public void Save<TValue>(string key, TValue value)
         {
-            if (_settings.ContainsKey(key))
-            {
-                _settings[key] = JsonSerializer.Serialize(value);
-            }
-            else
-            {
-                _settings.TryAdd(key, JsonSerializer.Serialize(value));
-            }
-            SyncSettingsFile();
+            _container.Values[key] = JsonSerializer.Serialize(value);
         }
 
         public bool TryDelete(string key)
         {
-            if (!_settings.ContainsKey(key))
+            if (!_container.Values.ContainsKey(key))
             {
                 return false;
             }
-            _settings.Remove(key);
-            SyncSettingsFile();
+            _container.Values.Remove(key);
             return true;
         }
 
         public bool TryRead<TValue>(string key, out TValue value)
         {
-            if (!_settings.TryGetValue(key, out string serializedValue))
+            if (!_container.Values.TryGetValue(key, out object serializedValue))
             {
                 value = default;
                 return false;
             }
 
-            value = JsonSerializer.Deserialize<TValue>(serializedValue);
-            return true;
-        }
-
-        private void SyncSettingsFile()
-        {
-            Exception syncException = default;
-            ManualResetEvent writeCompleteEvent = new ManualResetEvent(false);
-            _fileAccessSemaphore.Wait();
-
-            Task.Run(async () =>
+            if (serializedValue == default)
             {
-                try
-                {
-                    await _fileStorage.CreateFileAsync(SettingsFileName, _settings);
-                    writeCompleteEvent.Set();
-                }
-                catch (Exception innerException)
-                {
-                    syncException = innerException;
-                }
-            });
-
-            writeCompleteEvent.WaitOne();
-            _fileAccessSemaphore.Release();
-            if (syncException != default)
-            {
-                throw syncException;
+                value = default;
+                return false;
             }
+
+            value = JsonSerializer.Deserialize<TValue>(serializedValue.ToString()!);
+            return true;
         }
     }
 }
