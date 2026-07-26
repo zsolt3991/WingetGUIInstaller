@@ -269,6 +269,5 @@ jobs:
           generate_release_notes: true
           files: |
             artifacts/nuget-packages/*.nupkg
-            artifacts/packaged-msix-*/*.msixbundle
-            artifacts/velopack-*/*
-            artifacts/velopack-*/**
+            artifacts/packaged-msix-*/**/*.msixbundle
+            artifacts/velopack-*/**/*
