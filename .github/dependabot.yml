@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+    reviewers:
+      - "zsolt3991"
+    groups:
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+          - "Microsoft.Win32.*"
+      community-toolkit:
+        patterns:
+          - "CommunityToolkit.*"
+      serilog:
+        patterns:
+          - "Serilog"
+          - "Serilog.*"
+      other-dependencies:
+        patterns:
+          - "CsvHelper"
+          - "Octokit"
+          - "Velopack"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+    reviewers:
+      - "zsolt3991"
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
