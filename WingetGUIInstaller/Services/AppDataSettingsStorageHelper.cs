@@ -49,7 +49,14 @@ namespace WingetGUIInstaller.Services
                 return false;
             }
 
-            value = JsonSerializer.Deserialize<TValue>(serializedValue.ToString()!);
+            var serializedText = serializedValue.ToString();
+            if (serializedText == default)
+            {
+                value = default;
+                return false;
+            }
+
+            value = JsonSerializer.Deserialize<TValue>(serializedText);
             return true;
         }
     }

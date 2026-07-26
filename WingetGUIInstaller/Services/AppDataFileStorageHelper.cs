@@ -40,14 +40,14 @@ namespace WingetGUIInstaller.Services
             return Task.CompletedTask;
         }
 
-        public async Task<T> ReadFileAsync<T>(string filePath, T defaultValue = default)
+        public async Task<T> ReadFileAsync<T>(string filePath, T @default = default)
         {
             var completePath = Path.Combine(_basePath, filePath);
             ValidatePath(completePath);
 
             if (!File.Exists(completePath))
             {
-                return defaultValue;
+                return @default;
             }
 
             try
@@ -59,7 +59,7 @@ namespace WingetGUIInstaller.Services
             }
             catch
             {
-                return defaultValue;
+                return @default;
             }
         }
 
