@@ -1,0 +1,241 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-and-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-wingethelper-nuget:
+    name: Build WingetHelper NuGet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            WingetHelper/WingetHelper.csproj
+
+      - name: Normalize version
+        id: version
+        shell: bash
+        run: |
+          raw="${GITHUB_REF_NAME}"
+          clean="${raw#v}"
+          echo "raw=${raw}" >> "$GITHUB_OUTPUT"
+          echo "clean=${clean}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dependencies
+        run: dotnet restore WingetHelper
+
+      - name: Build
+        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=${{ steps.version.outputs.clean }}
+
+      - name: Pack
+        run: dotnet pack WingetHelper --configuration Release --no-build -p:Version=${{ steps.version.outputs.clean }} -o artifacts/nuget
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/nuget/*.nupkg
+          if-no-files-found: error
+
+  build-app-packaged:
+    name: Build Packaged App (${{ matrix.platform }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release]
+        platform: [x86, x64]
+
+    env:
+      Solution_Path: WingetGUIInstaller.slnx
+      App_Project_Directory: WingetGUIInstaller
+      SigningCertificate: zsolt9331_sideload.pfx
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            WingetGUIInstaller/WingetGUIInstaller.csproj
+            WingetHelper/WingetHelper.csproj
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Normalize version
+        id: version
+        shell: pwsh
+        run: |
+          $raw = "${{ github.ref_name }}"
+          $clean = $raw -replace '^v', ''
+          "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Decode and import PFX
+        shell: pwsh
+        run: |
+          $currentDirectory = Get-Location
+          $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_CERTIFICATE }}")
+          $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
+          [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+      - name: Update manifest version
+        shell: pwsh
+        run: |
+          [xml]$manifest = Get-Content ".\$env:App_Project_Directory\Package.appxmanifest"
+          $manifest.Package.Identity.Version = "${{ steps.version.outputs.clean }}"
+          $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
+
+      - name: Restore
+        run: msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
+
+      - name: Build packaged app
+        run: msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
+
+      - name: Remove PFX
+        if: always()
+        shell: pwsh
+        run: Remove-Item -Path "$env:App_Project_Directory\$env:SigningCertificate" -ErrorAction SilentlyContinue
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packaged-msix-${{ matrix.platform }}
+          path: WingetGUIInstaller/Packages/*/*.msixbundle
+          if-no-files-found: error
+
+  build-app-unpackaged:
+    name: Build Unpackaged App (${{ matrix.platform }})
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        configuration: [Release_Unpackaged]
+        platform: [x86, x64]
+
+    env:
+      Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
+      Project_Sdk_Version: net10.0-windows10.0.26100.0
+      Project_Directory: WingetGUIInstaller
+      VELOPACK_CHANNEL: win-${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            WingetGUIInstaller/WingetGUIInstaller.csproj
+            WingetHelper/WingetHelper.csproj
+
+      - name: Normalize versions
+        id: version
+        shell: pwsh
+        run: |
+          $raw = "${{ github.ref_name }}"
+          $clean = $raw -replace '^v', ''
+          if ($clean -match '^\d+\.\d+\.\d+\.\d+$') {
+            $parts = $clean -split '\.'
+            $vpk = "$($parts[0]).$($parts[1]).$($parts[2])"
+          } else {
+            $vpk = $clean
+          }
+          "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "vpk=$vpk" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Restore
+        run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
+
+      - name: Publish
+        run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ steps.version.outputs.clean }}
+
+      - name: Build VeloPack assets
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet tool install -g vpk
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
+          vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+
+      - name: Upload unpackaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: velopack-${{ matrix.platform }}
+          path: ${{ env.LOCALAPPDATA }}\Vpk\releases\**
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-wingethelper-nuget
+      - build-app-packaged
+      - build-app-unpackaged
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push NuGet package
+        run: dotnet nuget push "artifacts/nuget-packages/*.nupkg" --skip-duplicate --no-symbols
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/nuget-packages/*.nupkg
+            artifacts/packaged-msix-*/*.msixbundle
+            artifacts/velopack-*/*
