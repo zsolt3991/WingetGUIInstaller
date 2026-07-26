@@ -30,7 +30,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
@@ -55,12 +55,12 @@ jobs:
 
     # Install .NET 10
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.0.x
 
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.1  
+      uses: microsoft/setup-msbuild@v3.0.0  
 
     # Restore the application
     - name: Restore the application
@@ -88,7 +88,7 @@ jobs:
 
     # Create the release:
     - name: Create Release
-      uses: ncipollo/release-action@v1.10.0
+      uses: ncipollo/release-action@v1.21.0
       continue-on-error: true
       with:
         tag: ${{ steps.tag.outputs.tag }}

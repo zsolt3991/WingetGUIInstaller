@@ -13,7 +13,7 @@ jobs:
       
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -22,7 +22,7 @@ jobs:
         uses: dawidd6/action-get-tag@v1 
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5   
+        uses: actions/setup-dotnet@v6   
         with:
           dotnet-version: 10.0.x
           source-url: https://nuget.pkg.github.com/zsolt3991/index.json
@@ -43,7 +43,7 @@ jobs:
 
       # Create the release:  
       - name: Create Release
-        uses: ncipollo/release-action@v1.10.0
+        uses: ncipollo/release-action@v1.21.0
         continue-on-error: true
         with:
           tag: ${{ steps.tag.outputs.tag }}
@@ -55,7 +55,7 @@ jobs:
       # Upload release asset:  
       - name: Update release asset
         id: upload-release-asset
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@v4.0
         with: 
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: ${{ steps.tag.outputs.tag }}
