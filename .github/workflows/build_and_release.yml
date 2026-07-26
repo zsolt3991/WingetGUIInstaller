@@ -41,8 +41,13 @@ jobs:
         id: version
         shell: bash
         run: |
-          raw="${GITHUB_REF_NAME}"
-          clean="${raw#v}"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            raw="${GITHUB_REF_NAME}"
+            clean="${raw#v}"
+          else
+            raw="${GITHUB_REF_NAME}"
+            clean="0.0.1-ci.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+          fi
           echo "raw=${raw}" >> "$GITHUB_OUTPUT"
           echo "clean=${clean}" >> "$GITHUB_OUTPUT"
 
@@ -98,9 +103,16 @@ jobs:
         shell: pwsh
         run: |
           $raw = "${{ github.ref_name }}"
-          $clean = $raw -replace '^v', ''
+          if ("${{ github.ref }}" -like 'refs/tags/*') {
+            $clean = $raw -replace '^v', ''
+            $msix = $clean
+          } else {
+            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+            $msix = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535).$([int]$env:GITHUB_RUN_ATTEMPT % 65535)"
+          }
           "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "msix=$msix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Decode and import PFX
         shell: pwsh
@@ -114,7 +126,7 @@ jobs:
         shell: pwsh
         run: |
           [xml]$manifest = Get-Content ".\$env:App_Project_Directory\Package.appxmanifest"
-          $manifest.Package.Identity.Version = "${{ steps.version.outputs.clean }}"
+          $manifest.Package.Identity.Version = "${{ steps.version.outputs.msix }}"
           $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
 
       - name: Restore
@@ -170,12 +182,17 @@ jobs:
         shell: pwsh
         run: |
           $raw = "${{ github.ref_name }}"
-          $clean = $raw -replace '^v', ''
-          if ($clean -match '^\d+\.\d+\.\d+\.\d+$') {
-            $parts = $clean -split '\.'
-            $vpk = "$($parts[0]).$($parts[1]).$($parts[2])"
+          if ("${{ github.ref }}" -like 'refs/tags/*') {
+            $clean = $raw -replace '^v', ''
+            if ($clean -match '^\d+\.\d+\.\d+\.\d+$') {
+              $parts = $clean -split '\.'
+              $vpk = "$($parts[0]).$($parts[1]).$($parts[2])"
+            } else {
+              $vpk = $clean
+            }
           } else {
-            $vpk = $clean
+            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+            $vpk = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535)"
           }
           "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
