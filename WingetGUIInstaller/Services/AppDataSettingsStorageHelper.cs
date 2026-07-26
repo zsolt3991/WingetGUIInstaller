@@ -1,21 +1,16 @@
-#if UNPACKAGED
 using CommunityToolkit.Helpers;
 using Microsoft.Windows.Storage;
-using System;
 using System.Text.Json;
-using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
-    internal sealed class UnpackagedSettingsStorageHelper : ISettingsStorageHelper<string>
+    internal sealed class AppDataSettingsStorageHelper : ISettingsStorageHelper<string>
     {
         private readonly ApplicationDataContainer _container;
 
-        public UnpackagedSettingsStorageHelper()
+        public AppDataSettingsStorageHelper(IApplicationDataProvider applicationDataProvider)
         {
-            _container = ApplicationData.GetForUnpackaged(
-                UnpackagedApplicationDataConstants.Publisher,
-                UnpackagedApplicationDataConstants.Product).LocalSettings.CreateContainer(
+            _container = applicationDataProvider.GetApplicationData().LocalSettings.CreateContainer(
                 "settings",
                 ApplicationDataCreateDisposition.Always);
         }
@@ -54,9 +49,15 @@ namespace WingetGUIInstaller.Services
                 return false;
             }
 
-            value = JsonSerializer.Deserialize<TValue>(serializedValue.ToString()!);
+            var serializedText = serializedValue.ToString();
+            if (serializedText == default)
+            {
+                value = default;
+                return false;
+            }
+
+            value = JsonSerializer.Deserialize<TValue>(serializedText);
             return true;
         }
     }
 }
-#endif
