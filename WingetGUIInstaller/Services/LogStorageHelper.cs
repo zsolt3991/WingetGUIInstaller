@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 #if UNPACKAGED
-using Microsoft.Windows.Storage;
 using System.Diagnostics;
 #endif
 using System.IO;
@@ -15,20 +14,13 @@ namespace WingetGUIInstaller.Services
 {
     internal static class LogStorageHelper
     {
+        private static readonly IApplicationDataProvider _applicationDataProvider = new ApplicationDataProvider();
 
         public static string GetLogFileDirectory()
-#if UNPACKAGED
         {
-            return Path.Combine(ApplicationData.GetForUnpackaged(
-                    UnpackagedApplicationDataConstants.Publisher,
-                    UnpackagedApplicationDataConstants.Product).LocalPath,
+            return Path.Combine(_applicationDataProvider.GetApplicationData().LocalPath,
                 LoggingConstants.AppLogsFolderName);
         }
-#else
-        {
-            return Path.Combine(ApplicationData.Current.LocalFolder.Path, LoggingConstants.AppLogsFolderName);
-        }
-#endif
 
         public static async Task OpenLogFileDirectory()
 #if UNPACKAGED
