@@ -219,9 +219,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.platform }}
-          path: |
-            Releases\**
-            ${{ env.LOCALAPPDATA }}\Vpk\releases\**
+          path: Releases\**
           if-no-files-found: error
 
       - name: Upload unpackaged publish artifacts
