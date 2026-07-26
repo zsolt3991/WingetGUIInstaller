@@ -1,24 +1,19 @@
-﻿#if UNPACKAGED
 using CommunityToolkit.Common.Helpers;
-using Microsoft.Windows.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using WingetGUIInstaller.Constants;
 
 namespace WingetGUIInstaller.Services
 {
-    internal sealed class UnpackagedFileStorageHelper : IFileStorageHelper
+    internal sealed class AppDataFileStorageHelper : IFileStorageHelper
     {
         private readonly string _basePath;
 
-        public UnpackagedFileStorageHelper()
+        public AppDataFileStorageHelper(IApplicationDataProvider applicationDataProvider)
         {
-            _basePath = ApplicationData.GetForUnpackaged(
-                UnpackagedApplicationDataConstants.Publisher,
-                UnpackagedApplicationDataConstants.Product).LocalPath;
+            _basePath = applicationDataProvider.GetApplicationData().LocalPath;
             Directory.CreateDirectory(_basePath);
         }
 
@@ -32,7 +27,7 @@ namespace WingetGUIInstaller.Services
                 Directory.CreateDirectory(parentDirectory);
             }
 
-            var fileContent = JsonSerializer.Serialize<T>(value);
+            var fileContent = JsonSerializer.Serialize(value);
             await File.WriteAllTextAsync(completePath, fileContent);
         }
 
@@ -192,4 +187,3 @@ namespace WingetGUIInstaller.Services
         }
     }
 }
-#endif

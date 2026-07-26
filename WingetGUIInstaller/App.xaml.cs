@@ -44,16 +44,9 @@ namespace WingetGUIInstaller
             Current.RequestedTheme = ApplicationTheme.Dark;
             InitializeComponent();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-#if UNPACKAGED
-
-            _fileStorage = new UnpackagedFileStorageHelper();
-            _settingsStorage = new UnpackagedSettingsStorageHelper();
-#else
-
-            _fileStorage = new PackagedFileStorageHelper();
-            _settingsStorage = new PackagedSettingsStorageHelper();
-#endif
+            var applicationDataProvider = new ApplicationDataProvider();
+            _fileStorage = new AppDataFileStorageHelper(applicationDataProvider);
+            _settingsStorage = new AppDataSettingsStorageHelper(applicationDataProvider);
             ConfigureServices();
 
             _logger = Ioc.Default.GetRequiredService<ILogger<App>>();
