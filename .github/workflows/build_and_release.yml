@@ -205,23 +205,31 @@ jobs:
         run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ steps.version.outputs.clean }}
 
       - name: Build VeloPack assets
+        if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet tool install -g vpk
-          if ("${{ github.ref }}" -like 'refs/tags/*') {
-            vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
-          }
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
           vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
 
-      - name: Upload unpackaged artifacts
+      - name: Upload Velopack artifacts
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.platform }}
           path: |
             Releases\**
             ${{ env.LOCALAPPDATA }}\Vpk\releases\**
+          if-no-files-found: error
+
+      - name: Upload unpackaged publish artifacts
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: unpackaged-publish-${{ matrix.platform }}
+          path: WingetGUIInstaller\bin\Release\${{ env.Project_Sdk_Version }}\win-${{ matrix.platform }}\publish\**
           if-no-files-found: error
 
   publish-release:
@@ -265,3 +273,4 @@ jobs:
             artifacts/nuget-packages/*.nupkg
             artifacts/packaged-msix-*/*.msixbundle
             artifacts/velopack-*/*
+            artifacts/velopack-*/**
