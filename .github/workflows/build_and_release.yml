@@ -2,11 +2,6 @@ name: Build and Release
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - ".github/workflows/build_and_release.yml"
   push:
     tags:
       - "*"
@@ -96,6 +91,9 @@ jobs:
             WingetGUIInstaller/WingetGUIInstaller.csproj
             WingetHelper/WingetHelper.csproj
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
+
       - name: Normalize version
         id: version
         shell: pwsh
@@ -130,10 +128,10 @@ jobs:
           $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
 
       - name: Restore
-        run: dotnet msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
+        run: msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
 
       - name: Build packaged app
-        run: dotnet msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
+        run: msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
 
       - name: Remove PFX
         if: always()
@@ -212,14 +210,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet tool install -g vpk
-          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
+          if ("${{ github.ref }}" -like 'refs/tags/*') {
+            vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
+          }
           vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
 
       - name: Upload unpackaged artifacts
         uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.platform }}
-          path: ${{ env.LOCALAPPDATA }}\Vpk\releases\**
+          path: |
+            Releases\**
+            ${{ env.LOCALAPPDATA }}\Vpk\releases\**
           if-no-files-found: error
 
   publish-release:
