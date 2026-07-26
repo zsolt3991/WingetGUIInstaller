@@ -11,9 +11,6 @@ on:
     tags:
       - "*"
 
-permissions:
-  contents: read
-
 concurrency:
   group: build-and-release-${{ github.ref }}
   cancel-in-progress: false
@@ -22,15 +19,17 @@ jobs:
   build-wingethelper-nuget:
     name: Build WingetHelper NuGet
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
           cache: true
@@ -61,7 +60,7 @@ jobs:
         run: dotnet pack WingetHelper --configuration Release --no-build -p:Version=${{ steps.version.outputs.clean }} -o artifacts/nuget
 
       - name: Upload NuGet artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: nuget-packages
           path: artifacts/nuget/*.nupkg
@@ -70,6 +69,8 @@ jobs:
   build-app-packaged:
     name: Build Packaged App (${{ matrix.platform }})
     runs-on: windows-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         configuration: [Release]
@@ -82,21 +83,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
           cache: true
           cache-dependency-path: |
             WingetGUIInstaller/WingetGUIInstaller.csproj
             WingetHelper/WingetHelper.csproj
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
 
       - name: Normalize version
         id: version
@@ -116,9 +114,11 @@ jobs:
 
       - name: Decode and import PFX
         shell: pwsh
+        env:
+          BASE64_CERTIFICATE: ${{ secrets.BASE64_CERTIFICATE }}
         run: |
           $currentDirectory = Get-Location
-          $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_CERTIFICATE }}")
+          $pfx_cert_byte = [System.Convert]::FromBase64String($env:BASE64_CERTIFICATE)
           $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
           [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
@@ -130,10 +130,10 @@ jobs:
           $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
 
       - name: Restore
-        run: msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
+        run: dotnet msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
 
       - name: Build packaged app
-        run: msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
+        run: dotnet msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
 
       - name: Remove PFX
         if: always()
@@ -141,7 +141,7 @@ jobs:
         run: Remove-Item -Path "$env:App_Project_Directory\$env:SigningCertificate" -ErrorAction SilentlyContinue
 
       - name: Upload packaged artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: packaged-msix-${{ matrix.platform }}
           path: WingetGUIInstaller/Packages/*/*.msixbundle
@@ -150,6 +150,8 @@ jobs:
   build-app-unpackaged:
     name: Build Unpackaged App (${{ matrix.platform }})
     runs-on: windows-latest
+    permissions:
+      contents: read
     strategy:
       max-parallel: 1
       matrix:
@@ -164,12 +166,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
           cache: true
@@ -214,7 +216,7 @@ jobs:
           vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
 
       - name: Upload unpackaged artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: velopack-${{ matrix.platform }}
           path: ${{ env.LOCALAPPDATA }}\Vpk\releases\**
@@ -234,12 +236,12 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
@@ -250,7 +252,7 @@ jobs:
         run: dotnet nuget push "artifacts/nuget-packages/*.nupkg" --skip-duplicate --no-symbols
 
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
