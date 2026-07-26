@@ -1,0 +1,65 @@
+name: PR Build Validation
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-wingethelper:
+    name: Build WingetHelper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore WingetHelper
+
+      - name: Build
+        run: dotnet build WingetHelper --no-restore --configuration Release
+
+  build-wingetguiinstaller:
+    name: Build WingetGUIInstaller
+    runs-on: windows-latest
+
+    env:
+      Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build $env:Project_Path -c Release_Unpackaged -r win-x64 /p:Platform=x64 /p:Version=0.0.1
+
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+    needs: [build-wingethelper, build-wingetguiinstaller]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal
