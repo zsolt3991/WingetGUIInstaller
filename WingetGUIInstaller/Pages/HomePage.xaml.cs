@@ -3,6 +3,7 @@ using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Linq;
@@ -21,8 +22,8 @@ namespace WingetGUIInstaller.Pages
     {
         private readonly ISettingsStorageHelper<string> _applicationSettings;
         private readonly IMultiLevelNavigationService<NavigationItemKey> _navigationService;
-        private bool _pageLoaded = false;
         private NavigationItemKey _defaultPage;
+        private NavigationItemKey? _currentTopLevelNavigationKey;
 
         public HomePageViewModel ViewModel { get; }
 
@@ -33,6 +34,7 @@ namespace WingetGUIInstaller.Pages
             Unloaded += MainPage_Unloaded;
             _navigationService = Ioc.Default.GetRequiredService<IMultiLevelNavigationService<NavigationItemKey>>();
             _navigationService.AddNavigationLevel(ContentFrame);
+            ContentFrame.Navigated += ContentFrame_Navigated;
             _applicationSettings = Ioc.Default.GetRequiredService<ISettingsStorageHelper<string>>();
             _defaultPage = (NavigationItemKey)_applicationSettings
                 .GetValueOrDefault(ConfigurationPropertyKeys.SelectedPage, ConfigurationPropertyKeys.SelectedPageDefaultValue);
@@ -42,17 +44,7 @@ namespace WingetGUIInstaller.Pages
 
             WeakReferenceMessenger.Default.Register<NavigationRequestedMessage>(this, (r, m) =>
             {
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    if (!_pageLoaded)
-                    {
-                        _defaultPage = m.Value;
-                    }
-                    else
-                    {
-                        ChangeSelectedItem(m.Value);
-                    }
-                });
+                DispatcherQueue.TryEnqueue(() => RequestTopLevelNavigation(m.Value));
             });
         }
 
@@ -67,20 +59,89 @@ namespace WingetGUIInstaller.Pages
 
         private void MainPage_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
+            ContentFrame.Navigated -= ContentFrame_Navigated;
             _navigationService.RemoveNavigationLevel(ContentFrame);
         }
 
         private void MainPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            _pageLoaded = true;
-            // Select the first clickable item when the page is shown
-            ChangeSelectedItem(_defaultPage);
+            RequestTopLevelNavigation(_defaultPage);
         }
 
-        private void ChangeSelectedItem(NavigationItemKey navigationItemKey)
+        private void RequestTopLevelNavigation(NavigationItemKey navigationItemKey,
+            NavigationTransitionInfo transitionInfo = default, object args = default)
         {
-            NavView.SelectedItem = NavView.MenuItems.FirstOrDefault(n => n is NavigationViewItem navItem &&
-                Enum.TryParse<NavigationItemKey>(navItem.Tag.ToString(), out var navItemTag) && navItemTag == navigationItemKey);
+            if (!IsLoaded)
+            {
+                _defaultPage = navigationItemKey;
+                return;
+            }
+
+            if (_currentTopLevelNavigationKey == navigationItemKey)
+            {
+                return;
+            }
+
+            _navigationService.Navigate(navigationItemKey, transitionInfo, args, NavigationStackMode.Clear);
+        }
+
+        private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (!TryGetNavigationItem(e.SourcePageType, out var navigationItem))
+            {
+                return;
+            }
+
+            if (Enum.TryParse<NavigationItemKey>(navigationItem.Tag?.ToString(), out var navigationItemKey))
+            {
+                _currentTopLevelNavigationKey = navigationItemKey;
+            }
+
+            if (ReferenceEquals(NavView.SelectedItem, navigationItem))
+            {
+                return;
+            }
+
+            SetSelectedItemWithoutNavigation(navigationItem);
+        }
+
+        private bool TryGetNavigationItem(Type pageType, out NavigationViewItem navigationItem)
+        {
+            navigationItem = default;
+            if (pageType == default)
+            {
+                return false;
+            }
+
+            var keyAttribute = pageType.GetCustomAttributes(typeof(NavigationKeyAttribute), false)
+                .OfType<NavigationKeyAttribute>()
+                .FirstOrDefault();
+            if (keyAttribute == default)
+            {
+                return false;
+            }
+
+            var navigationItemKey = (NavigationItemKey)keyAttribute.NavigationItemKey;
+            navigationItem = NavView.MenuItems
+                .Concat(NavView.FooterMenuItems)
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(navItem => Enum.TryParse<NavigationItemKey>(navItem.Tag?.ToString(), out var navItemTag)
+                    && navItemTag == navigationItemKey);
+
+            return navigationItem != default;
+        }
+
+        private void SetSelectedItemWithoutNavigation(NavigationViewItem navigationItem)
+        {
+            NavView.SelectionChanged -= NavView_SelectionChnage;
+            try
+            {
+                NavView.SelectedItem = navigationItem;
+            }
+            finally
+            {
+                NavView.SelectionChanged += NavView_SelectionChnage;
+            }
         }
 
         private async void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -96,7 +157,7 @@ namespace WingetGUIInstaller.Pages
             if (args.SelectedItemContainer != null &&
                 Enum.TryParse<NavigationItemKey>(args.SelectedItemContainer.Tag.ToString(), out var navItemTag))
             {
-                _navigationService.Navigate(navItemTag, args.RecommendedNavigationTransitionInfo, null, NavigationStackMode.Clear);
+                RequestTopLevelNavigation(navItemTag, args.RecommendedNavigationTransitionInfo);
             }
         }
 
