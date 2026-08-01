@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Extensions;
 using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -57,7 +57,9 @@ namespace WingetGUIInstaller.ViewModels
             _exclusions = new ObservableCollection<WingetPackageViewModel>();
             _excludables = new ObservableCollection<WingetPackageViewModel>();
             _excludablePackagesCollection = new AdvancedCollectionView(_excludables, true);
+            _excludablePackagesCollection.ApplyDefaultPackageSort(_configurationStore);
             _excludedPackagesCollection = new AdvancedCollectionView(_exclusions, true);
+            _excludedPackagesCollection.ApplyDefaultPackageSort(_configurationStore);
             _ = LoadExcludedPackagesAsync();
         }
 
@@ -110,7 +112,6 @@ namespace WingetGUIInstaller.ViewModels
             _exclusions.Clear();
             foreach (var exclusion in packages
                 .Where(package => _exclusionsManager.IsPackageExcluded(package.Id, true))
-                .OrderBy(package => package.Name)
                 .Select(package => new WingetPackageViewModel(package)))
             {
                 _exclusions.Add(exclusion);
@@ -119,7 +120,6 @@ namespace WingetGUIInstaller.ViewModels
             _excludables.Clear();
             foreach (var excludable in packages
                .Where(package => !_exclusionsManager.IsPackageExcluded(package.Id, true))
-               .OrderBy(package => package.Name)
                .Select(package => new WingetPackageViewModel(package)))
             {
                 _excludables.Add(excludable);

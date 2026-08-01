@@ -29,6 +29,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly IReadOnlyList<DisplayTheme> _availableThemes;
         private readonly IReadOnlyList<LogLevel> _availableLogLevels;
         private readonly IReadOnlyList<NavigationItemKey> _availablePages;
+        private readonly IReadOnlyList<PackageSortColumn> _availablePackageSortColumns;
         private bool? _advancedFunctionalityEnabled;
         private bool? _notificationsEnabled;
         private bool? _automaticUpdatesEnabled;
@@ -36,6 +37,7 @@ namespace WingetGUIInstaller.ViewModels
         private NavigationItemKey? _selectedPage;
         private DisplayTheme? _selectedTheme;
         private ApplicationDisplayLanguage _selectedDisplayLanguage;
+        private PackageSortColumn? _defaultPackageSortColumn;
 
         /// <summary>
         /// Constructor using unified IUpdateService abstraction.
@@ -55,6 +57,7 @@ namespace WingetGUIInstaller.ViewModels
             _availableThemes = Enum.GetValues<DisplayTheme>();
             _availableLogLevels = Enum.GetValues<LogLevel>();
             _availablePages = Enum.GetValues<NavigationItemKey>().Where(key => !_disallowedKeys.Contains(key)).ToList();
+            _availablePackageSortColumns = Enum.GetValues<PackageSortColumn>();
         }
 
         public bool AdvancedFunctionalityEnabled
@@ -169,6 +172,22 @@ namespace WingetGUIInstaller.ViewModels
         public IReadOnlyList<DisplayTheme> ApplicationThemes => _availableThemes;
 
         public IReadOnlyList<ApplicationDisplayLanguage> ApplicationLanguages => _applicationLanguages;
+
+        public IReadOnlyList<PackageSortColumn> AvailablePackageSortColumns => _availablePackageSortColumns;
+
+        public PackageSortColumn DefaultPackageSortColumn
+        {
+            get => _defaultPackageSortColumn ??= (PackageSortColumn)_configurationStore
+                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
+            set
+            {
+                if (SetProperty(ref _defaultPackageSortColumn, value))
+                {
+                    _configurationStore.Save(ConfigurationPropertyKeys.DefaultPackageSortColumn, (int)value);
+                    WeakReferenceMessenger.Default.Send(new DefaultSortColumnChangedMessage(value));
+                }
+            }
+        }
 
         [RelayCommand]
         private async Task OpenLogsFolder()

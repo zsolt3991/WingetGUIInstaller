@@ -234,6 +234,12 @@
   <data name="DeleteSelectedPackageSources.Content" xml:space="preserve">
     <value>Delete selected</value>
   </data>
+  <data name="DefaultPackageSortColumnSelection.Header" xml:space="preserve">
+    <value>Default Package Sort Column</value>
+  </data>
+  <data name="DefaultPackageSortColumnSelection.Description" xml:space="preserve">
+    <value>The column used to sort package lists by default when they are loaded</value>
+  </data>
   <data name="DescriptionField.Text" xml:space="preserve">
     <value>Description:</value>
   </data>
