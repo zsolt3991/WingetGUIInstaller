@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Common.Extensions;
 using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,8 +18,7 @@ using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class ExcludedPackagesViewModel : ObservableObject,
-        IRecipient<DefaultSortColumnChangedMessage>
+    public sealed partial class ExcludedPackagesViewModel : ObservableObject
     {
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly PackageCache _packageCache;
@@ -62,7 +61,6 @@ namespace WingetGUIInstaller.ViewModels
             _excludablePackagesCollection.ApplySorting(GetSortPropertyName(), null);
             _excludedPackagesCollection = new AdvancedCollectionView(_exclusions, true);
             _excludedPackagesCollection.ApplySorting(GetSortPropertyName(), null);
-            WeakReferenceMessenger.Default.Register(this);
             _ = LoadExcludedPackagesAsync();
         }
 
@@ -155,19 +153,9 @@ namespace WingetGUIInstaller.ViewModels
             );
         }
 
-        void IRecipient<DefaultSortColumnChangedMessage>.Receive(DefaultSortColumnChangedMessage message)
+        private string GetSortPropertyName()
         {
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                var propertyName = GetSortPropertyName(message.Value);
-                ExcludedPackagesCollection.ApplySorting(propertyName, null);
-                ExcludablePackagesCollection.ApplySorting(propertyName, null);
-            });
-        }
-
-        private string GetSortPropertyName(PackageSortColumn? sortColumn = null)
-        {
-            var column = sortColumn ?? (PackageSortColumn)_configurationStore
+            var column = (PackageSortColumn)_configurationStore
                 .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
             return column switch
             {

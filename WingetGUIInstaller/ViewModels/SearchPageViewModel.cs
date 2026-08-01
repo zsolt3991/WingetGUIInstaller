@@ -29,7 +29,6 @@ namespace WingetGUIInstaller.ViewModels
         IRecipient<FilterSourcesListUpdatedMessage>,
         IRecipient<FilterSourcesStatusChangedMessage>,
         IRecipient<IgnoreEmptySourcesStatusChangedMessage>,
-        IRecipient<DefaultSortColumnChangedMessage>,
         INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
@@ -314,14 +313,9 @@ namespace WingetGUIInstaller.ViewModels
             _ = SearchPackagesAsync();
         }
 
-        void IRecipient<DefaultSortColumnChangedMessage>.Receive(DefaultSortColumnChangedMessage message)
+        private string GetSortPropertyName()
         {
-            _dispatcherQueue.TryEnqueue(() => PackagesView.ApplySorting(GetSortPropertyName(message.Value), null));
-        }
-
-        private string GetSortPropertyName(PackageSortColumn? sortColumn = null)
-        {
-            var column = sortColumn ?? (PackageSortColumn)_configurationStore
+            var column = (PackageSortColumn)_configurationStore
                 .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
             return column switch
             {
