@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Common.Extensions;
-using CommunityToolkit.Helpers;
+﻿using CommunityToolkit.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -14,7 +13,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
-using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -91,7 +89,7 @@ namespace WingetGUIInstaller.ViewModels
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
-            PackagesView.ApplySorting(GetSortPropertyName(), null);
+            PackagesView.ApplyDefaultPackageSort(_configurationStore);
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
@@ -365,18 +363,6 @@ namespace WingetGUIInstaller.ViewModels
         void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
         {
             _ = LoadInstalledPackages(false);
-        }
-
-        private string GetSortPropertyName()
-        {
-            var column = (PackageSortColumn)_configurationStore
-                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
-            return column switch
-            {
-                PackageSortColumn.Id => nameof(WingetPackageViewModel.Id),
-                PackageSortColumn.Source => nameof(WingetPackageViewModel.Source),
-                _ => nameof(WingetPackageViewModel.Name),
-            };
         }
     }
 }

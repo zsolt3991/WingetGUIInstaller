@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Constants;
-using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
@@ -58,9 +57,9 @@ namespace WingetGUIInstaller.ViewModels
             _exclusions = new ObservableCollection<WingetPackageViewModel>();
             _excludables = new ObservableCollection<WingetPackageViewModel>();
             _excludablePackagesCollection = new AdvancedCollectionView(_excludables, true);
-            _excludablePackagesCollection.ApplySorting(GetSortPropertyName(), null);
+            _excludablePackagesCollection.ApplyDefaultPackageSort(_configurationStore);
             _excludedPackagesCollection = new AdvancedCollectionView(_exclusions, true);
-            _excludedPackagesCollection.ApplySorting(GetSortPropertyName(), null);
+            _excludedPackagesCollection.ApplyDefaultPackageSort(_configurationStore);
             _ = LoadExcludedPackagesAsync();
         }
 
@@ -151,18 +150,6 @@ namespace WingetGUIInstaller.ViewModels
                 package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
                 || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
             );
-        }
-
-        private string GetSortPropertyName()
-        {
-            var column = (PackageSortColumn)_configurationStore
-                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
-            return column switch
-            {
-                PackageSortColumn.Id => nameof(WingetPackageViewModel.Id),
-                PackageSortColumn.Source => nameof(WingetPackageViewModel.Source),
-                _ => nameof(WingetPackageViewModel.Name),
-            };
         }
     }
 }

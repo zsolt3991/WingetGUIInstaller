@@ -1,5 +1,9 @@
-﻿using CommunityToolkit.WinUI.Collections;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Helpers;
+using CommunityToolkit.WinUI.Collections;
 using System;
+using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Enums;
 
 namespace WingetGUIInstaller.Utils
 {
@@ -24,6 +28,19 @@ namespace WingetGUIInstaller.Utils
                 }
             }
             return default;
+        }
+
+        /// <summary>
+        /// Applies the default ascending sort based on the user's configured sort column preference.
+        /// Should be called once at ViewModel construction; user interactive sorts override this for the session.
+        /// </summary>
+        public static void ApplyDefaultPackageSort(this AdvancedCollectionView advancedCollectionView,
+            ISettingsStorageHelper<string> configurationStore)
+        {
+            var column = (PackageSortColumn)configurationStore
+                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
+            // PackageSortColumn enum values (Name, Id, Source) intentionally match WingetPackageViewModel property names
+            advancedCollectionView.ApplySorting(column.ToString(), null);
         }
 
         public static void ApplyFiltering<TElement>(this AdvancedCollectionView advancedCollectionView,
