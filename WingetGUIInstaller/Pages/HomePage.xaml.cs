@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Linq;
+using Windows.Foundation;
 using Windows.System;
 using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
@@ -87,7 +88,7 @@ namespace WingetGUIInstaller.Pages
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            if (!TryGetNavigationItem(e.SourcePageType, out var navigationItem))
+            if (!TryGetNavigationItem(NavView, e.SourcePageType, out var navigationItem))
             {
                 return;
             }
@@ -102,10 +103,10 @@ namespace WingetGUIInstaller.Pages
                 return;
             }
 
-            SetSelectedItemWithoutNavigation(navigationItem);
+            SetSelectedItemWithoutNavigation(NavView, navigationItem, NavView_SelectionChnage);
         }
 
-        private bool TryGetNavigationItem(Type pageType, out NavigationViewItem navigationItem)
+        private static bool TryGetNavigationItem(NavigationView navigationView, Type pageType, out NavigationViewItem navigationItem)
         {
             navigationItem = default;
             if (pageType == default)
@@ -122,8 +123,8 @@ namespace WingetGUIInstaller.Pages
             }
 
             var navigationItemKey = (NavigationItemKey)keyAttribute.NavigationItemKey;
-            navigationItem = NavView.MenuItems
-                .Concat(NavView.FooterMenuItems)
+            navigationItem = navigationView.MenuItems
+                .Concat(navigationView.FooterMenuItems)
                 .OfType<NavigationViewItem>()
                 .FirstOrDefault(navItem => Enum.TryParse<NavigationItemKey>(navItem.Tag?.ToString(), out var navItemTag)
                     && navItemTag == navigationItemKey);
@@ -131,16 +132,17 @@ namespace WingetGUIInstaller.Pages
             return navigationItem != default;
         }
 
-        private void SetSelectedItemWithoutNavigation(NavigationViewItem navigationItem)
+        private static void SetSelectedItemWithoutNavigation(NavigationView navigationView, NavigationViewItem navigationItem,
+            TypedEventHandler<NavigationView, NavigationViewSelectionChangedEventArgs> selectionChangedHandler)
         {
-            NavView.SelectionChanged -= NavView_SelectionChnage;
+            navigationView.SelectionChanged -= selectionChangedHandler;
             try
             {
-                NavView.SelectedItem = navigationItem;
+                navigationView.SelectedItem = navigationItem;
             }
             finally
             {
-                NavView.SelectionChanged += NavView_SelectionChnage;
+                navigationView.SelectionChanged += selectionChangedHandler;
             }
         }
 
