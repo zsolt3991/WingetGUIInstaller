@@ -44,6 +44,11 @@
                                       ItemsSource="{x:Bind ViewModel.LogLevels, Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.SelectedLogLevel, Mode=TwoWay}" />
                         </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="DefaultPackageSortColumnSelection" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                      ItemsSource="{x:Bind ViewModel.AvailablePackageSortColumns, Mode=OneTime}"
+                                      SelectedItem="{x:Bind ViewModel.DefaultPackageSortColumn, Mode=TwoWay}" />
+                        </controls:SettingsCard>
                         <controls:SettingsCard x:Uid="OpenLogsDirectory" Margin="0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Button x:Uid="OpenLogsButton" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                     Command="{x:Bind ViewModel.OpenLogsFolderCommand, Mode=OneWay}" />

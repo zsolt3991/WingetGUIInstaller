@@ -66,6 +66,7 @@ namespace WingetGUIInstaller.ViewModels
             _packageSources = new ObservableCollection<WingetPackageSourceViewModel>();
             _packageSources.CollectionChanged += PackageSources_CollectionChanged;
             PackageSourcesView = new AdvancedCollectionView(_packageSources, true);
+            PackageSourcesView.ApplySorting(nameof(WingetPackageSourceViewModel.Name), null);
 
             _ = LoadPackageSourcesAsync();
         }

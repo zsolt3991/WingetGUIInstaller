@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Common.Extensions;
+using CommunityToolkit.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Collections;
@@ -12,6 +14,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
+using WingetGUIInstaller.Constants;
 using WingetGUIInstaller.Contracts;
 using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
@@ -26,6 +29,7 @@ namespace WingetGUIInstaller.ViewModels
         IRecipient<FilterSourcesListUpdatedMessage>,
         IRecipient<FilterSourcesStatusChangedMessage>,
         IRecipient<IgnoreEmptySourcesStatusChangedMessage>,
+        IRecipient<DefaultSortColumnChangedMessage>,
         INavigationAware
     {
         private readonly DispatcherQueue _dispatcherQueue;
@@ -35,6 +39,7 @@ namespace WingetGUIInstaller.ViewModels
         private readonly INavigationService<NavigationItemKey> _navigationService;
         private readonly PackageDetailsCache _packageDetailsCache;
         private readonly IPackageDetailsViewModelFactory _packageDetailsViewModelFactory;
+        private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly ObservableCollection<WingetPackageViewModel> _packages;
         private readonly ResourceLoader _resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
@@ -70,7 +75,8 @@ namespace WingetGUIInstaller.ViewModels
 
         public SearchPageViewModel(DispatcherQueue dispatcherQueue, ToastNotificationManager notificationManager,
             PackageCache packageCache, PackageManager packageManager, INavigationService<NavigationItemKey> navigationService,
-            PackageDetailsCache packageDetailsCache, IPackageDetailsViewModelFactory packageDetailsViewModelFactory)
+            PackageDetailsCache packageDetailsCache, IPackageDetailsViewModelFactory packageDetailsViewModelFactory,
+            ISettingsStorageHelper<string> configurationStore)
         {
             _dispatcherQueue = dispatcherQueue;
             _packageCache = packageCache;
@@ -79,10 +85,12 @@ namespace WingetGUIInstaller.ViewModels
             _navigationService = navigationService;
             _packageDetailsCache = packageDetailsCache;
             _packageDetailsViewModelFactory = packageDetailsViewModelFactory;
+            _configurationStore = configurationStore;
             _packages = new ObservableCollection<WingetPackageViewModel>();
             _notificationManager = notificationManager;
             _packages.CollectionChanged += Packages_CollectionChanged;
             PackagesView = new AdvancedCollectionView(_packages, true);
+            PackagesView.ApplySorting(GetSortPropertyName(), null);
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
@@ -304,6 +312,23 @@ namespace WingetGUIInstaller.ViewModels
         void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
         {
             _ = SearchPackagesAsync();
+        }
+
+        void IRecipient<DefaultSortColumnChangedMessage>.Receive(DefaultSortColumnChangedMessage message)
+        {
+            _dispatcherQueue.TryEnqueue(() => PackagesView.ApplySorting(GetSortPropertyName(message.Value), null));
+        }
+
+        private string GetSortPropertyName(PackageSortColumn? sortColumn = null)
+        {
+            var column = sortColumn ?? (PackageSortColumn)_configurationStore
+                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
+            return column switch
+            {
+                PackageSortColumn.Id => nameof(WingetPackageViewModel.Id),
+                PackageSortColumn.Source => nameof(WingetPackageViewModel.Source),
+                _ => nameof(WingetPackageViewModel.Name),
+            };
         }
 
         public void OnNavigatedTo(object parameter)

@@ -11,13 +11,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using WingetGUIInstaller.Constants;
+using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
 using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
-    public sealed partial class ExcludedPackagesViewModel : ObservableObject
+    public sealed partial class ExcludedPackagesViewModel : ObservableObject,
+        IRecipient<DefaultSortColumnChangedMessage>
     {
         private readonly ISettingsStorageHelper<string> _configurationStore;
         private readonly PackageCache _packageCache;
@@ -57,7 +59,10 @@ namespace WingetGUIInstaller.ViewModels
             _exclusions = new ObservableCollection<WingetPackageViewModel>();
             _excludables = new ObservableCollection<WingetPackageViewModel>();
             _excludablePackagesCollection = new AdvancedCollectionView(_excludables, true);
+            _excludablePackagesCollection.ApplySorting(GetSortPropertyName(), null);
             _excludedPackagesCollection = new AdvancedCollectionView(_exclusions, true);
+            _excludedPackagesCollection.ApplySorting(GetSortPropertyName(), null);
+            WeakReferenceMessenger.Default.Register(this);
             _ = LoadExcludedPackagesAsync();
         }
 
@@ -110,7 +115,6 @@ namespace WingetGUIInstaller.ViewModels
             _exclusions.Clear();
             foreach (var exclusion in packages
                 .Where(package => _exclusionsManager.IsPackageExcluded(package.Id, true))
-                .OrderBy(package => package.Name)
                 .Select(package => new WingetPackageViewModel(package)))
             {
                 _exclusions.Add(exclusion);
@@ -119,7 +123,6 @@ namespace WingetGUIInstaller.ViewModels
             _excludables.Clear();
             foreach (var excludable in packages
                .Where(package => !_exclusionsManager.IsPackageExcluded(package.Id, true))
-               .OrderBy(package => package.Name)
                .Select(package => new WingetPackageViewModel(package)))
             {
                 _excludables.Add(excludable);
@@ -150,6 +153,28 @@ namespace WingetGUIInstaller.ViewModels
                 package.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
                 || package.Id.Contains(value, StringComparison.InvariantCultureIgnoreCase)
             );
+        }
+
+        void IRecipient<DefaultSortColumnChangedMessage>.Receive(DefaultSortColumnChangedMessage message)
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                var propertyName = GetSortPropertyName(message.Value);
+                ExcludedPackagesCollection.ApplySorting(propertyName, null);
+                ExcludablePackagesCollection.ApplySorting(propertyName, null);
+            });
+        }
+
+        private string GetSortPropertyName(PackageSortColumn? sortColumn = null)
+        {
+            var column = sortColumn ?? (PackageSortColumn)_configurationStore
+                .GetValueOrDefault(ConfigurationPropertyKeys.DefaultPackageSortColumn, ConfigurationPropertyKeys.DefaultPackageSortColumnDefaultValue);
+            return column switch
+            {
+                PackageSortColumn.Id => nameof(WingetPackageViewModel.Id),
+                PackageSortColumn.Source => nameof(WingetPackageViewModel.Source),
+                _ => nameof(WingetPackageViewModel.Name),
+            };
         }
     }
 }
