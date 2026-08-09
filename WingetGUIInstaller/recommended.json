@@ -70,23 +70,28 @@
     "Group": "Productivity"
   },
   {
-    "Name": ".NET 8 Runtime (LTS)",
-    "Id": "Microsoft.DotNet.Runtime.8",
+    "Name": ".NET 10 Runtime",
+    "Id": "Microsoft.DotNet.Runtime.10",
     "Group": "BasicUtilities"
   },
   {
-    "Name": ".NET 9 Runtime (Current)",
-    "Id": "Microsoft.DotNet.Runtime.9",
-    "Group": "BasicUtilities"
-  },
-  {
-    "Name": ".NET 8 SDK (LTS)",
-    "Id": "Microsoft.DotNet.SDK.8",
+    "Name": ".NET 10 SDK",
+    "Id": "Microsoft.DotNet.SDK.10",
     "Group": "Development"
   },
   {
-    "Name": ".NET 9 SDK (Current)",
-    "Id": "Microsoft.DotNet.SDK.9",
+    "Name": "Claude Code",
+    "Id": "Anthropic.ClaudeCode",
+    "Group": "AITools"
+  },
+  {
+    "Name": "Github Copilot",
+    "Id": "GitHub.CopilotApp",
+    "Group": "AITools"
+  },
+  {
+    "Name": "Github Desktop",
+    "Id": "GitHub.GitHubDesktop",
     "Group": "Development"
   }
 ]
