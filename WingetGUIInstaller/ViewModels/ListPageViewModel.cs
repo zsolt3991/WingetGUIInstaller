@@ -104,7 +104,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public void OnNavigatedTo(object parameter)
         {
-            _ = LoadInstalledPackages(false);
+            BackroundTaskUtils.RunInBackground(() => LoadInstalledPackages(false));
         }
 
         public void OnNavigatedFrom(NavigationMode navigationMode)
@@ -113,7 +113,7 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task RefreshPackageList()
         {
-            await LoadInstalledPackages(true);
+            BackroundTaskUtils.RunInBackground(() => LoadInstalledPackages(true));
         }
 
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
@@ -132,62 +132,68 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(IsSelectionUpgradable))]
         private async Task UpgradePackages()
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var successfulInstalls = 0;
-            var packageIds = GetSelectedPackageIds();
-            foreach (var id in packageIds)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
-                if (upgradeResult)
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
+
+                var successfulInstalls = 0;
+                var packageIds = GetSelectedPackageIds();
+                foreach (var id in packageIds)
                 {
-                    successfulInstalls++;
+                    var upgradeResult = await _packageManager.UpgradePackage(id, OnPackageInstallProgress);
+                    if (upgradeResult)
+                    {
+                        successfulInstalls++;
+                    }
                 }
-            }
 
-            if (packageIds.Any())
-            {
-                _notificationManager.ShowBatchPackageOperationStatus(
-                    InstallOperation.Upgrade, packageIds.Count(), successfulInstalls);
-            }
+                if (packageIds.Any())
+                {
+                    _notificationManager.ShowBatchPackageOperationStatus(
+                        InstallOperation.Upgrade, packageIds.Count(), successfulInstalls);
+                }
 
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
-            await LoadInstalledPackages(true);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
+                await LoadInstalledPackages(true);
+            });
         }
 
         [RelayCommand(CanExecute = nameof(IsSomethingSelected))]
         private async Task UninstallPackages()
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var successfulInstalls = 0;
-            var packageIds = GetSelectedPackageIds();
-            foreach (var id in packageIds)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
-                if (uninstallResult)
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
+
+                var successfulInstalls = 0;
+                var packageIds = GetSelectedPackageIds();
+                foreach (var id in packageIds)
                 {
-                    successfulInstalls++;
+                    var uninstallResult = await _packageManager.RemovePackage(id, OnPackageInstallProgress);
+                    if (uninstallResult)
+                    {
+                        successfulInstalls++;
+                    }
                 }
-            }
 
-            if (packageIds.Any())
-            {
-                _notificationManager.ShowBatchPackageOperationStatus(
-                    InstallOperation.Uninstall, packageIds.Count(), successfulInstalls);
-            }
+                if (packageIds.Any())
+                {
+                    _notificationManager.ShowBatchPackageOperationStatus(
+                        InstallOperation.Uninstall, packageIds.Count(), successfulInstalls);
+                }
 
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
-            await LoadInstalledPackages(true);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
+                await LoadInstalledPackages(true);
+            });
         }
 
         partial void OnSelectedPackageChanged(WingetPackageViewModel value)
         {
-            _ = FetchPackageDetailsAsync(value);
+            BackroundTaskUtils.RunInBackground(async () => await FetchPackageDetailsAsync(value));
         }
 
         partial void OnFilterTextChanged(string value)

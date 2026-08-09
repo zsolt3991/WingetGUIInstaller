@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Commands;
 using WingetHelper.Services;
 
@@ -42,7 +43,7 @@ namespace WingetGUIInstaller.ViewModels
             var arguments = ArgumentsSplitRegex().Split(CommandLine);
             var command = GeneralCommands.CustomWingetCommand(arguments)
                 .ConfigureOutputListener(_cache.IngestMessage);
-            await _commandExecutor.ExecuteCommandAsync(command);
+            BackroundTaskUtils.RunInBackground(() => _commandExecutor.ExecuteCommandAsync(command));
         }
 
         private void ProcessMessage(object recipient, CommandlineOutputMessage message)

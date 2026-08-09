@@ -113,24 +113,24 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(CanInstallSelected))]
         private async Task InstallSelectedPackages()
         {
-            await InstallPackagesAsync(GetSelectedPackageIds());
+            BackroundTaskUtils.RunInBackground(() => InstallPackagesAsync(GetSelectedPackageIds()));
         }
 
         [RelayCommand(CanExecute = nameof(CanInstallAll))]
         private async Task InstallAllPackages()
         {
-            await InstallPackagesAsync(_packages.Select(p => p.Id));
+            BackroundTaskUtils.RunInBackground(() => InstallPackagesAsync(_packages.Select(p => p.Id)));
         }
 
         [RelayCommand(CanExecute = nameof(SearchQueryValid))]
         private async Task SearchPackagesAsync()
         {
-            await SerchPackagesAsync(SearchQuery, false);
+            BackroundTaskUtils.RunInBackground(() => SerchPackagesAsync(SearchQuery, false));
         }
 
         partial void OnSelectedPackageChanged(WingetPackageViewModel value)
         {
-            _ = FetchPackageDetailsAsync(value);
+            BackroundTaskUtils.RunInBackground(() => FetchPackageDetailsAsync(value));
         }
 
         private async Task SerchPackagesAsync(string searchQuery, bool refreshInstalled = false)
@@ -316,7 +316,7 @@ namespace WingetGUIInstaller.ViewModels
             if (parameter is SearchArguments searchArguments && !string.IsNullOrEmpty(searchArguments.TagName))
             {
                 SearchQuery = string.Format("[tag] {0}", searchArguments.TagName);
-                _ = SearchPackagesAsync();
+                BackroundTaskUtils.RunInBackground(() => SearchPackagesAsync());
             }
         }
 

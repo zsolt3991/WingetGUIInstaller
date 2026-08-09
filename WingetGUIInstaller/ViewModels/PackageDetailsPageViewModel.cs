@@ -63,71 +63,80 @@ namespace WingetGUIInstaller.ViewModels
                 throw new Exception("Unexpected input");
             }
 
-            _ = FetchPackageDetailsAsync(packageDetails.PackageId);
+            BackroundTaskUtils.RunInBackground(() => FetchPackageDetailsAsync(packageDetails.PackageId));
             AvailableOperation = packageDetails.AvailableOperation;
         }
 
         [RelayCommand]
         private async Task InstallPackageAsync(string packageId)
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var installresult = await _packageManager.InstallPacakge(packageId, OnPackageInstallProgress);
-            if (installresult)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                AvailableOperation = AvailableOperation &= ~AvailableOperation.Install;
-            }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
 
-            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Install, installresult);
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                IsLoading = false;
-                LoadingText = _resourceLoader.GetString("LoadingText");
+                var installresult = await _packageManager.InstallPacakge(packageId, OnPackageInstallProgress);
+                if (installresult)
+                {
+                    AvailableOperation = AvailableOperation &= ~AvailableOperation.Install;
+                }
+
+                _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Install, installresult);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    IsLoading = false;
+                    LoadingText = _resourceLoader.GetString("LoadingText");
+                });
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             });
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
 
         [RelayCommand]
         private async Task UpgradePackageAsync(string packageId)
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var upgradeResult = await _packageManager.UpgradePackage(packageId, OnPackageInstallProgress);
-            if (upgradeResult)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                AvailableOperation = AvailableOperation &= ~AvailableOperation.Update;
-            }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
 
-            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                IsLoading = false;
-                LoadingText = _resourceLoader.GetString("LoadingText");
+                var upgradeResult = await _packageManager.UpgradePackage(packageId, OnPackageInstallProgress);
+                if (upgradeResult)
+                {
+                    AvailableOperation = AvailableOperation &= ~AvailableOperation.Update;
+                }
+
+                _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Upgrade, upgradeResult);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    IsLoading = false;
+                    LoadingText = _resourceLoader.GetString("LoadingText");
+                });
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             });
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
 
         [RelayCommand]
         private async Task UninstallPackageAsync(string packageId)
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var uninstallResult = await _packageManager.RemovePackage(packageId, OnPackageInstallProgress);
-            if (uninstallResult)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                AvailableOperation = AvailableOperation &= ~AvailableOperation.Uninstall;
-            }
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
 
-            _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                IsLoading = false;
-                LoadingText = _resourceLoader.GetString("LoadingText");
+                var uninstallResult = await _packageManager.RemovePackage(packageId, OnPackageInstallProgress);
+                if (uninstallResult)
+                {
+                    AvailableOperation = AvailableOperation &= ~AvailableOperation.Uninstall;
+                }
+
+                _toastNotificationManager.ShowPackageOperationStatus(PackageDetails.PackageName, InstallOperation.Uninstall, uninstallResult);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    IsLoading = false;
+                    LoadingText = _resourceLoader.GetString("LoadingText");
+                });
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
             });
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
         }
 
 

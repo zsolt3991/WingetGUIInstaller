@@ -15,6 +15,7 @@ using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 
 namespace WingetGUIInstaller.ViewModels
 {
@@ -198,26 +199,29 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task CheckForUpdatesAsync()
         {
-            try
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                _logger.LogInformation("Checking for updates");
-
-                var updateResponse = await _updateService.CheckForUpdatesAsync();
-
-                if (updateResponse?.IsUpdateAvailable ?? false)
+                try
                 {
-                    _logger.LogInformation("Update available: {Version}", updateResponse.UpdateVersion);
-                    WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(updateResponse));
+                    _logger.LogInformation("Checking for updates");
+
+                    var updateResponse = await _updateService.CheckForUpdatesAsync();
+
+                    if (updateResponse?.IsUpdateAvailable ?? false)
+                    {
+                        _logger.LogInformation("Update available: {Version}", updateResponse.UpdateVersion);
+                        WeakReferenceMessenger.Default.Send(new UpdateAvailableMessage(updateResponse));
+                    }
+                    else
+                    {
+                        _logger.LogInformation("No updates available");
+                    }
                 }
-                else
+                catch (Exception updateException)
                 {
-                    _logger.LogInformation("No updates available");
+                    _logger.LogError(updateException, "Checking for updates failed with error:");
                 }
-            }
-            catch (Exception updateException)
-            {
-                _logger.LogError(updateException, "Checking for updates failed with error:");
-            }
+            });
         }
     }
 }

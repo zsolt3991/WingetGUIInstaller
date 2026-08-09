@@ -19,6 +19,7 @@ using WingetGUIInstaller.Enums;
 using WingetGUIInstaller.Messages;
 using WingetGUIInstaller.Models;
 using WingetGUIInstaller.Services;
+using WingetGUIInstaller.Utils;
 using WingetHelper.Enums;
 
 namespace WingetGUIInstaller.ViewModels
@@ -59,7 +60,7 @@ namespace WingetGUIInstaller.ViewModels
             _recommendedItemList = LoadRecommendationsFile();
             RecommendedItems = new ObservableCollection<RecommendedItemsGroup>();
             RecommendedItems.CollectionChanged += Packages_CollectionChanged;
-            _ = LoadRecommendedItemsAsync(true);
+            BackroundTaskUtils.RunInBackground(() => LoadRecommendedItemsAsync(true));
         }
 
         public int SelectedCount => RecommendedItems.Sum(group => group.Count(p => p.IsSelected));
@@ -71,13 +72,13 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(CanInstallAll))]
         private async Task InstallAllPackagesAsync()
         {
-            await InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => !p.IsInstalled).Select(p => p.Id)));
+            BackroundTaskUtils.RunInBackground(() => InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => !p.IsInstalled).Select(p => p.Id))));
         }
 
         [RelayCommand(CanExecute = nameof(CanInstallSelected))]
         private async Task InstallSelectedPackagesAsync()
         {
-            await InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => p.IsSelected).Select(p => p.Id)));
+            BackroundTaskUtils.RunInBackground(() => InstallPackagesAsync(RecommendedItems.SelectMany(group => group.Where(p => p.IsSelected).Select(p => p.Id))));
         }
 
         private async Task LoadRecommendedItemsAsync(bool forceRefresh = false)
@@ -125,28 +126,31 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task InstallPackagesAsync(IEnumerable<string> packageIds)
         {
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
-
-            var successfulInstalls = 0;
-            foreach (var id in packageIds)
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
-                if (installResult)
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(false));
+
+                var successfulInstalls = 0;
+                foreach (var id in packageIds)
                 {
-                    successfulInstalls++;
+                    var installResult = await _packageManager.InstallPacakge(id, OnPackageInstallProgress);
+                    if (installResult)
+                    {
+                        successfulInstalls++;
+                    }
                 }
-            }
 
-            if (packageIds.Any())
-            {
-                _notificationManager.ShowBatchPackageOperationStatus(
-                    InstallOperation.Install, packageIds.Count(), successfulInstalls);
-            }
+                if (packageIds.Any())
+                {
+                    _notificationManager.ShowBatchPackageOperationStatus(
+                        InstallOperation.Install, packageIds.Count(), successfulInstalls);
+                }
 
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
-            WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
-            await LoadRecommendedItemsAsync(true);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                WeakReferenceMessenger.Default.Send(new TopLevelNavigationAllowedMessage(true));
+                await LoadRecommendedItemsAsync(true);
+            });
         }
 
         private void OnPackageInstallProgress(WingetProcessState progess)
@@ -213,7 +217,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public void OnNavigatedTo(object parameter)
         {
-            _ = LoadRecommendedItemsAsync();
+            BackroundTaskUtils.RunInBackground(() => LoadRecommendedItemsAsync());
         }
 
         public void OnNavigatedFrom(NavigationMode navigationMode)
