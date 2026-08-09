@@ -259,6 +259,20 @@ jobs:
       - name: Push NuGet package
         run: dotnet nuget push "artifacts/nuget-packages/*.nupkg" --skip-duplicate --no-symbols
 
+      - name: Normalize release version
+        id: version
+        shell: bash
+        run: |
+          raw="${GITHUB_REF_NAME}"
+          clean="${raw#v}"
+          if [[ "$clean" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            IFS='.' read -r major minor patch build <<< "$clean"
+            vpk="${major}.${minor}.${patch}"
+          else
+            vpk="$clean"
+          fi
+          echo "vpk=${vpk}" >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
@@ -270,4 +284,8 @@ jobs:
           files: |
             artifacts/nuget-packages/*.nupkg
             artifacts/packaged-msix-*/**/*.msixbundle
-            artifacts/velopack-*/**/*
+            artifacts/velopack-*/**/RELEASES
+            artifacts/velopack-*/**/*.exe
+            artifacts/velopack-*/**/*.zip
+            artifacts/velopack-*/**/WingetGUIInstaller-${{ steps.version.outputs.vpk }}-win-*-full.nupkg
+            artifacts/velopack-*/**/WingetGUIInstaller-${{ steps.version.outputs.vpk }}-win-*-delta.nupkg
