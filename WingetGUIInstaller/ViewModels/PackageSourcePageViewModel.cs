@@ -68,7 +68,7 @@ namespace WingetGUIInstaller.ViewModels
             PackageSourcesView = new AdvancedCollectionView(_packageSources, true);
             PackageSourcesView.ApplySorting(nameof(WingetPackageSourceViewModel.Name), null);
 
-            _ = LoadPackageSourcesAsync();
+            BackroundTaskUtils.RunInBackground(() => LoadPackageSourcesAsync());
         }
 
         public bool PackageSourceFilteringEnabled
@@ -107,40 +107,46 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand]
         private async Task RefreshPackageSourceList()
         {
-            await LoadPackageSourcesAsync(true);
+            BackroundTaskUtils.RunInBackground(() => LoadPackageSourcesAsync(true));
         }
 
         [RelayCommand]
         private async Task AddPackageSourceAsync()
         {
-            if (string.IsNullOrEmpty(NewPackageSourceName) || string.IsNullOrEmpty(NewPackageSourceUrl))
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                return;
-            }
+                if (string.IsNullOrEmpty(NewPackageSourceName) || string.IsNullOrEmpty(NewPackageSourceUrl))
+                {
+                    return;
+                }
 
-            _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-            await _packageSourceManager.AddPackageSource(NewPackageSourceName, NewPackageSourceUrl);
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                await _packageSourceManager.AddPackageSource(NewPackageSourceName, NewPackageSourceUrl);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
 
-            await LoadPackageSourcesAsync(true);
+                await LoadPackageSourcesAsync(true);
+            });
 
         }
 
         [RelayCommand(CanExecute = nameof(IsSomethingSelected))]
         private async Task RemoveSelectedPackageSourcesAsync()
         {
-            var sourceNames = GetSelectedPackageSourceNames();
-            if (sourceNames.Any())
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                _dispatcherQueue.TryEnqueue(() => IsLoading = true);
-                foreach (var sourceName in sourceNames)
+                var sourceNames = GetSelectedPackageSourceNames();
+                if (sourceNames.Any())
                 {
-                    await _packageSourceManager.RemovePackageSource(sourceName);
-                }
-                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                    _dispatcherQueue.TryEnqueue(() => IsLoading = true);
+                    foreach (var sourceName in sourceNames)
+                    {
+                        await _packageSourceManager.RemovePackageSource(sourceName);
+                    }
+                    _dispatcherQueue.TryEnqueue(() => IsLoading = false);
 
-                await LoadPackageSourcesAsync(true);
-            }
+                    await LoadPackageSourcesAsync(true);
+                }
+            });
         }
 
         partial void OnFilterTextChanged(string value)

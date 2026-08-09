@@ -99,7 +99,7 @@ namespace WingetGUIInstaller.ViewModels
 
         public void OnNavigatedTo(object parameter)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
 
         public void OnNavigatedFrom(NavigationMode navigationMode)
@@ -108,19 +108,19 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(CanUpgradeSelected))]
         private async Task UpgradeSelectedPackages()
         {
-            await UpgradePackagesAsync(GetSelectedPackageIds());
+            BackroundTaskUtils.RunInBackground(() => UpgradePackagesAsync(GetSelectedPackageIds()));
         }
 
         [RelayCommand(CanExecute = nameof(CanUpgradeAll))]
         private async Task UpgradeAllPackages()
         {
-            await UpgradePackagesAsync(_packages.Select(p => p.Id));
+            BackroundTaskUtils.RunInBackground(() => UpgradePackagesAsync(_packages.Select(p => p.Id)));
         }
 
         [RelayCommand]
         private async Task RefreshPackageList()
         {
-            await ListUpgradableItemsAsync(true);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(true));
         }
 
         [RelayCommand(CanExecute = nameof(DetailsAvailable))]
@@ -135,7 +135,7 @@ namespace WingetGUIInstaller.ViewModels
 
         partial void OnSelectedPackageChanged(WingetPackageViewModel value)
         {
-            _ = FetchPackageDetailsAsync(value);
+            BackroundTaskUtils.RunInBackground(async () => await FetchPackageDetailsAsync(value));
         }
 
         partial void OnFilterTextChanged(string value)
@@ -153,7 +153,7 @@ namespace WingetGUIInstaller.ViewModels
 
         private async Task ListUpgradableItemsAsync(bool forceReload = false)
         {
-            _dispatcherQueue.TryEnqueue(() =>
+            _dispatcherQueue.TryEnqueue(async() =>
             {
                 IsLoading = true;
                 LoadingText = _resourceLoader.GetString("LoadingText");
@@ -161,7 +161,7 @@ namespace WingetGUIInstaller.ViewModels
 
             var returnedPackages = await _packageCache.GetUpgradablePackages(forceReload);
 
-            _dispatcherQueue.TryEnqueue(() =>
+            _dispatcherQueue.TryEnqueue(async() =>
             {
                 _packages.Clear();
                 foreach (var entry in returnedPackages)
@@ -320,27 +320,27 @@ namespace WingetGUIInstaller.ViewModels
 
         void IRecipient<ExclusionListUpdatedMessage>.Receive(ExclusionListUpdatedMessage message)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
 
         void IRecipient<ExclusionStatusChangedMessage>.Receive(ExclusionStatusChangedMessage message)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
 
         void IRecipient<IgnoreEmptySourcesStatusChangedMessage>.Receive(IgnoreEmptySourcesStatusChangedMessage message)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
 
         void IRecipient<FilterSourcesStatusChangedMessage>.Receive(FilterSourcesStatusChangedMessage message)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
 
         void IRecipient<FilterSourcesListUpdatedMessage>.Receive(FilterSourcesListUpdatedMessage message)
         {
-            _ = ListUpgradableItemsAsync(false);
+            BackroundTaskUtils.RunInBackground(() => ListUpgradableItemsAsync(false));
         }
     }
 }

@@ -77,28 +77,34 @@ namespace WingetGUIInstaller.ViewModels
         [RelayCommand(CanExecute = nameof(CanExport))]
         private async Task ExportPackageListAsync()
         {
-            _dispatcherQueue.TryEnqueue(() =>
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                LoadingText = _resourceLoader.GetString("ExportingText");
-                IsLoading = true;
-            });
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    LoadingText = _resourceLoader.GetString("ExportingText");
+                    IsLoading = true;
+                });
 
-            await _packageManager.ExportPackageList(ExportFile, ExportVersions,
-                SelectedSourceName != _resourceLoader.GetString("AllSourcesText") ? SelectedSourceName : default);
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                await _packageManager.ExportPackageList(ExportFile, ExportVersions,
+                    SelectedSourceName != _resourceLoader.GetString("AllSourcesText") ? SelectedSourceName : default);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            });
         }
 
         [RelayCommand(CanExecute = nameof(CanImport))]
         private async Task ImportPackageListAsync()
         {
-            _dispatcherQueue.TryEnqueue(() =>
+            BackroundTaskUtils.RunInBackground(async () =>
             {
-                LoadingText = _resourceLoader.GetString("ImportingText");
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    LoadingText = _resourceLoader.GetString("ImportingText");
                 IsLoading = true;
             });
 
-            await _packageManager.ImportPackageList(ImportFile, ImportVersions, IgnoreMissing);
-            _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+                await _packageManager.ImportPackageList(ImportFile, ImportVersions, IgnoreMissing);
+                _dispatcherQueue.TryEnqueue(() => IsLoading = false);
+            });
         }
 
         [RelayCommand]
