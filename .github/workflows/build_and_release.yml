@@ -11,8 +11,45 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prepare-version:
+    name: Prepare version metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      raw: ${{ steps.version.outputs.raw }}
+      clean: ${{ steps.version.outputs.clean }}
+      msix: ${{ steps.version.outputs.msix }}
+      vpk: ${{ steps.version.outputs.vpk }}
+
+    steps:
+      - name: Normalize version inputs
+        id: version
+        shell: bash
+        run: |
+          raw="${{github.ref_name}}"
+          if [[ "${{github.ref}}" == refs/tags/* ]]; then
+            clean="${raw#v}"
+            msix="${clean}"
+            if [[ "$clean" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              IFS='.' read -r major minor patch build <<< "$clean"
+              vpk="${major}.${minor}.${patch}"
+            else
+              vpk="${clean}"
+            fi
+          else
+            clean="0.0.1-ci.${{ github.run_number }}.${{ github.run_attempt }}"
+            msix="0.0.$(( ${{ github.run_number }} % 65535 )).$(( ${{ github.run_attempt }} % 65535 ))"
+            vpk="0.0.$(( ${{ github.run_number }} % 65535 ))"
+          fi
+          echo "raw=${raw}" >> "$GITHUB_OUTPUT"
+          echo "clean=${clean}" >> "$GITHUB_OUTPUT"
+          echo "msix=${msix}" >> "$GITHUB_OUTPUT"
+          echo "vpk=${vpk}" >> "$GITHUB_OUTPUT"
+
   build-wingethelper-nuget:
     name: Build WingetHelper NuGet
+    needs: prepare-version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,28 +68,14 @@ jobs:
           cache-dependency-path: |
             WingetHelper/WingetHelper.csproj
 
-      - name: Normalize version
-        id: version
-        shell: bash
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            raw="${GITHUB_REF_NAME}"
-            clean="${raw#v}"
-          else
-            raw="${GITHUB_REF_NAME}"
-            clean="0.0.1-ci.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
-          fi
-          echo "raw=${raw}" >> "$GITHUB_OUTPUT"
-          echo "clean=${clean}" >> "$GITHUB_OUTPUT"
-
       - name: Restore dependencies
         run: dotnet restore WingetHelper
 
       - name: Build
-        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=${{ steps.version.outputs.clean }}
+        run: dotnet build WingetHelper --no-restore --configuration Release -p:Version=${{ needs.prepare-version.outputs.clean }}
 
       - name: Pack
-        run: dotnet pack WingetHelper --configuration Release --no-build -p:Version=${{ steps.version.outputs.clean }} -o artifacts/nuget
+        run: dotnet pack WingetHelper --configuration Release --no-build -p:Version=${{ needs.prepare-version.outputs.clean }} -o artifacts/nuget
 
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@v7
@@ -63,6 +86,7 @@ jobs:
 
   build-app-packaged:
     name: Build Packaged App (${{ matrix.platform }})
+    needs: prepare-version
     runs-on: windows-latest
     permissions:
       contents: read
@@ -94,49 +118,33 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
-      - name: Normalize version
-        id: version
-        shell: pwsh
-        run: |
-          $raw = "${{ github.ref_name }}"
-          if ("${{ github.ref }}" -like 'refs/tags/*') {
-            $clean = $raw -replace '^v', ''
-            $msix = $clean
-          } else {
-            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
-            $msix = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535).$([int]$env:GITHUB_RUN_ATTEMPT % 65535)"
-          }
-          "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "msix=$msix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
       - name: Decode and import PFX
         shell: pwsh
         env:
           BASE64_CERTIFICATE: ${{ secrets.BASE64_CERTIFICATE }}
         run: |
           $currentDirectory = Get-Location
-          $pfx_cert_byte = [System.Convert]::FromBase64String($env:BASE64_CERTIFICATE)
-          $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
+          $pfx_cert_byte = [System.Convert]::FromBase64String(${{ env.BASE64_CERTIFICATE }})
+          $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.App_Project_Directory }} -AdditionalChildPath ${{ env.SigningCertificate }}
           [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
       - name: Update manifest version
         shell: pwsh
         run: |
-          [xml]$manifest = Get-Content ".\$env:App_Project_Directory\Package.appxmanifest"
-          $manifest.Package.Identity.Version = "${{ steps.version.outputs.msix }}"
-          $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
+          [xml]$manifest = Get-Content ".\${{ env.App_Project_Directory }}\Package.appxmanifest"
+          $manifest.Package.Identity.Version = "${{ needs.prepare-version.outputs.msix }}"
+          $manifest.Save(".\${{ env.App_Project_Directory }}\Package.appxmanifest")
 
       - name: Restore
-        run: msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
+        run: msbuild ${{ env.Solution_Path }} /t:Restore /p:Configuration=${{ matrix.configuration }}
 
       - name: Build packaged app
-        run: msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
+        run: msbuild ${{env.Solution_Path}} /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
 
       - name: Remove PFX
         if: always()
         shell: pwsh
-        run: Remove-Item -Path "$env:App_Project_Directory\$env:SigningCertificate" -ErrorAction SilentlyContinue
+        run: Remove-Item -Path "${{ env.App_Project_Directory }}\${{ env.SigningCertificate }}" -ErrorAction SilentlyContinue
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v7
@@ -147,6 +155,7 @@ jobs:
 
   build-app-unpackaged:
     name: Build Unpackaged App (${{ matrix.platform }})
+    needs: prepare-version
     runs-on: windows-latest
     permissions:
       contents: read
@@ -158,7 +167,7 @@ jobs:
 
     env:
       Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
-      Project_Sdk_Version: net10.0-windows10.0.26100.0
+      Project_Sdk_Version: net10.0
       Project_Directory: WingetGUIInstaller
       VELOPACK_CHANNEL: win-${{ matrix.platform }}
 
@@ -177,32 +186,11 @@ jobs:
             WingetGUIInstaller/WingetGUIInstaller.csproj
             WingetHelper/WingetHelper.csproj
 
-      - name: Normalize versions
-        id: version
-        shell: pwsh
-        run: |
-          $raw = "${{ github.ref_name }}"
-          if ("${{ github.ref }}" -like 'refs/tags/*') {
-            $clean = $raw -replace '^v', ''
-            if ($clean -match '^\d+\.\d+\.\d+\.\d+$') {
-              $parts = $clean -split '\.'
-              $vpk = "$($parts[0]).$($parts[1]).$($parts[2])"
-            } else {
-              $vpk = $clean
-            }
-          } else {
-            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
-            $vpk = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535)"
-          }
-          "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "vpk=$vpk" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
       - name: Restore
-        run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
+        run: dotnet restore ${{ env.Project_Path }} -r win-${{ matrix.platform }}
 
       - name: Publish
-        run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ steps.version.outputs.clean }}
+        run: dotnet publish ${{ env.Project_Path }} -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ needs.prepare-version.outputs.clean }}
 
       - name: Build VeloPack assets
         if: startsWith(github.ref, 'refs/tags/')
@@ -211,8 +199,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet tool install -g vpk
-          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
-          vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "${{ env.GITHUB_TOKEN }}" --channel "${{ env.VELOPACK_CHANNEL }}"
+          vpk pack -u WingetGUIInstaller -v ${{ needs.prepare-version.outputs.vpk }} --channel "${{ env.VELOPACK_CHANNEL }}" -p ${{ env.Project_Directory }}/bin/Release/${{ env.Project_Sdk_Version }}/win-${{ matrix.platform }}/publish
 
       - name: Upload Velopack artifacts
         if: startsWith(github.ref, 'refs/tags/')
@@ -222,19 +210,12 @@ jobs:
           path: Releases\**
           if-no-files-found: error
 
-      - name: Upload unpackaged publish artifacts
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: unpackaged-publish-${{ matrix.platform }}
-          path: WingetGUIInstaller\bin\Release\${{ env.Project_Sdk_Version }}\win-${{ matrix.platform }}\publish\**
-          if-no-files-found: error
-
   publish-release:
     name: Publish Release
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     needs:
+      - prepare-version
       - build-wingethelper-nuget
       - build-app-packaged
       - build-app-unpackaged
@@ -270,4 +251,8 @@ jobs:
           files: |
             artifacts/nuget-packages/*.nupkg
             artifacts/packaged-msix-*/**/*.msixbundle
-            artifacts/velopack-*/**/*
+            artifacts/velopack-*/**/RELEASES
+            artifacts/velopack-*/**/*.exe
+            artifacts/velopack-*/**/*.zip
+            artifacts/velopack-*/**/WingetGUIInstaller-${{ needs.prepare-version.outputs.vpk }}-win-*-full.nupkg
+            artifacts/velopack-*/**/WingetGUIInstaller-${{ needs.prepare-version.outputs.vpk }}-win-*-delta.nupkg
