@@ -35,12 +35,12 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            raw="${GITHUB_REF_NAME}"
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            raw="${{ github.ref_name }}"
             clean="${raw#v}"
           else
-            raw="${GITHUB_REF_NAME}"
-            clean="0.0.1-ci.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+            raw="${{ github.ref_name }}"
+            clean="0.0.1-ci.${{ github.run_number }}.${{ github.run_attempt }}"
           fi
           echo "raw=${raw}" >> "$GITHUB_OUTPUT"
           echo "clean=${clean}" >> "$GITHUB_OUTPUT"
@@ -103,8 +103,8 @@ jobs:
             $clean = $raw -replace '^v', ''
             $msix = $clean
           } else {
-            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
-            $msix = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535).$([int]$env:GITHUB_RUN_ATTEMPT % 65535)"
+            $clean = "0.0.1-ci.${{github.run_number}}.${{github.run_attempt}}"
+            $msix = "0.0.$([int]${{github.run_number}} % 65535).$([int]${{github.run_attempt}} % 65535)"
           }
           "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
@@ -116,27 +116,27 @@ jobs:
           BASE64_CERTIFICATE: ${{ secrets.BASE64_CERTIFICATE }}
         run: |
           $currentDirectory = Get-Location
-          $pfx_cert_byte = [System.Convert]::FromBase64String($env:BASE64_CERTIFICATE)
-          $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:App_Project_Directory -AdditionalChildPath $env:SigningCertificate
+          $pfx_cert_byte = [System.Convert]::FromBase64String(${{ env.BASE64_CERTIFICATE }})
+          $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.App_Project_Directory }} -AdditionalChildPath ${{ env.SigningCertificate }}
           [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
       - name: Update manifest version
         shell: pwsh
         run: |
-          [xml]$manifest = Get-Content ".\$env:App_Project_Directory\Package.appxmanifest"
+          [xml]$manifest = Get-Content ".\${{ env.App_Project_Directory }}\Package.appxmanifest"
           $manifest.Package.Identity.Version = "${{ steps.version.outputs.msix }}"
-          $manifest.Save(".\$env:App_Project_Directory\Package.appxmanifest")
+          $manifest.Save(".\${{ env.App_Project_Directory }}\Package.appxmanifest")
 
       - name: Restore
-        run: msbuild $env:Solution_Path /t:Restore /p:Configuration=${{ matrix.configuration }}
+        run: msbuild ${{ env.Solution_Path }} /t:Restore /p:Configuration=${{ matrix.configuration }}
 
       - name: Build packaged app
-        run: msbuild $env:Solution_Path /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
+        run: msbuild ${{env.Solution_Path}} /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
 
       - name: Remove PFX
         if: always()
         shell: pwsh
-        run: Remove-Item -Path "$env:App_Project_Directory\$env:SigningCertificate" -ErrorAction SilentlyContinue
+        run: Remove-Item -Path "${{ env.App_Project_Directory }}\${{ env.SigningCertificate }}" -ErrorAction SilentlyContinue
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v7
@@ -158,7 +158,7 @@ jobs:
 
     env:
       Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
-      Project_Sdk_Version: net10.0-windows10.0.26100.0
+      Project_Sdk_Version: net10.0
       Project_Directory: WingetGUIInstaller
       VELOPACK_CHANNEL: win-${{ matrix.platform }}
 
@@ -191,18 +191,18 @@ jobs:
               $vpk = $clean
             }
           } else {
-            $clean = "0.0.1-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
-            $vpk = "0.0.$([int]$env:GITHUB_RUN_NUMBER % 65535)"
+            $clean = "0.0.1-ci.${{github.run_number}}.${{github.run_attempt}}"
+            $vpk = "0.0.$([int]${{github.run_number}} % 65535)"
           }
           "raw=$raw" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "clean=$clean" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "vpk=$vpk" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Restore
-        run: dotnet restore $env:Project_Path -r win-${{ matrix.platform }}
+        run: dotnet restore ${{ env.Project_Path }} -r win-${{ matrix.platform }}
 
       - name: Publish
-        run: dotnet publish $env:Project_Path -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ steps.version.outputs.clean }}
+        run: dotnet publish ${{ env.Project_Path }} -c ${{ matrix.configuration }} -r win-${{ matrix.platform }} --self-contained /p:Platform=${{ matrix.platform }} /p:Version=${{ steps.version.outputs.clean }}
 
       - name: Build VeloPack assets
         if: startsWith(github.ref, 'refs/tags/')
@@ -211,8 +211,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet tool install -g vpk
-          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "$env:GITHUB_TOKEN" --channel "$env:VELOPACK_CHANNEL"
-          vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "$env:VELOPACK_CHANNEL" -p $env:Project_Directory\bin\Release\$env:Project_Sdk_Version\win-${{ matrix.platform }}\publish
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token "${{ env.GITHUB_TOKEN }}" --channel "${{ env.VELOPACK_CHANNEL }}"
+          vpk pack -u WingetGUIInstaller -v ${{ steps.version.outputs.vpk }} --channel "${{ env.VELOPACK_CHANNEL }}" -p ${{ env.Project_Directory }}/bin/Release/${{ env.Project_Sdk_Version }}/win-${{ matrix.platform }}/publish
 
       - name: Upload Velopack artifacts
         if: startsWith(github.ref, 'refs/tags/')
@@ -220,14 +220,6 @@ jobs:
         with:
           name: velopack-${{ matrix.platform }}
           path: Releases\**
-          if-no-files-found: error
-
-      - name: Upload unpackaged publish artifacts
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: unpackaged-publish-${{ matrix.platform }}
-          path: WingetGUIInstaller\bin\Release\${{ env.Project_Sdk_Version }}\win-${{ matrix.platform }}\publish\**
           if-no-files-found: error
 
   publish-release:

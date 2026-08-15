@@ -42,7 +42,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Build
-        run: dotnet build $env:Project_Path -c Release_Unpackaged -r win-x64 /p:Platform=x64 /p:Version=0.0.1
+        run: dotnet build ${{env.Project_Path}} -c Release_Unpackaged -r win-x64 /p:Platform=x64 /p:Version=0.0.1
 
   test:
     name: Run Tests
