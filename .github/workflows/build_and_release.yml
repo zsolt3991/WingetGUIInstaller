@@ -27,8 +27,8 @@ jobs:
         id: version
         shell: bash
         run: |
-          raw="${GITHUB_REF_NAME}"
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          raw="${{github.ref_name}}"
+          if [[ "${{github.ref}}" == refs/tags/* ]]; then
             clean="${raw#v}"
             msix="${clean}"
             if [[ "$clean" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -38,9 +38,9 @@ jobs:
               vpk="${clean}"
             fi
           else
-            clean="0.0.1-ci.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
-            msix="0.0.$(( GITHUB_RUN_NUMBER % 65535 )).$(( GITHUB_RUN_ATTEMPT % 65535 ))"
-            vpk="0.0.$(( GITHUB_RUN_NUMBER % 65535 ))"
+            clean="0.0.1-ci.${{ github.run_number }}.${{ github.run_attempt }}"
+            msix="0.0.$(( ${{ github.run_number }} % 65535 )).$(( ${{ github.run_attempt }} % 65535 ))"
+            vpk="0.0.$(( ${{ github.run_number }} % 65535 ))"
           fi
           echo "raw=${raw}" >> "$GITHUB_OUTPUT"
           echo "clean=${clean}" >> "$GITHUB_OUTPUT"
