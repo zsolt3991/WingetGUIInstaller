@@ -252,6 +252,7 @@ jobs:
             artifacts/nuget-packages/*.nupkg
             artifacts/packaged-msix-*/**/*.msixbundle
             artifacts/velopack-*/**/RELEASES
+            artifacts/velopack-*/**/releases.*.json
             artifacts/velopack-*/**/*.exe
             artifacts/velopack-*/**/*.zip
             artifacts/velopack-*/**/WingetGUIInstaller-${{ needs.prepare-version.outputs.vpk }}-win-*-full.nupkg
