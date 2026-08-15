@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -18,17 +18,14 @@
     <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
     <Nullable>warnings</Nullable>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' ">
     <XamlDebuggingInformation>True</XamlDebuggingInformation>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -37,70 +34,61 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="recommended.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Common" Version="8.4.2" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.260319-build.2547" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.260319-build.2547" />
-    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.10" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
-    <PackageReference Include="Octokit" Version="14.0.0" />
-    <PackageReference Include="Serilog" Version="4.4.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="CommunityToolkit.Common" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
+    <PackageReference Include="CommunityToolkit.WinUI.Collections" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="Octokit" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.Debug" />
+    <PackageReference Include="Serilog.Sinks.File" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.251221100">
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
   <ItemGroup Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
-    <PackageReference Include="Velopack" Version="1.2.0" />
+    <PackageReference Include="Velopack" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(Configuration)' != 'Debug_Unpackaged' And '$(Configuration)' != 'Release_Unpackaged'">
     <Compile Remove="Program.cs" />
   </ItemGroup>
-  
   <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
        Tools extension to be activated for this project even if the Windows App SDK Nuget
        package has not yet been restored -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\WingetHelper\WingetHelper.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup Label="Controls">
     <Page Update="Controls\LoadingIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -115,7 +103,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-
   <ItemGroup Label="Pages">
     <Page Update="Pages\AboutPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -154,7 +141,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-
   <Target Name="CopyPriFile" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <!-- Define variables for clarity. Adjust as necessary. -->
     <PropertyGroup>
@@ -163,11 +149,9 @@
       <!-- The new desired name for your .pri file -->
       <NewPriFile>$(TargetDir)resources.pri</NewPriFile>
     </PropertyGroup>
-
     <!-- Use the "Move" task to rename/move the file -->
     <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
   </Target>
-
   <Target Name="CopyPriFilePublish" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged'">
     <!-- Define variables for clarity. Adjust as necessary. -->
     <PropertyGroup>
@@ -176,11 +160,9 @@
       <!-- The new desired name for your .pri file -->
       <NewPriFile>$(PublishDir)resources.pri</NewPriFile>
     </PropertyGroup>
-
     <!-- Use the "Copy" task to duplicate the file -->
     <Copy SourceFiles="$(OriginalPriFile)" DestinationFiles="$(NewPriFile)" ContinueOnError="false" />
   </Target>
-
   <!--
     Workaround for microsoft/WindowsAppSDK#6071: a 2.x unpackaged self-contained build does
     NOT lay out Microsoft.WindowsAppRuntime.Insights.Resource.dll, so AppNotificationManager
@@ -196,7 +178,6 @@
     <_RuntimeMsixArch Condition="('$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged') And '$(Platform)' == 'x64'">win10-x64</_RuntimeMsixArch>
     <_RuntimeMsixArch Condition="('$(Configuration)' == 'Debug_Unpackaged' Or '$(Configuration)' == 'Release_Unpackaged') And '$(Platform)' == 'ARM64'">win10-arm64</_RuntimeMsixArch>
   </PropertyGroup>
-
   <Target Name="_LayoutInsightsResource" AfterTargets="Build;Publish" Condition="'$(WindowsAppSDKSelfContained)' == 'true' and '$(_RuntimeMsixArch)' != '' and '$(PkgMicrosoft_WindowsAppSDK_Runtime)' != ''">
     <ItemGroup>
       <_RuntimeMsix Include="$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\Microsoft.WindowsAppRuntime.*.msix" Exclude="$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.DDLM.*.msix;$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.Main.*.msix;$(PkgMicrosoft_WindowsAppSDK_Runtime)\tools\MSIX\$(_RuntimeMsixArch)\*.Singleton.*.msix" />
