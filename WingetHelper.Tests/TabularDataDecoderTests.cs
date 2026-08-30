@@ -20,12 +20,8 @@ public class TabularDataDecoderTests
         var rows = TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput).ToList();
 
         Assert.Equal(2, rows.Count);
-        Assert.Equal("AppA", rows[0].Name);
-        Assert.Equal("AppA.Id", rows[0].Id);
-        Assert.Equal("1.0", rows[0].Version);
-        Assert.Equal("1.1", rows[0].Available);
-        Assert.Equal("winget", rows[0].Source);
-        Assert.Equal("AppB", rows[1].Name);
+        AssertPackage(rows[0], "AppA", "AppA.Id", "1.0", "1.1", "winget");
+        AssertPackage(rows[1], "AppB", "AppB.Id", "2.0", "2.1", "winget");
     }
 
     [Fact]
@@ -44,7 +40,22 @@ public class TabularDataDecoderTests
         var rows = TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput).ToList();
 
         Assert.Equal(2, rows.Count);
-        Assert.Equal("AppA", rows[0].Name);
-        Assert.Equal("AppB", rows[1].Name);
+        AssertPackage(rows[0], "AppA", "AppA.Id", "1.0", "1.1", "winget");
+        AssertPackage(rows[1], "AppB", "AppB.Id", "2.0", "2.1", "winget");
+    }
+
+    private static void AssertPackage(
+        WingetPackageEntry package,
+        string name,
+        string id,
+        string version,
+        string available,
+        string source)
+    {
+        Assert.Equal(name, package.Name);
+        Assert.Equal(id, package.Id);
+        Assert.Equal(version, package.Version);
+        Assert.Equal(available, package.Available);
+        Assert.Equal(source, package.Source);
     }
 }
