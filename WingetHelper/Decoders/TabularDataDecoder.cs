@@ -28,12 +28,19 @@ namespace WingetHelper.Decoders
 
         private static string ConvertAsciiTableToCsv(IEnumerable<string> output)
         {
+            var outputLines = output.ToList();
+
             // Find header
-            var separatorIndex = output.ToList().FindLastIndex(line =>
+            var separatorIndex = outputLines.FindLastIndex(line =>
                 !string.IsNullOrWhiteSpace(line) && line.Trim().All(c => c == '-'));
 
+            if (separatorIndex <= 0)
+            {
+                return string.Empty;
+            }
+
             // Detect column names from line above separator
-            List<ColumnSpec> columns = DetectColumns(output.Skip(separatorIndex - 1).FirstOrDefault());
+            List<ColumnSpec> columns = DetectColumns(outputLines[separatorIndex - 1]);
 
             if (columns != default)
             {
@@ -43,15 +50,37 @@ namespace WingetHelper.Decoders
                 csvBuilder.AppendLine(string.Join(',', columns.Select(column => column.Name)));
 
                 //Parse table data ignoring any malformed lines after the separator
-                foreach (var dataLine in output.Skip(separatorIndex + 1))
+                var tableStarted = false;
+                foreach (var dataLine in outputLines.Skip(separatorIndex + 1))
                 {
+                    if (string.IsNullOrWhiteSpace(dataLine))
+                    {
+                        if (tableStarted)
+                        {
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                    if (!IsLikelyDataRow(dataLine, columns))
+                    {
+                        if (tableStarted)
+                        {
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                    tableStarted = true;
                     try
                     {
                         csvBuilder.AppendLine(string.Join(',', ParseDataLine(dataLine, columns)));
                     }
                     catch
                     {
-                        //Skip malformed lines
+                        break;
                     }
                 }
 
@@ -59,6 +88,15 @@ namespace WingetHelper.Decoders
             }
 
             return string.Empty;
+        }
+
+        private static bool IsLikelyDataRow(string dataLine, List<ColumnSpec> columns)
+        {
+            var minimumWidth = columns
+                .Where(column => !column.IsLastColumn)
+                .Sum(column => column.MaxLength);
+
+            return dataLine.Length >= minimumWidth;
         }
 
         private static List<string> ParseDataLine(string dataLine, List<ColumnSpec> columns)
