@@ -13,7 +13,8 @@ public class TabularDataDecoderTests
             "Name            Id                  Version  Available    Source",
             "----------------------------------------------------------------",
             "AppA            AppA.Id             1.0      1.1          winget",
-            "AppB            AppB.Id             2.0      2.1          winget"
+            "AppB            AppB.Id             2.0      2.1          winget",
+            "2 upgrades available."
         };
 
         var rows = TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput).ToList();
