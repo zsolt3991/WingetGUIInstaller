@@ -23,6 +23,11 @@ updates:
         patterns:
           - "Serilog"
           - "Serilog.*"
+      test-dependencies:
+        patterns:
+          - "coverlet.*"
+          - "Microsoft.NET.Test.Sdk"
+          - "xunit*"
       other-dependencies:
         patterns:
           - "CsvHelper"
