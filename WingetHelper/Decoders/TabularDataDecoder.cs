@@ -178,15 +178,24 @@ namespace WingetHelper.Decoders
 
         private static bool IsDoubleWidth(int codePoint)
         {
+            // Hangul Jamo.
             return (codePoint >= 0x1100 && codePoint <= 0x115F)
+                // Angle brackets.
                 || codePoint == 0x2329
                 || codePoint == 0x232A
+                // CJK radicals, ideographs, and Yi syllables.
                 || (codePoint >= 0x2E80 && codePoint <= 0xA4CF)
+                // Hangul syllables.
                 || (codePoint >= 0xAC00 && codePoint <= 0xD7A3)
+                // CJK compatibility ideographs.
                 || (codePoint >= 0xF900 && codePoint <= 0xFAFF)
+                // Vertical, compatibility, and small form variants.
                 || (codePoint >= 0xFE10 && codePoint <= 0xFE6F)
+                // Full-width ASCII variants.
                 || (codePoint >= 0xFF00 && codePoint <= 0xFF60)
+                // Full-width symbol variants.
                 || (codePoint >= 0xFFE0 && codePoint <= 0xFFE6)
+                // Emoji and pictographs.
                 || (codePoint >= 0x1F300 && codePoint <= 0x1FAFF);
         }
     }
