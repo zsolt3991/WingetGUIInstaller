@@ -117,6 +117,40 @@ public class TabularDataDecoderTests
         Assert.Equal("sourceA", package.Source);
     }
 
+    [Fact]
+    public void ParseResultsTable_ParsesFullyDoubleWidthColumns()
+    {
+        var commandOutput = new[]
+        {
+            "Name".PadRight(16) + "Id".PadRight(34) + "Version".PadRight(13) + "Source",
+            new string('-', 69),
+            "应用程序测试甲乙" + "Example.Publisher.App".PadRight(34) + "2.10.91.91".PadRight(13) + "sourceA"
+        };
+
+        var package = Assert.Single(TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput));
+
+        Assert.Equal("应用程序测试甲乙", package.Name);
+        Assert.Equal("Example.Publisher.App", package.Id);
+        Assert.Equal("2.10.91.91", package.Version);
+        Assert.Equal("sourceA", package.Source);
+    }
+
+    [Fact]
+    public void ParseResultsTable_ReturnsRowsBeforeMalformedText()
+    {
+        var commandOutput = new[]
+        {
+            "Name".PadRight(16) + "Id".PadRight(34) + "Version".PadRight(13) + "Source",
+            new string('-', 69),
+            "AppA".PadRight(16) + "Example.AppA".PadRight(34) + "1.0".PadRight(13) + "sourceA",
+            new string('\uD800', 16) + "Example.Invalid".PadRight(34) + "1.0".PadRight(13) + "sourceA"
+        };
+
+        var package = Assert.Single(TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput));
+
+        Assert.Equal("AppA", package.Name);
+    }
+
     private static void AssertPackage(
         WingetPackageEntry package,
         string name,

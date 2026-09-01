@@ -31,29 +31,36 @@ namespace WingetHelper.Decoders
 
             foreach (var dataLine in outputLines.Skip(separatorIndex + 1))
             {
-                if (string.IsNullOrWhiteSpace(dataLine))
+                try
                 {
-                    if (tableStarted)
+                    if (string.IsNullOrWhiteSpace(dataLine))
                     {
-                        break;
+                        if (tableStarted)
+                        {
+                            break;
+                        }
+
+                        continue;
                     }
 
-                    continue;
-                }
-
-                if (!IsLikelyDataRow(dataLine, columns))
-                {
-                    if (tableStarted)
+                    if (!IsLikelyDataRow(dataLine, columns))
                     {
-                        break;
+                        if (tableStarted)
+                        {
+                            break;
+                        }
+
+                        continue;
                     }
 
-                    continue;
+                    tableStarted = true;
+                    var values = ParseDataLine(dataLine, columns);
+                    results.Add(CreateResult<TResultType>(columns, values, properties));
                 }
-
-                tableStarted = true;
-                var values = ParseDataLine(dataLine, columns);
-                results.Add(CreateResult<TResultType>(columns, values, properties));
+                catch (ArgumentException)
+                {
+                    break;
+                }
             }
 
             return results;
@@ -83,7 +90,7 @@ namespace WingetHelper.Decoders
                 .Where(column => !column.IsLastColumn)
                 .Sum(column => column.MaxLength);
 
-            return dataLine.Length >= minimumWidth;
+            return GetStringDisplayWidth(dataLine) >= minimumWidth;
         }
 
         private static List<string> ParseDataLine(string dataLine, List<ColumnSpec> columns)
@@ -174,6 +181,19 @@ namespace WingetHelper.Decoders
         {
             var codePoint = char.ConvertToUtf32(textElement, 0);
             return IsDoubleWidth(codePoint) ? 2 : 1;
+        }
+
+        private static int GetStringDisplayWidth(string value)
+        {
+            var textElements = StringInfo.GetTextElementEnumerator(value);
+            var displayWidth = 0;
+
+            while (textElements.MoveNext())
+            {
+                displayWidth += GetDisplayWidth(textElements.GetTextElement());
+            }
+
+            return displayWidth;
         }
 
         private static bool IsDoubleWidth(int codePoint)
