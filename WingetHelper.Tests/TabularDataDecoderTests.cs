@@ -88,7 +88,7 @@ public class TabularDataDecoderTests
         const string emSpace = "\u2003";
         var commandOutput = new[]
         {
-            $"Name{emSpace}{emSpace}{emSpace}Id{emSpace}{emSpace}{emSpace}Version{emSpace}{emSpace}{emSpace}Available{emSpace}{emSpace}{emSpace}Source",
+            $"Name{emSpace}{emSpace}{emSpace}Id{emSpace}{emSpace}{emSpace}{emSpace}Version{emSpace}{emSpace}{emSpace}Available{emSpace}{emSpace}{emSpace}Source",
             new string('-', 50),
             $"Café{emSpace}{emSpace}{emSpace}Foo.😀{"1.0".PadRight(10, '\u2003')}{"1.1".PadRight(12, '\u2003')}sourceA"
         };
@@ -96,6 +96,25 @@ public class TabularDataDecoderTests
         var package = Assert.Single(TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput));
 
         AssertPackage(package, "Café", "Foo.😀", "1.0", "1.1", "sourceA");
+    }
+
+    [Fact]
+    public void ParseResultsTable_ParsesDoubleWidthCharacters()
+    {
+        var commandOutput = new[]
+        {
+            "Name".PadRight(16) + "Id".PadRight(34) + "Version".PadRight(13) + "Source",
+            new string('-', 69),
+            "应用程序" + new string(' ', 8) + "Example.Publisher.App".PadRight(34) + "2.10.91.91".PadRight(13) + "sourceA"
+        };
+
+        var package = Assert.Single(TabularDataDecoder.ParseResultsTable<WingetPackageEntry>(commandOutput));
+
+        Assert.Equal("应用程序", package.Name);
+        Assert.Equal("Example.Publisher.App", package.Id);
+        Assert.Equal("2.10.91.91", package.Version);
+        Assert.Null(package.Available);
+        Assert.Equal("sourceA", package.Source);
     }
 
     private static void AssertPackage(

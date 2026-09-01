@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using WingetHelper.Models;
 
 namespace WingetHelper.Decoders
@@ -88,25 +89,17 @@ namespace WingetHelper.Decoders
         private static List<string> ParseDataLine(string dataLine, List<ColumnSpec> columns)
         {
             var dataFields = new List<string>();
-            var stringInfo = new StringInfo(dataLine);
-            var consumedLength = 0;
+            var consumedWidth = 0;
             foreach (var column in columns)
             {
                 if (column.IsLastColumn)
                 {
-                    if (consumedLength < stringInfo.LengthInTextElements)
-                    {
-                        dataFields.Add(stringInfo.SubstringByTextElements(consumedLength).Trim());
-                    }
-                    else
-                    {
-                        dataFields.Add(string.Empty);
-                    }
+                    dataFields.Add(SubstringByDisplayWidth(dataLine, consumedWidth).Trim());
                 }
                 else
                 {
-                    dataFields.Add(stringInfo.SubstringByTextElements(consumedLength, column.MaxLength).Trim());
-                    consumedLength += column.MaxLength;
+                    dataFields.Add(SubstringByDisplayWidth(dataLine, consumedWidth, column.MaxLength).Trim());
+                    consumedWidth += column.MaxLength;
                 }
             }
             return dataFields;
@@ -116,7 +109,9 @@ namespace WingetHelper.Decoders
         {
             List<ColumnSpec> columns = new List<ColumnSpec>();
             var currentStart = 0;
-            var currentLength = 0;
+            var currentTextElementLength = 0;
+            var currentDisplayWidth = 0;
+            var textElementIndex = 0;
             bool columnDetected = true;
 
             var headerStringInfo = new StringInfo(headerLine);
@@ -135,18 +130,64 @@ namespace WingetHelper.Decoders
                 // Reached a non whitespace character which is the beginning of the next header
                 if ((!char.IsWhiteSpace(textElement, 0) && !columnDetected))
                 {
-                    var text = headerStringInfo.SubstringByTextElements(currentStart, currentLength);
-                    columns.Add(new ColumnSpec(text.Trim(), currentLength));
-                    currentStart = iterator.ElementIndex;
-                    currentLength = 0;
+                    var text = headerStringInfo.SubstringByTextElements(currentStart, currentTextElementLength);
+                    columns.Add(new ColumnSpec(text.Trim(), currentDisplayWidth));
+                    currentStart = textElementIndex;
+                    currentTextElementLength = 0;
+                    currentDisplayWidth = 0;
                     columnDetected = true;
                 }
-                currentLength++;
+                currentTextElementLength++;
+                currentDisplayWidth += GetDisplayWidth(textElement);
+                textElementIndex++;
             }
 
             // Add the remaining data as the last column
-            columns.Add(new ColumnSpec(headerStringInfo.SubstringByTextElements(currentStart).Trim(), currentLength, true));
+            columns.Add(new ColumnSpec(headerStringInfo.SubstringByTextElements(currentStart).Trim(), currentDisplayWidth, true));
             return columns;
+        }
+
+        private static string SubstringByDisplayWidth(string value, int startWidth, int maximumWidth = int.MaxValue)
+        {
+            var textElements = StringInfo.GetTextElementEnumerator(value);
+            var displayWidth = 0;
+            var result = new StringBuilder();
+
+            while (textElements.MoveNext())
+            {
+                var textElement = textElements.GetTextElement();
+                var textElementWidth = GetDisplayWidth(textElement);
+
+                if (displayWidth >= startWidth
+                    && (maximumWidth == int.MaxValue || displayWidth + textElementWidth <= startWidth + maximumWidth))
+                {
+                    result.Append(textElement);
+                }
+
+                displayWidth += textElementWidth;
+            }
+
+            return result.ToString();
+        }
+
+        private static int GetDisplayWidth(string textElement)
+        {
+            var codePoint = char.ConvertToUtf32(textElement, 0);
+            return IsDoubleWidth(codePoint) ? 2 : 1;
+        }
+
+        private static bool IsDoubleWidth(int codePoint)
+        {
+            return (codePoint >= 0x1100 && codePoint <= 0x115F)
+                || codePoint == 0x2329
+                || codePoint == 0x232A
+                || (codePoint >= 0x2E80 && codePoint <= 0xA4CF)
+                || (codePoint >= 0xAC00 && codePoint <= 0xD7A3)
+                || (codePoint >= 0xF900 && codePoint <= 0xFAFF)
+                || (codePoint >= 0xFE10 && codePoint <= 0xFE6F)
+                || (codePoint >= 0xFF00 && codePoint <= 0xFF60)
+                || (codePoint >= 0xFFE0 && codePoint <= 0xFFE6)
+                || (codePoint >= 0x1F300 && codePoint <= 0x1FAFF);
         }
     }
 }
