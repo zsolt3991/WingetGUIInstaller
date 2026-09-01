@@ -1,10 +1,8 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using WingetHelper.Models;
 
 namespace WingetHelper.Decoders
@@ -13,81 +11,69 @@ namespace WingetHelper.Decoders
     {
         internal static IEnumerable<TResultType> ParseResultsTable<TResultType>(IEnumerable<string> commandResult)
         {
-            var dataAsCsv = ConvertAsciiTableToCsv(commandResult);
-            var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HeaderValidated = null,
-                MissingFieldFound = null
-            };
-
-            using (var reader = new CsvReader(new StringReader(dataAsCsv), configuration))
-            {
-                return reader.GetRecords<TResultType>().ToList();
-            }
-        }
-
-        private static string ConvertAsciiTableToCsv(IEnumerable<string> output)
-        {
-            var outputLines = output.ToList();
-
-            // Find header
+            var outputLines = commandResult.ToList();
             var separatorIndex = outputLines.FindLastIndex(line =>
                 !string.IsNullOrWhiteSpace(line) && line.Trim().All(c => c == '-'));
 
             if (separatorIndex <= 0)
             {
-                return string.Empty;
+                return Enumerable.Empty<TResultType>();
             }
 
-            // Detect column names from line above separator
             List<ColumnSpec> columns = DetectColumns(outputLines[separatorIndex - 1]);
+            var properties = typeof(TResultType)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(property => property.CanWrite)
+                .ToDictionary(property => property.Name, StringComparer.OrdinalIgnoreCase);
+            var results = new List<TResultType>();
+            var tableStarted = false;
 
-            if (columns != default)
+            foreach (var dataLine in outputLines.Skip(separatorIndex + 1))
             {
-                var csvBuilder = new StringBuilder();
-
-                //Add header to csv string
-                csvBuilder.AppendLine(string.Join(',', columns.Select(column => column.Name)));
-
-                //Parse table data ignoring any malformed lines after the separator
-                var tableStarted = false;
-                foreach (var dataLine in outputLines.Skip(separatorIndex + 1))
+                if (string.IsNullOrWhiteSpace(dataLine))
                 {
-                    if (string.IsNullOrWhiteSpace(dataLine))
-                    {
-                        if (tableStarted)
-                        {
-                            break;
-                        }
-
-                        continue;
-                    }
-
-                    if (!IsLikelyDataRow(dataLine, columns))
-                    {
-                        if (tableStarted)
-                        {
-                            break;
-                        }
-
-                        continue;
-                    }
-
-                    tableStarted = true;
-                    try
-                    {
-                        csvBuilder.AppendLine(string.Join(',', ParseDataLine(dataLine, columns)));
-                    }
-                    catch
+                    if (tableStarted)
                     {
                         break;
                     }
+
+                    continue;
                 }
 
-                return csvBuilder.ToString();
+                if (!IsLikelyDataRow(dataLine, columns))
+                {
+                    if (tableStarted)
+                    {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                tableStarted = true;
+                var values = ParseDataLine(dataLine, columns);
+                results.Add(CreateResult<TResultType>(columns, values, properties));
             }
 
-            return string.Empty;
+            return results;
+        }
+
+        private static TResultType CreateResult<TResultType>(
+            IReadOnlyList<ColumnSpec> columns,
+            IReadOnlyList<string> values,
+            IReadOnlyDictionary<string, PropertyInfo> properties)
+        {
+            var result = (TResultType)Activator.CreateInstance(typeof(TResultType));
+
+            for (var index = 0; index < columns.Count; index++)
+            {
+                if (properties.TryGetValue(columns[index].Name, out var property))
+                {
+                    property.SetValue(result, values[index]);
+                }
+            }
+
+            return result;
         }
 
         private static bool IsLikelyDataRow(string dataLine, List<ColumnSpec> columns)

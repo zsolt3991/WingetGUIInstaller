@@ -30,7 +30,6 @@ updates:
           - "xunit*"
       other-dependencies:
         patterns:
-          - "CsvHelper"
           - "Octokit"
           - "Velopack"
 
