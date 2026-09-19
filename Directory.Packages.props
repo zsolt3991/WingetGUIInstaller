@@ -15,13 +15,13 @@
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageVersion Include="Microsoft.Win32.SystemEvents" Version="10.0.11" />
-    <PackageVersion Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.251221100" />
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <PackageVersion Include="Microsoft.Win32.SystemEvents" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.260903100" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
