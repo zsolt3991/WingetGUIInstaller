@@ -1,7 +1,10 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/"
+    directories:
+      - "/WingetGUIInstaller"
+      - "/WingetHelper"
+      - "/WingetHelper.Tests"
     schedule:
       interval: "weekly"
     commit-message:
