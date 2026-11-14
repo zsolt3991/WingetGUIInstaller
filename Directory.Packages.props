@@ -21,7 +21,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="Microsoft.Win32.SystemEvents" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.260903100" />
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.4" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.5" />
     <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
