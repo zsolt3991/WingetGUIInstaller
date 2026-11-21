@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net11.0;net10.0;netstandard2.1</TargetFrameworks>
     <PackageId>zsolt3991.WingetHelper</PackageId>
     <Authors>zsolt9331</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
