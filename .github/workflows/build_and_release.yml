@@ -139,6 +139,8 @@ jobs:
         run: msbuild ${{ env.Solution_Path }} /t:Restore /p:Configuration=${{ matrix.configuration }}
 
       - name: Build packaged app
+        env:
+          PackageCertificatePassword: ${{ secrets.CERTIFICATE_PASSWORD }}
         run: msbuild ${{env.Solution_Path}} /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:AppxPackageDir=Packages\ /p:GenerateAppxPackageOnBuild=true
 
       - name: Remove PFX
