@@ -10,7 +10,7 @@
 
   <Identity
     Name="WingetGUIInstaller"
-    Publisher="CN=sideload"
+    Publisher="CN=wingetguiinstaller_sideload"
     Version="0.0.1.0" />
 
   <Properties>
