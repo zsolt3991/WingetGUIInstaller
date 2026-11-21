@@ -63,7 +63,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
           cache: true
           cache-dependency-path: |
             WingetHelper/WingetHelper.csproj
@@ -109,7 +109,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
           cache: true
           cache-dependency-path: |
             WingetGUIInstaller/WingetGUIInstaller.csproj
@@ -169,7 +169,7 @@ jobs:
 
     env:
       Project_Path: WingetGUIInstaller/WingetGUIInstaller.csproj
-      Project_Target_Framework: net10.0-windows10.0.26100.0
+      Project_Target_Framework: net11.0-windows10.0.26100.0
       Project_Directory: WingetGUIInstaller
       VELOPACK_CHANNEL: win-${{ matrix.platform }}
 
@@ -182,7 +182,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
           cache: true
           cache-dependency-path: |
             WingetGUIInstaller/WingetGUIInstaller.csproj
@@ -234,7 +234,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

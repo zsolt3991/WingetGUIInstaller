@@ -11,9 +11,9 @@
   </Configurations>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
-    <File Path=".github/workflows/app_build.yml" />
-    <File Path=".github/workflows/nuget_build.yml" />
-    <File Path=".github/workflows/unpackaged_app_build.yml" />
+    <File Path=".github/workflows/build_and_release.yml" />
+    <File Path=".github/workflows/codeql.yml" />
+    <File Path=".github/workflows/pr_build.yml" />
     <File Path="Directory.Build.props" />
     <File Path="LICENSE" />
     <File Path="NuGet.config" />
