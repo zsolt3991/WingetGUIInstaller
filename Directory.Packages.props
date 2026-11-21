@@ -24,7 +24,7 @@
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.7.0" />
     <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
-    <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="11.0.0" />
     <PackageVersion Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="Velopack" Version="1.2.161" />
